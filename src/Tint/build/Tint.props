@@ -1,0 +1,19 @@
+<Project>
+  <!-- Grammars and themes the Tint source generator compiles into the consuming assembly. -->
+  <ItemGroup>
+    <AvailableItemName Include="TintGrammar" />
+    <AvailableItemName Include="TintTheme" />
+  </ItemGroup>
+  <ItemGroup>
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="TintKind" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Name" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Namespace" />
+    <CompilerVisibleProperty Include="RootNamespace" />
+  </ItemGroup>
+  <Target Name="TintAddAdditionalFiles" BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun;CoreCompile">
+    <ItemGroup>
+      <AdditionalFiles Include="@(TintGrammar)" TintKind="Grammar" />
+      <AdditionalFiles Include="@(TintTheme)" TintKind="Theme" />
+    </ItemGroup>
+  </Target>
+</Project>

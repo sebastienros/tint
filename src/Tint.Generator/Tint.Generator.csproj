@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Build-time C# source generator for TintGrammar and TintTheme items. It targets netstandard2.0 so any Roslyn host
+       loads it (dotnet build, msbuild, and .NET Framework-hosted IDE analyzer hosts). It is packed inside the Tint
+       package under analyzers/dotnet/cs, not as a package of its own. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Tint.Generator</AssemblyName>
+    <RootNamespace>Tint.Generator</RootNamespace>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IncludeSymbols>false</IncludeSymbols>
+    <!-- Only the polyfills the generator uses; extend the allowlist as code needs them. -->
+    <MeziantouPolyfill_IncludedPolyfills>T:System.Runtime.CompilerServices.IsExternalInit|T:System.Diagnostics.CodeAnalysis.</MeziantouPolyfill_IncludedPolyfills>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Meziantou.Polyfill" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

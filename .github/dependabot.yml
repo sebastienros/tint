@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      nuget:
+        patterns:
+          - "*"
+    ignore:
+      # Pinned to the Roslyn shipped with the base .NET 10.0.100 SDK so the generator does not force a newer SDK.
+      - dependency-name: Microsoft.CodeAnalysis.CSharp
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
