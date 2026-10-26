@@ -1,0 +1,2551 @@
+{
+  "source": "https://github.com/microsoft/vscode/tree/3ac0f0563e382d8e3480c787d04a2d05afca6746/extensions",
+  "commit": "3ac0f0563e382d8e3480c787d04a2d05afca6746",
+  "grammars": [
+    {
+      "scopeName": "documentation.injection.js.jsx",
+      "language": null,
+      "path": "typescript-basics/syntaxes/jsdoc.js.injection.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": [
+        "source.js",
+        "source.js.jsx"
+      ],
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/TypeScript-TmLanguage",
+        "commitHash": "48f608692aa6d6ad7bd65b478187906c798234a8",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "documentation.injection.ts",
+      "language": null,
+      "path": "typescript-basics/syntaxes/jsdoc.ts.injection.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": [
+        "source.ts",
+        "source.tsx"
+      ],
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/TypeScript-TmLanguage",
+        "commitHash": "48f608692aa6d6ad7bd65b478187906c798234a8",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "markdown.math.block",
+      "language": null,
+      "path": "markdown-math/syntaxes/md-math-block.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.embedded.math.markdown": "latex"
+      },
+      "injectTo": [
+        "text.html.markdown"
+      ],
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/James-Yu/LaTeX-Workshop",
+        "commitHash": "e4cd86f1731546c2cdde0cc93717ca3fec2da0ba",
+        "license": "MIT",
+        "version": "8.19.1"
+      }
+    },
+    {
+      "scopeName": "markdown.math.codeblock",
+      "language": null,
+      "path": "markdown-math/syntaxes/md-math-fence.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.embedded.math.markdown": "latex"
+      },
+      "injectTo": [
+        "text.html.markdown"
+      ],
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/James-Yu/LaTeX-Workshop",
+        "commitHash": "e4cd86f1731546c2cdde0cc93717ca3fec2da0ba",
+        "license": "MIT",
+        "version": "8.19.1"
+      }
+    },
+    {
+      "scopeName": "markdown.math.inline",
+      "language": null,
+      "path": "markdown-math/syntaxes/md-math-inline.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.embedded.math.markdown": "latex",
+        "punctuation.definition.math.end.markdown": "latex"
+      },
+      "injectTo": [
+        "text.html.markdown"
+      ],
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/James-Yu/LaTeX-Workshop",
+        "commitHash": "e4cd86f1731546c2cdde0cc93717ca3fec2da0ba",
+        "license": "MIT",
+        "version": "8.19.1"
+      }
+    },
+    {
+      "scopeName": "source.asp.vb.net",
+      "language": "vb",
+      "path": "vb/syntaxes/asp-vb-net.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Visual Basic",
+        "vb"
+      ],
+      "extensions": [
+        ".vb",
+        ".brs",
+        ".vbs",
+        ".bas",
+        ".vba"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/asp.vb.net.tmbundle",
+        "commitHash": "72d44550b3286d0382d7be0624140cf97857ff69",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.batchfile",
+      "language": "bat",
+      "path": "bat/syntaxes/batchfile.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Batch",
+        "bat"
+      ],
+      "extensions": [
+        ".bat",
+        ".cmd"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/mmims/language-batchfile",
+        "commitHash": "6154ae25a24e01ac9329e7bcf958e093cd8733a9",
+        "license": "MIT",
+        "version": "0.7.6"
+      }
+    },
+    {
+      "scopeName": "source.c",
+      "language": "c",
+      "path": "cpp/syntaxes/c.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "C",
+        "c"
+      ],
+      "extensions": [
+        ".c",
+        ".i"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jeff-hykin/better-c-syntax",
+        "commitHash": "34712a6106a4ffb0a04d2fa836fd28ff6c5849a4",
+        "license": "MIT",
+        "version": "1.13.2"
+      }
+    },
+    {
+      "scopeName": "source.c.platform",
+      "language": null,
+      "path": "cpp/syntaxes/platform.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/c.tmbundle",
+        "commitHash": "60daf83b9d45329524f7847a75e9298b3aae5805",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.clojure",
+      "language": "clojure",
+      "path": "clojure/syntaxes/clojure.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Clojure",
+        "clojure"
+      ],
+      "extensions": [
+        ".clj",
+        ".cljs",
+        ".cljc",
+        ".cljx",
+        ".clojure",
+        ".edn"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/atom/language-clojure",
+        "commitHash": "45bdb881501d0b8f8b707ca1d3fcc8b4b99fca03",
+        "license": "MIT",
+        "version": "0.22.8"
+      }
+    },
+    {
+      "scopeName": "source.coffee",
+      "language": "coffeescript",
+      "path": "coffeescript/syntaxes/coffeescript.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "CoffeeScript",
+        "coffeescript",
+        "coffee"
+      ],
+      "extensions": [
+        ".coffee",
+        ".cson",
+        ".iced"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/atom/language-coffee-script",
+        "commitHash": "0f6db9143663e18b1ad00667820f46747dba495e",
+        "license": "MIT",
+        "version": "0.49.3"
+      }
+    },
+    {
+      "scopeName": "source.cpp",
+      "language": "cpp",
+      "path": "cpp/syntaxes/cpp.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "C++",
+        "Cpp",
+        "cpp"
+      ],
+      "extensions": [
+        ".cpp",
+        ".cppm",
+        ".cc",
+        ".ccm",
+        ".cxx",
+        ".cxxm",
+        ".c++",
+        ".c++m",
+        ".hpp",
+        ".hh",
+        ".hxx",
+        ".h++",
+        ".h",
+        ".ii",
+        ".ino",
+        ".inl",
+        ".ipp",
+        ".ixx",
+        ".mpp",
+        ".mxx",
+        ".tpp",
+        ".txx",
+        ".hpp.in",
+        ".h.in"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jeff-hykin/better-cpp-syntax",
+        "commitHash": "071dd6ecc9eda347bd84c8aa0e0b557396cb6a40",
+        "license": "MIT",
+        "version": "1.27.1"
+      }
+    },
+    {
+      "scopeName": "source.cpp.embedded.latex",
+      "language": "cpp_embedded_latex",
+      "path": "latex/syntaxes/cpp-grammar-bailout.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [],
+      "extensions": [],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
+        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "license": "MIT",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "scopeName": "source.cpp.embedded.macro",
+      "language": "cpp",
+      "path": "cpp/syntaxes/cpp.embedded.macro.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "C++",
+        "Cpp",
+        "cpp"
+      ],
+      "extensions": [
+        ".cpp",
+        ".cppm",
+        ".cc",
+        ".ccm",
+        ".cxx",
+        ".cxxm",
+        ".c++",
+        ".c++m",
+        ".hpp",
+        ".hh",
+        ".hxx",
+        ".h++",
+        ".h",
+        ".ii",
+        ".ino",
+        ".inl",
+        ".ipp",
+        ".ixx",
+        ".mpp",
+        ".mxx",
+        ".tpp",
+        ".txx",
+        ".hpp.in",
+        ".h.in"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jeff-hykin/better-cpp-syntax",
+        "commitHash": "071dd6ecc9eda347bd84c8aa0e0b557396cb6a40",
+        "license": "MIT",
+        "version": "1.27.1"
+      }
+    },
+    {
+      "scopeName": "source.cs",
+      "language": "csharp",
+      "path": "csharp/syntaxes/csharp.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": {
+        "meta.interpolation": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "keyword.operator.relational.cs",
+        "keyword.operator.arrow.cs",
+        "punctuation.accessor.pointer.cs",
+        "keyword.operator.bitwise.shift.cs",
+        "keyword.operator.assignment.compound.bitwise.cs"
+      ],
+      "aliases": [
+        "C#",
+        "csharp"
+      ],
+      "extensions": [
+        ".cs",
+        ".csx",
+        ".cake"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/dotnet/csharp-tmLanguage",
+        "commitHash": "c2719309e91d2e26be21fce0ecaaca86c7b48ce4",
+        "license": "MIT",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "scopeName": "source.css",
+      "language": "css",
+      "path": "css/syntaxes/css.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": {
+        "meta.function.url string.quoted": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "CSS",
+        "css"
+      ],
+      "extensions": [
+        ".css"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/vscode-css",
+        "commitHash": "de9e6beee756760f31b15efbd782735fc25de3db",
+        "license": "MIT License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.css.less",
+      "language": "less",
+      "path": "less/syntaxes/less.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Less",
+        "less"
+      ],
+      "extensions": [
+        ".less"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/radium-v/Better-Less",
+        "commitHash": "63c0cba9792e49e255cce0f6dd03250fb30591e6",
+        "license": "MIT",
+        "version": "0.6.1"
+      }
+    },
+    {
+      "scopeName": "source.css.scss",
+      "language": "scss",
+      "path": "scss/syntaxes/scss.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "SCSS",
+        "scss"
+      ],
+      "extensions": [
+        ".scss"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/atom/language-sass",
+        "commitHash": "303bbf0c250fe380b9e57375598cfd916110758b",
+        "license": "MIT",
+        "version": "0.61.4"
+      }
+    },
+    {
+      "scopeName": "source.cuda-cpp",
+      "language": "cuda-cpp",
+      "path": "cpp/syntaxes/cuda-cpp.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "CUDA C++"
+      ],
+      "extensions": [
+        ".cu",
+        ".cuh"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/NVIDIA/cuda-cpp-grammar",
+        "commitHash": "81e88eaec5170aa8585736c63627c73e3589998c",
+        "license": "MIT",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.dart",
+      "language": "dart",
+      "path": "dart/syntaxes/dart.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Dart"
+      ],
+      "extensions": [
+        ".dart"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/dart-lang/dart-syntax-highlight",
+        "commitHash": "b308b4b3502c8639149e63d74844da51031b5f47",
+        "license": "BSD",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.diff",
+      "language": "diff",
+      "path": "diff/syntaxes/diff.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Diff",
+        "diff"
+      ],
+      "extensions": [
+        ".diff",
+        ".patch",
+        ".rej"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/diff.tmbundle",
+        "commitHash": "0593bb775eab1824af97ef2172fd38822abd97d7",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.dockerfile",
+      "language": "dockerfile",
+      "path": "docker/syntaxes/docker.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Docker",
+        "Dockerfile",
+        "Containerfile"
+      ],
+      "extensions": [
+        ".dockerfile",
+        ".containerfile"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/moby/moby",
+        "commitHash": "bea959c7b793b32a893820b97c4eadc7c87fabb0",
+        "license": "Apache-2.0",
+        "version": "28.3.3"
+      }
+    },
+    {
+      "scopeName": "source.dotenv",
+      "language": "dotenv",
+      "path": "dotenv/syntaxes/dotenv.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Dotenv"
+      ],
+      "extensions": [
+        ".env"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/dotenv-org/dotenv-vscode",
+        "commitHash": "e7e41baa5b23e01c1ff0567a4e596c24860e7def",
+        "license": "MIT License",
+        "version": "0.26.0"
+      }
+    },
+    {
+      "scopeName": "source.fsharp",
+      "language": "fsharp",
+      "path": "fsharp/syntaxes/fsharp.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "F#",
+        "FSharp",
+        "fsharp"
+      ],
+      "extensions": [
+        ".fs",
+        ".fsi",
+        ".fsx",
+        ".fsscript"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/ionide/ionide-fsgrammar",
+        "commitHash": "0cb968a4b8fdb2e0656b95342cdffbeff04a1248",
+        "license": "MIT",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.go",
+      "language": "go",
+      "path": "go/syntaxes/go.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Go"
+      ],
+      "extensions": [
+        ".go"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/worlpaker/go-syntax",
+        "commitHash": "c74e22eb9ef32958e3edd130ea750ce78d8b8241",
+        "license": "MIT",
+        "version": "0.8.6"
+      }
+    },
+    {
+      "scopeName": "source.groovy",
+      "language": "groovy",
+      "path": "groovy/syntaxes/groovy.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Groovy",
+        "groovy"
+      ],
+      "extensions": [
+        ".groovy",
+        ".gvy",
+        ".gradle",
+        ".jenkinsfile",
+        ".nf"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/groovy.tmbundle",
+        "commitHash": "85d8f7c97ae473ccb9473f6c8d27e4ec957f4be1",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.hlsl",
+      "language": "hlsl",
+      "path": "hlsl/syntaxes/hlsl.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "HLSL",
+        "hlsl"
+      ],
+      "extensions": [
+        ".hlsl",
+        ".hlsli",
+        ".fx",
+        ".fxh",
+        ".vsh",
+        ".psh",
+        ".cginc",
+        ".compute"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/tgjones/shaders-tmLanguage",
+        "commitHash": "87c0dca3a39170dbd7ee7e277db4f915fb2de14a",
+        "license": "MIT",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "scopeName": "source.ignore",
+      "language": "ignore",
+      "path": "git-base/syntaxes/ignore.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Ignore",
+        "ignore"
+      ],
+      "extensions": [
+        ".gitignore_global",
+        ".gitignore",
+        ".git-blame-ignore-revs",
+        ".npmignore"
+      ],
+      "upstream": null
+    },
+    {
+      "scopeName": "source.ini",
+      "language": "ini",
+      "path": "ini/syntaxes/ini.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Ini",
+        "ini"
+      ],
+      "extensions": [
+        ".ini"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/ini.tmbundle",
+        "commitHash": "2af0cbb0704940f967152616f2f1ff0aae6287a6",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.ini",
+      "language": "properties",
+      "path": "ini/syntaxes/ini.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Properties",
+        "properties"
+      ],
+      "extensions": [
+        ".conf",
+        ".properties",
+        ".cfg",
+        ".directory",
+        ".gitattributes",
+        ".gitconfig",
+        ".gitmodules",
+        ".editorconfig",
+        ".repo",
+        ".npmrc"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/ini.tmbundle",
+        "commitHash": "2af0cbb0704940f967152616f2f1ff0aae6287a6",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.java",
+      "language": "java",
+      "path": "java/syntaxes/java.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Java",
+        "java"
+      ],
+      "extensions": [
+        ".java",
+        ".jav"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/redhat-developer/vscode-java",
+        "commitHash": "f09b712f5d6d6339e765f58c8dfab3f78a378183",
+        "license": "MIT",
+        "version": "1.26.0"
+      }
+    },
+    {
+      "scopeName": "source.js",
+      "language": "javascript",
+      "path": "javascript/syntaxes/JavaScript.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.tag.js": "jsx-tags",
+        "meta.tag.without-attributes.js": "jsx-tags",
+        "meta.tag.attributes.js": "javascript",
+        "meta.embedded.expression.js": "javascript"
+      },
+      "injectTo": null,
+      "tokenTypes": {
+        "punctuation.definition.template-expression": "other",
+        "entity.name.type.instance.jsdoc": "other",
+        "entity.name.function.tagged-template": "other",
+        "meta.import string.quoted": "other",
+        "variable.other.jsdoc": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "JavaScript",
+        "javascript",
+        "js"
+      ],
+      "extensions": [
+        ".js",
+        ".es6",
+        ".mjs",
+        ".cjs",
+        ".pac"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/TypeScript-TmLanguage",
+        "commitHash": "3133e3d914db9a2bb8812119f9273727a305f16b",
+        "license": "MIT",
+        "version": "0.0.1"
+      }
+    },
+    {
+      "scopeName": "source.js.jsx",
+      "language": "javascriptreact",
+      "path": "javascript/syntaxes/JavaScriptReact.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.tag.js": "jsx-tags",
+        "meta.tag.without-attributes.js": "jsx-tags",
+        "meta.tag.attributes.js.jsx": "javascriptreact",
+        "meta.embedded.expression.js": "javascriptreact"
+      },
+      "injectTo": null,
+      "tokenTypes": {
+        "punctuation.definition.template-expression": "other",
+        "entity.name.type.instance.jsdoc": "other",
+        "entity.name.function.tagged-template": "other",
+        "meta.import string.quoted": "other",
+        "variable.other.jsdoc": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "JavaScript JSX",
+        "JavaScript React",
+        "jsx"
+      ],
+      "extensions": [
+        ".jsx"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/TypeScript-TmLanguage",
+        "commitHash": "3133e3d914db9a2bb8812119f9273727a305f16b",
+        "license": "MIT",
+        "version": "0.0.1"
+      }
+    },
+    {
+      "scopeName": "source.js.regexp",
+      "language": null,
+      "path": "javascript/syntaxes/Regular Expressions (JavaScript).tmLanguage",
+      "format": "plist",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": null
+    },
+    {
+      "scopeName": "source.json",
+      "language": "json",
+      "path": "json/syntaxes/JSON.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "JSON",
+        "json"
+      ],
+      "extensions": [
+        ".code-profile",
+        ".json",
+        ".bowerrc",
+        ".jscsrc",
+        ".webmanifest",
+        ".js.map",
+        ".css.map",
+        ".ts.map",
+        ".har",
+        ".jslintrc",
+        ".jsonld",
+        ".geojson",
+        ".ipynb",
+        ".vuerc",
+        ".tsbuildinfo"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/vscode-JSON.tmLanguage",
+        "commitHash": "9bd83f1c252b375e957203f21793316203f61f70",
+        "license": "MIT",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.json.comments",
+      "language": "jsonc",
+      "path": "json/syntaxes/JSONC.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "JSON with Comments"
+      ],
+      "extensions": [
+        ".code-workspace",
+        "language-configuration.json",
+        "icon-theme.json",
+        "color-theme.json",
+        ".jsonc",
+        ".eslintrc",
+        ".eslintrc.json",
+        ".jsfmtrc",
+        ".jshintrc",
+        ".swcrc",
+        ".hintrc",
+        ".babelrc",
+        ".toolset.jsonc"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/vscode-JSON.tmLanguage",
+        "commitHash": "9bd83f1c252b375e957203f21793316203f61f70",
+        "license": "MIT",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.json.comments.snippets",
+      "language": "snippets",
+      "path": "json/syntaxes/snippets.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Code Snippets"
+      ],
+      "extensions": [
+        ".code-snippets"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jeff-hykin/better-snippet-syntax",
+        "commitHash": "2b1bb124cb2b9c75c3c80eae1b8f3a043841d654",
+        "license": "MIT",
+        "version": "1.0.2"
+      }
+    },
+    {
+      "scopeName": "source.json.lines",
+      "language": "jsonl",
+      "path": "json/syntaxes/JSONL.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "JSON Lines"
+      ],
+      "extensions": [
+        ".jsonl",
+        ".ndjson"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/vscode-JSON.tmLanguage",
+        "commitHash": "9bd83f1c252b375e957203f21793316203f61f70",
+        "license": "MIT",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.julia",
+      "language": "julia",
+      "path": "julia/syntaxes/julia.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.embedded.inline.cpp": "cpp",
+        "meta.embedded.inline.javascript": "javascript",
+        "meta.embedded.inline.python": "python",
+        "meta.embedded.inline.r": "r",
+        "meta.embedded.inline.sql": "sql"
+      },
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Julia",
+        "julia"
+      ],
+      "extensions": [
+        ".jl"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/JuliaEditorSupport/atom-language-julia",
+        "commitHash": "dbaa99358d1dbc2fc6c337f0f6571060dbc4ee1f",
+        "license": "MIT",
+        "version": "0.23.0"
+      }
+    },
+    {
+      "scopeName": "source.lua",
+      "language": "lua",
+      "path": "lua/syntaxes/lua.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": {
+        "comment.line.double-dash.doc.lua": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Lua",
+        "lua"
+      ],
+      "extensions": [
+        ".lua"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/sumneko/lua.tmbundle",
+        "commitHash": "b295d83bf0e91b5d3a69eb097f9ed351623b95be",
+        "license": "TextMate Bundle License",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "source.makefile",
+      "language": "makefile",
+      "path": "make/syntaxes/make.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": {
+        "string.interpolated": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Makefile",
+        "makefile"
+      ],
+      "extensions": [
+        ".mak",
+        ".mk"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/fadeevab/make.tmbundle",
+        "commitHash": "1d4c0b541959995db098df751ffc129da39a294b",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.objc",
+      "language": "objective-c",
+      "path": "objective-c/syntaxes/objective-c.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Objective-C"
+      ],
+      "extensions": [
+        ".m"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jeff-hykin/better-objc-syntax",
+        "commitHash": "119b75fb1f4d3e8726fa62588e3b935e0b719294",
+        "license": "MIT",
+        "version": "0.2.0"
+      }
+    },
+    {
+      "scopeName": "source.objcpp",
+      "language": "objective-cpp",
+      "path": "objective-c/syntaxes/objective-c++.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Objective-C++"
+      ],
+      "extensions": [
+        ".mm"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jeff-hykin/better-objcpp-syntax",
+        "commitHash": "5a7eb15eee382dd5aa388bc04fdb60a0d2128e14",
+        "license": "MIT",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "scopeName": "source.perl",
+      "language": "perl",
+      "path": "perl/syntaxes/perl.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "variable.other.predefined.perl"
+      ],
+      "aliases": [
+        "Perl",
+        "perl"
+      ],
+      "extensions": [
+        ".pl",
+        ".pm",
+        ".pod",
+        ".t",
+        ".PL",
+        ".psgi"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/perl.tmbundle",
+        "commitHash": "a85927a902d6e5d7805f56a653f324d34dfad53a",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.perl.6",
+      "language": "raku",
+      "path": "perl/syntaxes/perl6.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Raku",
+        "Perl6",
+        "perl6"
+      ],
+      "extensions": [
+        ".raku",
+        ".rakumod",
+        ".rakutest",
+        ".rakudoc",
+        ".nqp",
+        ".p6",
+        ".pl6",
+        ".pm6"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/perl.tmbundle",
+        "commitHash": "a85927a902d6e5d7805f56a653f324d34dfad53a",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.php",
+      "language": "php",
+      "path": "php/syntaxes/php.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "PHP",
+        "php"
+      ],
+      "extensions": [
+        ".php",
+        ".php4",
+        ".php5",
+        ".phtml",
+        ".ctp"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/KapitanOczywisty/language-php",
+        "commitHash": "d94fd6b7dff1613d34bc0d36328f9982e65bd545",
+        "license": "MIT",
+        "version": "0.49.0"
+      }
+    },
+    {
+      "scopeName": "source.powershell",
+      "language": "powershell",
+      "path": "powershell/syntaxes/powershell.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "PowerShell",
+        "powershell",
+        "ps",
+        "ps1",
+        "pwsh"
+      ],
+      "extensions": [
+        ".ps1",
+        ".psm1",
+        ".psd1",
+        ".pssc",
+        ".psrc"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/PowerShell/EditorSyntax",
+        "commitHash": "23eed76d483c887a1608609e9dd57e09666411cc",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "source.python",
+      "language": "python",
+      "path": "python/syntaxes/MagicPython.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Python",
+        "py"
+      ],
+      "extensions": [
+        ".py",
+        ".rpy",
+        ".pyw",
+        ".cpy",
+        ".gyp",
+        ".gypi",
+        ".pyi",
+        ".ipy",
+        ".pyt"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/MagicStack/MagicPython",
+        "commitHash": "7d0f2b22a5ad8fccbd7341bc7b7a715169283044",
+        "license": "MIT",
+        "version": "1.1.1"
+      }
+    },
+    {
+      "scopeName": "source.r",
+      "language": "r",
+      "path": "r/syntaxes/r.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "R",
+        "r"
+      ],
+      "extensions": [
+        ".R",
+        ".Rhistory",
+        ".Rprofile",
+        ".rt"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/REditorSupport/vscode-R-syntax",
+        "commitHash": "b199996070723eefbe7a61e0384b2ae4768eb7f0",
+        "license": "MIT",
+        "version": "0.1.1"
+      }
+    },
+    {
+      "scopeName": "source.regexp.python",
+      "language": null,
+      "path": "python/syntaxes/MagicRegExp.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/MagicStack/MagicPython",
+        "commitHash": "7d0f2b22a5ad8fccbd7341bc7b7a715169283044",
+        "license": "MIT",
+        "version": "1.1.1"
+      }
+    },
+    {
+      "scopeName": "source.rst",
+      "language": "restructuredtext",
+      "path": "restructuredtext/syntaxes/rst.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "reStructuredText"
+      ],
+      "extensions": [
+        ".rst"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/trond-snekvik/vscode-rst",
+        "commitHash": "7f2d6bb4e20642b60f2979afcb594cfe4b48117a",
+        "license": "MIT",
+        "version": "1.5.3"
+      }
+    },
+    {
+      "scopeName": "source.ruby",
+      "language": "ruby",
+      "path": "ruby/syntaxes/ruby.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Ruby",
+        "rb"
+      ],
+      "extensions": [
+        ".rb",
+        ".rbx",
+        ".rjs",
+        ".gemspec",
+        ".rake",
+        ".ru",
+        ".erb",
+        ".podspec",
+        ".rbi"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/Shopify/ruby-lsp",
+        "commitHash": "e044408a069f43c892143f19c389628eebffbd01",
+        "license": "MIT License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "source.rust",
+      "language": "rust",
+      "path": "rust/syntaxes/rust.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Rust",
+        "rust"
+      ],
+      "extensions": [
+        ".rs"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/dustypomerleau/rust-syntax",
+        "commitHash": "ca34cf382a7b250144f2ccb99ff9af96912c79f2",
+        "license": "MIT",
+        "version": "0.6.1"
+      }
+    },
+    {
+      "scopeName": "source.sassdoc",
+      "language": null,
+      "path": "scss/syntaxes/sassdoc.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/atom/language-sass",
+        "commitHash": "303bbf0c250fe380b9e57375598cfd916110758b",
+        "license": "MIT",
+        "version": "0.61.4"
+      }
+    },
+    {
+      "scopeName": "source.shaderlab",
+      "language": "shaderlab",
+      "path": "shaderlab/syntaxes/shaderlab.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "ShaderLab",
+        "shaderlab"
+      ],
+      "extensions": [
+        ".shader"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/tgjones/shaders-tmLanguage",
+        "commitHash": "c72c8b39380ba5a86c58ceed053b5d965ebf38b3",
+        "license": "MIT",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "scopeName": "source.shell",
+      "language": "shellscript",
+      "path": "shellscript/syntaxes/shell-unix-bash.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": [
+        "*"
+      ],
+      "unbalancedBracketScopes": [
+        "meta.scope.case-pattern.shell"
+      ],
+      "aliases": [
+        "Shell Script",
+        "shellscript",
+        "bash",
+        "fish",
+        "sh",
+        "zsh",
+        "ksh",
+        "csh"
+      ],
+      "extensions": [
+        ".sh",
+        ".bash",
+        ".bashrc",
+        ".bash_aliases",
+        ".bash_profile",
+        ".bash_login",
+        ".ebuild",
+        ".eclass",
+        ".profile",
+        ".bash_logout",
+        ".xprofile",
+        ".xsession",
+        ".xsessionrc",
+        ".Xsession",
+        ".zsh",
+        ".zshrc",
+        ".zprofile",
+        ".zlogin",
+        ".zlogout",
+        ".zshenv",
+        ".zsh-theme",
+        ".fish",
+        ".ksh",
+        ".csh",
+        ".cshrc",
+        ".tcshrc",
+        ".yashrc",
+        ".yash_profile"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jeff-hykin/better-shell-syntax",
+        "commitHash": "35020b0bd79a90d3b262b4c13a8bb0b33adc1f45",
+        "license": "MIT",
+        "version": "1.8.7"
+      }
+    },
+    {
+      "scopeName": "source.sql",
+      "language": "sql",
+      "path": "sql/syntaxes/sql.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "MS SQL",
+        "T-SQL"
+      ],
+      "extensions": [
+        ".sql",
+        ".dsql"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/vscode-mssql",
+        "commitHash": "684648ee5414eb2d9df22b0392ef05079f91e44e",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "source.swift",
+      "language": "swift",
+      "path": "swift/syntaxes/swift.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Swift",
+        "swift"
+      ],
+      "extensions": [
+        ".swift"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jtbandes/swift-tmlanguage",
+        "commitHash": "2be007b6bc88e54a0edfd3c313ff31276edc923d",
+        "license": "MIT",
+        "version": null
+      }
+    },
+    {
+      "scopeName": "source.ts",
+      "language": "typescript",
+      "path": "typescript-basics/syntaxes/TypeScript.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": {
+        "punctuation.definition.template-expression": "other",
+        "entity.name.type.instance.jsdoc": "other",
+        "entity.name.function.tagged-template": "other",
+        "meta.import string.quoted": "other",
+        "variable.other.jsdoc": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "keyword.operator.relational",
+        "storage.type.function.arrow",
+        "keyword.operator.bitwise.shift",
+        "meta.brace.angle",
+        "punctuation.definition.tag",
+        "keyword.operator.assignment.compound.bitwise.ts"
+      ],
+      "aliases": [
+        "TypeScript",
+        "ts",
+        "typescript"
+      ],
+      "extensions": [
+        ".ts",
+        ".cts",
+        ".mts"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/TypeScript-TmLanguage",
+        "commitHash": "48f608692aa6d6ad7bd65b478187906c798234a8",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "source.tsx",
+      "language": "typescriptreact",
+      "path": "typescript-basics/syntaxes/TypeScriptReact.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.tag.tsx": "jsx-tags",
+        "meta.tag.without-attributes.tsx": "jsx-tags",
+        "meta.tag.attributes.tsx": "typescriptreact",
+        "meta.embedded.expression.tsx": "typescriptreact"
+      },
+      "injectTo": null,
+      "tokenTypes": {
+        "punctuation.definition.template-expression": "other",
+        "entity.name.type.instance.jsdoc": "other",
+        "entity.name.function.tagged-template": "other",
+        "meta.import string.quoted": "other",
+        "variable.other.jsdoc": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "keyword.operator.relational",
+        "storage.type.function.arrow",
+        "keyword.operator.bitwise.shift",
+        "punctuation.definition.tag",
+        "keyword.operator.assignment.compound.bitwise.ts"
+      ],
+      "aliases": [
+        "TypeScript JSX",
+        "TypeScript React",
+        "tsx"
+      ],
+      "extensions": [
+        ".tsx"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/TypeScript-TmLanguage",
+        "commitHash": "48f608692aa6d6ad7bd65b478187906c798234a8",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "source.yaml",
+      "language": "dockercompose",
+      "path": "yaml/syntaxes/yaml.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Compose",
+        "compose"
+      ],
+      "extensions": [],
+      "upstream": {
+        "repositoryUrl": "https://github.com/RedCMD/YAML-Syntax-Highlighter",
+        "commitHash": "53d38bbc66b704803de54ffce5b251bf97211c60",
+        "license": "MIT",
+        "version": "1.3.2"
+      }
+    },
+    {
+      "scopeName": "source.yaml",
+      "language": "yaml",
+      "path": "yaml/syntaxes/yaml.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "invalid.illegal",
+        "meta.scalar.yaml",
+        "storage.type.tag.shorthand.yaml",
+        "keyword.control.flow"
+      ],
+      "aliases": [
+        "YAML",
+        "yaml"
+      ],
+      "extensions": [
+        ".yaml",
+        ".yml",
+        ".eyaml",
+        ".eyml",
+        ".cff",
+        ".yaml-tmlanguage",
+        ".yaml-tmpreferences",
+        ".yaml-tmtheme",
+        ".winget"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/RedCMD/YAML-Syntax-Highlighter",
+        "commitHash": "53d38bbc66b704803de54ffce5b251bf97211c60",
+        "license": "MIT",
+        "version": "1.3.2"
+      }
+    },
+    {
+      "scopeName": "source.yaml.1.0",
+      "language": null,
+      "path": "yaml/syntaxes/yaml-1.0.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/RedCMD/YAML-Syntax-Highlighter",
+        "commitHash": "53d38bbc66b704803de54ffce5b251bf97211c60",
+        "license": "MIT",
+        "version": "1.3.2"
+      }
+    },
+    {
+      "scopeName": "source.yaml.1.1",
+      "language": null,
+      "path": "yaml/syntaxes/yaml-1.1.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/RedCMD/YAML-Syntax-Highlighter",
+        "commitHash": "53d38bbc66b704803de54ffce5b251bf97211c60",
+        "license": "MIT",
+        "version": "1.3.2"
+      }
+    },
+    {
+      "scopeName": "source.yaml.1.2",
+      "language": null,
+      "path": "yaml/syntaxes/yaml-1.2.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/RedCMD/YAML-Syntax-Highlighter",
+        "commitHash": "53d38bbc66b704803de54ffce5b251bf97211c60",
+        "license": "MIT",
+        "version": "1.3.2"
+      }
+    },
+    {
+      "scopeName": "source.yaml.1.3",
+      "language": null,
+      "path": "yaml/syntaxes/yaml-1.3.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/RedCMD/YAML-Syntax-Highlighter",
+        "commitHash": "53d38bbc66b704803de54ffce5b251bf97211c60",
+        "license": "MIT",
+        "version": "1.3.2"
+      }
+    },
+    {
+      "scopeName": "source.yaml.embedded",
+      "language": null,
+      "path": "yaml/syntaxes/yaml-embedded.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/RedCMD/YAML-Syntax-Highlighter",
+        "commitHash": "53d38bbc66b704803de54ffce5b251bf97211c60",
+        "license": "MIT",
+        "version": "1.3.2"
+      }
+    },
+    {
+      "scopeName": "text.bibtex",
+      "language": "bibtex",
+      "path": "latex/syntaxes/Bibtex.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "BibTeX",
+        "bibtex"
+      ],
+      "extensions": [
+        ".bib"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
+        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "license": "MIT",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "scopeName": "text.git-commit",
+      "language": "git-commit",
+      "path": "git-base/syntaxes/git-commit.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Git Commit Message",
+        "git-commit"
+      ],
+      "extensions": [],
+      "upstream": {
+        "repositoryUrl": "https://github.com/walles/git-commit-message-plus",
+        "commitHash": "35a079dea5a91b087021b40c01a6bb4eb0337a87",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "text.git-rebase",
+      "language": "git-rebase",
+      "path": "git-base/syntaxes/git-rebase.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Git Rebase Message",
+        "git-rebase"
+      ],
+      "extensions": [],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/git.tmbundle",
+        "commitHash": "5870cf3f8abad3a6637bdf69250b5d2ded427dc4",
+        "license": "MIT",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "text.html.basic",
+      "language": null,
+      "path": "html/syntaxes/html.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "text.html": "html",
+        "source.css": "css",
+        "source.js": "javascript",
+        "source.python": "python",
+        "source.smarty": "smarty"
+      },
+      "injectTo": null,
+      "tokenTypes": {
+        "meta.tag string.quoted": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": null,
+      "extensions": null,
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/html.tmbundle",
+        "commitHash": "0c3d5ee54de3a993f747f54186b73a4d2d3c44a2",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "text.html.cshtml",
+      "language": "razor",
+      "path": "razor/syntaxes/cshtml.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "section.embedded.source.cshtml": "csharp",
+        "source.css": "css",
+        "source.js": "javascript"
+      },
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Razor",
+        "razor"
+      ],
+      "extensions": [
+        ".cshtml",
+        ".razor"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/dotnet/roslyn",
+        "commitHash": "79e211a2e4287f9f7508089b81311b2c7fdc169f",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "text.html.derivative",
+      "language": "html",
+      "path": "html/syntaxes/html-derivative.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "text.html": "html",
+        "source.css": "css",
+        "source.js": "javascript",
+        "source.python": "python",
+        "source.smarty": "smarty"
+      },
+      "injectTo": null,
+      "tokenTypes": {
+        "meta.tag string.quoted": "other"
+      },
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "HTML",
+        "htm",
+        "html",
+        "xhtml"
+      ],
+      "extensions": [
+        ".html",
+        ".htm",
+        ".shtml",
+        ".xhtml",
+        ".xht",
+        ".mdoc",
+        ".jsp",
+        ".asp",
+        ".aspx",
+        ".jshtm",
+        ".volt",
+        ".ejs",
+        ".rhtml"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/textmate/html.tmbundle",
+        "commitHash": "0c3d5ee54de3a993f747f54186b73a4d2d3c44a2",
+        "license": "TextMate Bundle License",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "text.html.handlebars",
+      "language": "handlebars",
+      "path": "handlebars/syntaxes/Handlebars.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Handlebars",
+        "handlebars"
+      ],
+      "extensions": [
+        ".handlebars",
+        ".hbs",
+        ".hjs"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/daaain/Handlebars",
+        "commitHash": "0ffd0a2d95bfc052c3ff29a3eb4dd3749957b466",
+        "license": "MIT",
+        "version": "1.10.0"
+      }
+    },
+    {
+      "scopeName": "text.html.markdown",
+      "language": "markdown",
+      "path": "markdown-basics/syntaxes/markdown.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "meta.embedded.block.html": "html",
+        "source.js": "javascript",
+        "source.css": "css",
+        "meta.embedded.block.frontmatter": "yaml",
+        "meta.embedded.block.css": "css",
+        "meta.embedded.block.ini": "ini",
+        "meta.embedded.block.java": "java",
+        "meta.embedded.block.lua": "lua",
+        "meta.embedded.block.makefile": "makefile",
+        "meta.embedded.block.perl": "perl",
+        "meta.embedded.block.r": "r",
+        "meta.embedded.block.ruby": "ruby",
+        "meta.embedded.block.php": "php",
+        "meta.embedded.block.sql": "sql",
+        "meta.embedded.block.vs_net": "vs_net",
+        "meta.embedded.block.xml": "xml",
+        "meta.embedded.block.xsl": "xsl",
+        "meta.embedded.block.yaml": "yaml",
+        "meta.embedded.block.dosbatch": "dosbatch",
+        "meta.embedded.block.clojure": "clojure",
+        "meta.embedded.block.coffee": "coffee",
+        "meta.embedded.block.c": "c",
+        "meta.embedded.block.cpp": "cpp",
+        "meta.embedded.block.diff": "diff",
+        "meta.embedded.block.dockerfile": "dockerfile",
+        "meta.embedded.block.go": "go",
+        "meta.embedded.block.groovy": "groovy",
+        "meta.embedded.block.pug": "jade",
+        "meta.embedded.block.ignore": "ignore",
+        "meta.embedded.block.javascript": "javascript",
+        "meta.embedded.block.json": "json",
+        "meta.embedded.block.jsonc": "jsonc",
+        "meta.embedded.block.jsonl": "jsonl",
+        "meta.embedded.block.latex": "latex",
+        "meta.embedded.block.less": "less",
+        "meta.embedded.block.objc": "objc",
+        "meta.embedded.block.scss": "scss",
+        "meta.embedded.block.perl6": "perl6",
+        "meta.embedded.block.powershell": "powershell",
+        "meta.embedded.block.python": "python",
+        "meta.embedded.block.restructuredtext": "restructuredtext",
+        "meta.embedded.block.rust": "rust",
+        "meta.embedded.block.scala": "scala",
+        "meta.embedded.block.shellscript": "shellscript",
+        "meta.embedded.block.typescript": "typescript",
+        "meta.embedded.block.typescriptreact": "typescriptreact",
+        "meta.embedded.block.csharp": "csharp",
+        "meta.embedded.block.fsharp": "fsharp"
+      },
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "markup.underline.link.markdown",
+        "punctuation.definition.list.begin.markdown",
+        "keyword.operator.relational.cs",
+        "keyword.operator.arrow.cs",
+        "punctuation.accessor.pointer.cs",
+        "keyword.operator.bitwise.shift.cs",
+        "keyword.operator.assignment.compound.bitwise.cs",
+        "keyword.operator.relational.ts",
+        "storage.type.function.arrow.ts",
+        "keyword.operator.bitwise.shift.ts",
+        "keyword.operator.assignment.compound.bitwise.ts",
+        "keyword.operator.relational.tsx",
+        "storage.type.function.arrow.tsx",
+        "keyword.operator.bitwise.shift.tsx",
+        "keyword.operator.assignment.compound.bitwise.tsx"
+      ],
+      "aliases": [
+        "Markdown",
+        "markdown"
+      ],
+      "extensions": [
+        ".copilotmd",
+        ".md",
+        ".mkd",
+        ".mkdn",
+        ".mdwn",
+        ".mdown",
+        ".markdown",
+        ".markdn",
+        ".mdtxt",
+        ".mdtext",
+        ".litcoffee",
+        ".ron",
+        ".ronn",
+        ".workbook"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/microsoft/vscode-markdown-tm-grammar",
+        "commitHash": "0812fc4b190efc17bfed0d5b4ff918eff8e4e377",
+        "license": "MIT",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "scopeName": "text.html.markdown.math",
+      "language": "markdown-math",
+      "path": "markdown-math/syntaxes/md-math.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [],
+      "extensions": [],
+      "upstream": {
+        "repositoryUrl": "https://github.com/James-Yu/LaTeX-Workshop",
+        "commitHash": "e4cd86f1731546c2cdde0cc93717ca3fec2da0ba",
+        "license": "MIT",
+        "version": "8.19.1"
+      }
+    },
+    {
+      "scopeName": "text.html.markdown.prompt",
+      "language": "chatagent",
+      "path": "prompt-basics/syntaxes/prompt.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "markup.underline.link.markdown",
+        "punctuation.definition.list.begin.markdown"
+      ],
+      "aliases": [
+        "Agent",
+        "chat agent"
+      ],
+      "extensions": [
+        ".agent.md",
+        ".chatmode.md"
+      ],
+      "upstream": null
+    },
+    {
+      "scopeName": "text.html.markdown.prompt",
+      "language": "instructions",
+      "path": "prompt-basics/syntaxes/prompt.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "markup.underline.link.markdown",
+        "punctuation.definition.list.begin.markdown"
+      ],
+      "aliases": [
+        "Instructions",
+        "instructions"
+      ],
+      "extensions": [
+        ".instructions.md",
+        "copilot-instructions.md"
+      ],
+      "upstream": null
+    },
+    {
+      "scopeName": "text.html.markdown.prompt",
+      "language": "prompt",
+      "path": "prompt-basics/syntaxes/prompt.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "markup.underline.link.markdown",
+        "punctuation.definition.list.begin.markdown"
+      ],
+      "aliases": [
+        "Prompt",
+        "prompt"
+      ],
+      "extensions": [
+        ".prompt.md"
+      ],
+      "upstream": null
+    },
+    {
+      "scopeName": "text.html.markdown.prompt",
+      "language": "skill",
+      "path": "prompt-basics/syntaxes/prompt.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "markup.underline.link.markdown",
+        "punctuation.definition.list.begin.markdown"
+      ],
+      "aliases": [
+        "Skill",
+        "skill"
+      ],
+      "extensions": [],
+      "upstream": null
+    },
+    {
+      "scopeName": "text.html.php",
+      "language": "php",
+      "path": "php/syntaxes/html.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "text.html": "html",
+        "source.php": "php",
+        "source.sql": "sql",
+        "text.xml": "xml",
+        "source.js": "javascript",
+        "source.json": "json",
+        "source.css": "css"
+      },
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "PHP",
+        "php"
+      ],
+      "extensions": [
+        ".php",
+        ".php4",
+        ".php5",
+        ".phtml",
+        ".ctp"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/KapitanOczywisty/language-php",
+        "commitHash": "d94fd6b7dff1613d34bc0d36328f9982e65bd545",
+        "license": "MIT",
+        "version": "0.49.0"
+      }
+    },
+    {
+      "scopeName": "text.log",
+      "language": "log",
+      "path": "log/syntaxes/log.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Log"
+      ],
+      "extensions": [
+        ".log",
+        "*.log.?"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/emilast/vscode-logfile-highlighter",
+        "commitHash": "396c8552ff99d0e07142fdd940d75dae212dd28c",
+        "license": "MIT",
+        "version": "3.4.0"
+      }
+    },
+    {
+      "scopeName": "text.pug",
+      "language": "jade",
+      "path": "pug/syntaxes/pug.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Pug",
+        "Jade",
+        "jade"
+      ],
+      "extensions": [
+        ".pug",
+        ".jade"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/davidrios/pug-tmbundle",
+        "commitHash": "ae1dd60ca4aa4b45617f236d584216cd8d19eecf",
+        "license": "MIT",
+        "version": "0.0.0"
+      }
+    },
+    {
+      "scopeName": "text.searchResult",
+      "language": "search-result",
+      "path": "search-result/syntaxes/searchResult.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "Search Result"
+      ],
+      "extensions": [
+        ".code-search"
+      ],
+      "upstream": null
+    },
+    {
+      "scopeName": "text.tex",
+      "language": "tex",
+      "path": "latex/syntaxes/TeX.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "keyword.control.ifnextchar.tex",
+        "punctuation.math.operator.tex"
+      ],
+      "aliases": [
+        "TeX",
+        "tex"
+      ],
+      "extensions": [
+        ".sty",
+        ".cls",
+        ".bbx",
+        ".cbx"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
+        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "license": "MIT",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "scopeName": "text.tex.latex",
+      "language": "latex",
+      "path": "latex/syntaxes/LaTeX.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": {
+        "source.cpp": "cpp_embedded_latex",
+        "source.css": "css",
+        "text.html": "html",
+        "source.java": "java",
+        "source.js": "javascript",
+        "source.julia": "julia",
+        "source.lua": "lua",
+        "source.python": "python",
+        "source.ruby": "ruby",
+        "source.ts": "typescript",
+        "text.xml": "xml",
+        "source.yaml": "yaml",
+        "meta.embedded.markdown_latex_combined": "markdown_latex_combined"
+      },
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": [
+        "keyword.control.ifnextchar.tex",
+        "punctuation.math.operator.tex"
+      ],
+      "aliases": [
+        "LaTeX",
+        "latex"
+      ],
+      "extensions": [
+        ".tex",
+        ".ltx",
+        ".ctx"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
+        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "license": "MIT",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "scopeName": "text.tex.markdown_latex_combined",
+      "language": "markdown_latex_combined",
+      "path": "latex/syntaxes/markdown-latex-combined.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [],
+      "extensions": [],
+      "upstream": {
+        "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
+        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "license": "MIT",
+        "version": "1.16.0"
+      }
+    },
+    {
+      "scopeName": "text.xml",
+      "language": "xml",
+      "path": "xml/syntaxes/xml.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "XML",
+        "xml"
+      ],
+      "extensions": [
+        ".xml",
+        ".xsd",
+        ".ascx",
+        ".atom",
+        ".axml",
+        ".axaml",
+        ".bpmn",
+        ".cpt",
+        ".csl",
+        ".csproj",
+        ".csproj.user",
+        ".dita",
+        ".ditamap",
+        ".dtd",
+        ".ent",
+        ".mod",
+        ".dtml",
+        ".fsproj",
+        ".fxml",
+        ".iml",
+        ".isml",
+        ".jmx",
+        ".launch",
+        ".menu",
+        ".mxml",
+        ".nuspec",
+        ".opml",
+        ".owl",
+        ".proj",
+        ".props",
+        ".pt",
+        ".publishsettings",
+        ".pubxml",
+        ".pubxml.user",
+        ".rbxlx",
+        ".rbxmx",
+        ".rdf",
+        ".rng",
+        ".rss",
+        ".shproj",
+        ".slnx",
+        ".storyboard",
+        ".svg",
+        ".targets",
+        ".tld",
+        ".tmx",
+        ".vbproj",
+        ".vbproj.user",
+        ".vcxproj",
+        ".vcxproj.filters",
+        ".wixproj",
+        ".wsdl",
+        ".wxi",
+        ".wxl",
+        ".wxs",
+        ".xaml",
+        ".xbl",
+        ".xib",
+        ".xlf",
+        ".xliff",
+        ".xpdl",
+        ".xul",
+        ".xoml"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/atom/language-xml",
+        "commitHash": "7bc75dfe779ad5b35d9bf4013d9181864358cb49",
+        "license": "MIT",
+        "version": "0.35.2"
+      }
+    },
+    {
+      "scopeName": "text.xml.xsl",
+      "language": "xsl",
+      "path": "xml/syntaxes/xsl.tmLanguage.json",
+      "format": "json",
+      "embeddedLanguages": null,
+      "injectTo": null,
+      "tokenTypes": null,
+      "balancedBracketScopes": null,
+      "unbalancedBracketScopes": null,
+      "aliases": [
+        "XSL",
+        "xsl"
+      ],
+      "extensions": [
+        ".xsl",
+        ".xslt"
+      ],
+      "upstream": {
+        "repositoryUrl": "https://github.com/atom/language-xml",
+        "commitHash": "7bc75dfe779ad5b35d9bf4013d9181864358cb49",
+        "license": "MIT",
+        "version": "0.35.2"
+      }
+    }
+  ]
+}

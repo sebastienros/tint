@@ -1,0 +1,107 @@
+{
+  "source": "https://github.com/microsoft/vscode/tree/3ac0f0563e382d8e3480c787d04a2d05afca6746/extensions",
+  "commit": "3ac0f0563e382d8e3480c787d04a2d05afca6746",
+  "themes": [
+    {
+      "label": "Abyss",
+      "uiTheme": "vs-dark",
+      "path": "theme-abyss/abyss-color-theme.json"
+    },
+    {
+      "label": "Dark 2026",
+      "uiTheme": "vs-dark",
+      "path": "theme-defaults/2026-dark.json",
+      "include": "./dark_modern.json"
+    },
+    {
+      "label": "Light 2026",
+      "uiTheme": "vs",
+      "path": "theme-defaults/2026-light.json",
+      "include": "./light_modern.json"
+    },
+    {
+      "label": "Dark Modern",
+      "uiTheme": "vs-dark",
+      "path": "theme-defaults/dark_modern.json",
+      "include": "./dark_plus.json"
+    },
+    {
+      "label": "Dark+",
+      "uiTheme": "vs-dark",
+      "path": "theme-defaults/dark_plus.json",
+      "include": "./dark_vs.json"
+    },
+    {
+      "label": "Dark (Visual Studio)",
+      "uiTheme": "vs-dark",
+      "path": "theme-defaults/dark_vs.json"
+    },
+    {
+      "label": "Dark High Contrast",
+      "uiTheme": "hc-black",
+      "path": "theme-defaults/hc_black.json"
+    },
+    {
+      "label": "Light High Contrast",
+      "uiTheme": "hc-light",
+      "path": "theme-defaults/hc_light.json"
+    },
+    {
+      "label": "Light Modern",
+      "uiTheme": "vs",
+      "path": "theme-defaults/light_modern.json",
+      "include": "./light_plus.json"
+    },
+    {
+      "label": "Light+",
+      "uiTheme": "vs",
+      "path": "theme-defaults/light_plus.json",
+      "include": "./light_vs.json"
+    },
+    {
+      "label": "Light (Visual Studio)",
+      "uiTheme": "vs",
+      "path": "theme-defaults/light_vs.json"
+    },
+    {
+      "label": "Kimbie Dark",
+      "uiTheme": "vs-dark",
+      "path": "theme-kimbie-dark/kimbie-dark-color-theme.json"
+    },
+    {
+      "label": "Monokai Dimmed",
+      "uiTheme": "vs-dark",
+      "path": "theme-monokai-dimmed/dimmed-monokai-color-theme.json"
+    },
+    {
+      "label": "Monokai",
+      "uiTheme": "vs-dark",
+      "path": "theme-monokai/monokai-color-theme.json"
+    },
+    {
+      "label": "Quiet Light",
+      "uiTheme": "vs",
+      "path": "theme-quietlight/quietlight-color-theme.json"
+    },
+    {
+      "label": "Red",
+      "uiTheme": "vs-dark",
+      "path": "theme-red/Red-color-theme.json"
+    },
+    {
+      "label": "Solarized Dark",
+      "uiTheme": "vs-dark",
+      "path": "theme-solarized-dark/solarized-dark-color-theme.json"
+    },
+    {
+      "label": "Solarized Light",
+      "uiTheme": "vs",
+      "path": "theme-solarized-light/solarized-light-color-theme.json"
+    },
+    {
+      "label": "Tomorrow Night Blue",
+      "uiTheme": "vs-dark",
+      "path": "theme-tomorrow-night-blue/tomorrow-night-blue-color-theme.json"
+    }
+  ]
+}
