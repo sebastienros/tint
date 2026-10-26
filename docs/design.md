@@ -324,8 +324,11 @@ binds rules to patterns by index at generation time and never hashes strings.
 
 ### 8.3 Chaining with GregsEx (the one hard dependency)
 
-Roslyn generators cannot see each other's output, so Tint's generator cannot emit
-`[GeneratedPattern]` methods for GregsEx's generator to compile. Two options, both planned:
+A generator's main-pipeline output is never visible to other generators (only post-initialization
+output is, and that step cannot read `AdditionalFiles`; see
+[research/generator-chaining.md](research/generator-chaining.md) for the experiment). A grammar
+class depends on its grammar file, so it is main-pipeline output, and the `[GeneratedPattern]`
+methods it would carry are invisible to GregsEx's generator. Two options, both planned:
 
 1. **Preferred:** GregsEx exposes a public kernel-emission façade in `GregsEx.Generator.dll`. As of
    0.5.0 the consumption side is public (`OnigurumaPattern.WithGeneratedKernels(ulong fingerprint,
