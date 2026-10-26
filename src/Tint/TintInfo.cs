@@ -1,7 +1,7 @@
 namespace Tint;
 
 /// <summary>
-/// Placeholder for the Tint runtime. The tokenizer, theme engine and registry arrive in phase P1.
+/// Build-time facts about the Tint runtime.
 /// </summary>
 public static class TintInfo
 {
