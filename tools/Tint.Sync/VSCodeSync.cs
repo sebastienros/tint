@@ -39,9 +39,32 @@ internal sealed class VSCodeSync
         _http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Tint.Sync", "1.0"));
     }
 
-    public async Task RunAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Resolves the configured commit, branch or tag to its full SHA through the GitHub API.
+    /// </summary>
+    public async Task<string> ResolveCommitAsync(CancellationToken cancellationToken)
     {
-        var commitHash = await ResolveCommitAsync(cancellationToken);
+        var commit = await GetApiAsync($"https://api.github.com/repos/{Repository}/commits/{Uri.EscapeDataString(_commit)}", cancellationToken);
+        return (string)commit["sha"]!;
+    }
+
+    /// <summary>
+    /// Reads the <c>commit</c> recorded by the previous sync in <c>grammars/manifest.json</c>, or <see langword="null"/>
+    /// when there is none.
+    /// </summary>
+    public string? ReadRecordedCommit()
+    {
+        var manifest = Path.Combine(_root, "grammars", "manifest.json");
+        if (!File.Exists(manifest))
+        {
+            return null;
+        }
+
+        return (string?)JsonNode.Parse(File.ReadAllBytes(manifest), documentOptions: s_lenient)?["commit"];
+    }
+
+    public async Task RunAsync(string commitHash, CancellationToken cancellationToken)
+    {
         Console.WriteLine($"Syncing {Repository}@{commitHash}");
 
         var files = await ListFilesAsync(commitHash, cancellationToken);
@@ -173,12 +196,6 @@ internal sealed class VSCodeSync
         Console.WriteLine($"Themes:                  {themeEntries.Count}");
         Console.WriteLine($"Upstream registrations:  {registrations.Count}");
         Console.WriteLine($"Grammar and theme bytes: {downloadedBytes:N0}");
-    }
-
-    private async Task<string> ResolveCommitAsync(CancellationToken cancellationToken)
-    {
-        var commit = await GetApiAsync($"https://api.github.com/repos/{Repository}/commits/{_commit}", cancellationToken);
-        return (string)commit["sha"]!;
     }
 
     private async Task<HashSet<string>> ListFilesAsync(string commitHash, CancellationToken cancellationToken)
