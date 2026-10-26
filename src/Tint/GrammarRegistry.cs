@@ -17,6 +17,7 @@ public sealed class GrammarRegistry
     private const int MaxLanguageId = 255;
 
     private readonly object _lock = new();
+    private TokenizerOptions _tokenizerOptions = TokenizerOptions.Default;
 
     /// <summary>
     /// Registers a grammar, its language and the grammars it injects into. A grammar with the same scope name is
@@ -124,7 +125,86 @@ public sealed class GrammarRegistry
     /// <param name="scopeName">The root scope name of the grammar.</param>
     /// <param name="theme">The theme to resolve token colors with, or null for <see cref="Theme.Empty"/>.</param>
     public Tokenizer CreateTokenizer(string scopeName, Theme? theme = null)
-        => new(GetCompiledGrammar(scopeName), theme ?? Theme.Empty);
+        => new(GetCompiledGrammar(scopeName), theme ?? Theme.Empty, TokenizerOptions);
+
+    /// <summary>
+    /// Creates a tokenizer for a registered grammar with its own options; see <see cref="CreateTokenizer(string, Theme?)"/>.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">No grammar is registered for the scope.</exception>
+    /// <exception cref="InvalidOperationException">An embedded language would need an id above 255.</exception>
+    /// <param name="scopeName">The root scope name of the grammar.</param>
+    /// <param name="theme">The theme to resolve token colors with, or null for <see cref="Theme.Empty"/>.</param>
+    /// <param name="options">The tokenizer options.</param>
+    public Tokenizer CreateTokenizer(string scopeName, Theme? theme, TokenizerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        return new(GetCompiledGrammar(scopeName), theme ?? Theme.Empty, options);
+    }
+
+    /// <summary>
+    /// Creates a highlighter for a registered grammar and one theme. Like a tokenizer, a highlighter is not
+    /// thread-safe: keep one per thread and reuse it.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">No grammar is registered for the scope.</exception>
+    /// <param name="scopeName">The root scope name of the grammar.</param>
+    /// <param name="theme">The theme.</param>
+    /// <param name="options">Renderer and tokenizer settings, or null for the defaults.</param>
+    public Highlighter CreateHighlighter(string scopeName, Theme theme, HighlighterOptions? options = null)
+        => CreateHighlighter(scopeName, theme, [], options);
+
+    /// <summary>
+    /// Creates a highlighter for a light and a dark theme: HTML carries the light colors inline and the dark ones as
+    /// <c>--tint-dark</c> CSS variables (see <see cref="Rendering.HtmlRenderer"/>); terminal output and tokens use the
+    /// light theme.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">No grammar is registered for the scope.</exception>
+    /// <param name="scopeName">The root scope name of the grammar.</param>
+    /// <param name="light">The light theme, the default.</param>
+    /// <param name="dark">The dark theme, named <c>dark</c>.</param>
+    /// <param name="options">Renderer and tokenizer settings, or null for the defaults.</param>
+    public Highlighter CreateHighlighter(string scopeName, Theme light, Theme dark, HighlighterOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(dark);
+        return CreateHighlighter(scopeName, light, [new KeyValuePair<string, Theme>("dark", dark)], options);
+    }
+
+    /// <summary>Creates a highlighter for a default theme and named additional themes, written by HTML as CSS variables.</summary>
+    /// <exception cref="KeyNotFoundException">No grammar is registered for the scope.</exception>
+    /// <exception cref="ArgumentException">A theme name is not a CSS identifier or appears twice, or there are more than eight themes.</exception>
+    /// <param name="scopeName">The root scope name of the grammar.</param>
+    /// <param name="defaultTheme">The default theme.</param>
+    /// <param name="additionalThemes">The other themes by name.</param>
+    /// <param name="options">Renderer and tokenizer settings, or null for the defaults.</param>
+    public Highlighter CreateHighlighter(string scopeName, Theme defaultTheme, IEnumerable<KeyValuePair<string, Theme>> additionalThemes, HighlighterOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(defaultTheme);
+        ArgumentNullException.ThrowIfNull(additionalThemes);
+        options ??= HighlighterOptions.Default;
+        var tokenizerOptions = options.Tokenizer ?? TokenizerOptions;
+        var themes = additionalThemes.ToArray();
+        var tokenizers = new Tokenizer[themes.Length + 1];
+        tokenizers[0] = CreateTokenizer(scopeName, defaultTheme, tokenizerOptions);
+        for (var i = 0; i < themes.Length; i++)
+        {
+            tokenizers[i + 1] = CreateTokenizer(scopeName, themes[i].Value ?? throw new ArgumentException("A theme is null.", nameof(additionalThemes)), tokenizerOptions);
+        }
+
+        return new Highlighter(tokenizers, themes, options);
+    }
+
+    /// <summary>
+    /// The options of the tokenizers and highlighters this registry creates when none are given. Defaults to
+    /// <see cref="TokenizerOptions.Default"/>.
+    /// </summary>
+    public TokenizerOptions TokenizerOptions
+    {
+        get => _tokenizerOptions;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            _tokenizerOptions = value;
+        }
+    }
 
     /// <summary>
     /// The scope names a grammar includes, directly or through the grammars it includes, that are not registered.

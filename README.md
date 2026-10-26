@@ -43,10 +43,15 @@ public partial class CSharpGrammar;
 
 var registry = new GrammarRegistry();
 registry.Add(CSharpGrammar.Instance, JsonGrammar.Instance);
+var darkPlus = Theme.FromSource(DarkPlusTheme.Instance); // resolve once, share everywhere
 
-var highlighter = registry.CreateHighlighter("source.cs", DarkPlusTheme.Instance);
-string html = highlighter.ToHtml(code);
+var highlighter = registry.CreateHighlighter("source.cs", darkPlus);
+string html = highlighter.ToHtml(code);        // <pre class="tint" …><code><span class="line">…
+Console.Write(highlighter.ToAnsi(code));       // 24-bit terminal colors
+highlighter.ToHtml(code.AsSpan(), textWriter); // or stream to a TextWriter / IBufferWriter<char>
 ```
+
+A `Highlighter` owns its tokenizers, so it is not thread-safe: keep one per thread and reuse it.
 
 Patterns are parsed on first use. For NativeAOT or WebAssembly apps with a few hot grammars, opt
 into ahead-of-time regex kernels with `Kernels = true` on the attribute, `Kernels="true"` on the
@@ -113,19 +118,54 @@ foreach (var line in document.Lines)
 ```
 
 `TokenizeLineEncoded` returns `(start, metadata)` pairs in the VS Code binary layout for hosts that
-already consume Monaco-style tokens.
+already consume Monaco-style tokens. `highlighter.Tokenize(code)` returns one `HighlightedToken[]`
+per line with the colors resolved (`Start`, `Length`, `Color`, `BackgroundColor`, `FontStyle`,
+`Scopes`).
 
 A `Tokenizer` is not thread-safe and builds its regex scanners as it reaches rules, so create one per
 thread or per open document and keep it alive; the compiled grammar behind it is shared.
 
-### HTML with light and dark themes
+### HTML
+
+`ToHtml` writes shiki-compatible markup: the theme's colors on the `pre`, one `<span class="line">`
+per line, one `<span style="…">` per run of tokens with the same style holding only what differs from
+the theme's defaults, text HTML-escaped. `HtmlRendererOptions` sets the `pre` class, `data-line`
+line numbers, and a CSS-class mode with a matching stylesheet:
+
+```csharp
+var highlighter = registry.CreateHighlighter("source.cs", darkPlus, new HighlighterOptions
+{
+    Html = new HtmlRendererOptions { StyleMode = HtmlStyleMode.CssClasses }, // class="tint-fg-4 tint-b"
+});
+string css = highlighter.GetStyleSheet();
+```
+
+With a light and a dark theme, the light colors are written inline and the dark ones as CSS
+variables (`--tint-dark`, `--tint-dark-bg`, `--tint-dark-font-style`…), so one CSS rule switches
+themes:
 
 ```csharp
 var highlighter = registry.CreateHighlighter("source.cs",
-    light: LightPlusTheme.Instance, dark: DarkPlusTheme.Instance);
+    light: Theme.FromSource(LightPlusTheme.Instance), dark: darkPlus);
 
-string html = highlighter.ToHtml(code); // colors as CSS variables, switch with one CSS rule
+string html = highlighter.ToHtml(code);
 ```
+
+```css
+@media (prefers-color-scheme: dark) {
+  .tint, .tint span {
+    color: var(--tint-dark) !important;
+    background-color: var(--tint-dark-bg) !important;
+    font-style: var(--tint-dark-font-style) !important;
+    font-weight: var(--tint-dark-font-weight) !important;
+    text-decoration: var(--tint-dark-text-decoration) !important;
+  }
+}
+```
+
+More named themes work the same way (`CreateHighlighter(scope, defaultTheme, [new("dim", dim)])`
+writes `--tint-dim`). `HtmlRenderer` and `AnsiRenderer` in `Tint.Rendering` can also be used
+directly with tokenizers of your own.
 
 ### Loading grammar files at runtime
 

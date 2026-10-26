@@ -11,3 +11,4 @@ BenchmarkDotNet.Artifacts/
 TestResults/
 **/TestResults/
 .nuget/
+benchmarks/samples/.cache/
