@@ -53,10 +53,13 @@ public sealed class AnsiRenderer
     }
 
     /// <inheritdoc cref="Render(ReadOnlySpan{char}, Tokenizer, TextWriter)"/>
-    public void Render(ReadOnlySpan<char> code, Tokenizer tokenizer, StringBuilder writer)
+    /// <param name="code">The code.</param>
+    /// <param name="tokenizer">A tokenizer with this renderer's theme. It starts from <see cref="StateStack.Initial"/>.</param>
+    /// <param name="builder">Where the text goes.</param>
+    public void Render(ReadOnlySpan<char> code, Tokenizer tokenizer, StringBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(writer);
-        var sink = new StringBuilderSink(writer);
+        ArgumentNullException.ThrowIfNull(builder);
+        var sink = new StringBuilderSink(builder);
         Render(code, tokenizer, ref sink);
     }
 

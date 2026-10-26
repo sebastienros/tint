@@ -124,22 +124,9 @@ public sealed class GrammarRegistry
     /// <exception cref="InvalidOperationException">An embedded language would need an id above 255.</exception>
     /// <param name="scopeName">The root scope name of the grammar.</param>
     /// <param name="theme">The theme to resolve token colors with, or null for <see cref="Theme.Empty"/>.</param>
-    public Tokenizer CreateTokenizer(string scopeName, Theme? theme = null)
-        => new(GetCompiledGrammar(scopeName), theme ?? Theme.Empty, TokenizerOptions);
-
-    /// <summary>
-    /// Creates a tokenizer for a registered grammar with its own options; see <see cref="CreateTokenizer(string, Theme?)"/>.
-    /// </summary>
-    /// <exception cref="KeyNotFoundException">No grammar is registered for the scope.</exception>
-    /// <exception cref="InvalidOperationException">An embedded language would need an id above 255.</exception>
-    /// <param name="scopeName">The root scope name of the grammar.</param>
-    /// <param name="theme">The theme to resolve token colors with, or null for <see cref="Theme.Empty"/>.</param>
-    /// <param name="options">The tokenizer options.</param>
-    public Tokenizer CreateTokenizer(string scopeName, Theme? theme, TokenizerOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-        return new(GetCompiledGrammar(scopeName), theme ?? Theme.Empty, options);
-    }
+    /// <param name="options">The tokenizer options, or null for the registry's <see cref="TokenizerOptions"/>.</param>
+    public Tokenizer CreateTokenizer(string scopeName, Theme? theme = null, TokenizerOptions? options = null)
+        => new(GetCompiledGrammar(scopeName), theme ?? Theme.Empty, options ?? TokenizerOptions);
 
     /// <summary>
     /// Creates a highlighter for a registered grammar and one theme. Like a tokenizer, a highlighter is not

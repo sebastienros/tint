@@ -79,8 +79,10 @@ public sealed class RegexSource
 
 #if !TINT_GENERATOR
     /// <summary>
-    /// Creates a source from text that already went through Tint's rewrites, as generated grammars do.
+    /// Creates a source from text that already went through Tint's rewrites, as generated grammars do. Code written
+    /// by hand uses the constructor, which applies the rewrites.
     /// </summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static RegexSource FromRewritten(string text, bool hasAnchorA, bool hasAnchorG, bool hasBackReferences, RegexPatternFactory? patternFactory = null)
     {
         ArgumentNullException.ThrowIfNull(text);

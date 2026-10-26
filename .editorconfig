@@ -102,6 +102,10 @@ dotnet_diagnostic.IDE0078.severity = silent
 # xUnit1051: CancellationToken warning (allow tests without explicit cancellation token)
 dotnet_diagnostic.xUnit1051.severity = suggestion
 
+# RS0026: overloads that differ by their first parameters (path, Stream, UTF-8 span; one, two or many themes) each end
+# with optional settings; new parameters go to new overloads, which PublicAPI.Unshipped.txt makes visible in review.
+dotnet_diagnostic.RS0026.severity = none
+
 # FLUID001: Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 dotnet_diagnostic.FLUID001.severity = none
 
