@@ -15,17 +15,12 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="GregsEx" />
+    <!-- Builds the generator first so its assembly can be packed below; nothing is referenced and no package dependency
+         is produced. -->
+    <ProjectReference Include="../Tint.Generator/Tint.Generator.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
     <!-- The generator's JSON reader; the runtime reads JSON with System.Text.Json. -->
     <Compile Remove="Loading/JsonTreeReader.cs" />
   </ItemGroup>
-  <Target Name="BuildGeneratorForPack"
-          BeforeTargets="GenerateNuspec"
-          Condition="'$(NoBuild)' != 'true' or !Exists('../Tint.Generator/bin/$(Configuration)/netstandard2.0/Tint.Generator.dll')">
-    <MSBuild Projects="../Tint.Generator/Tint.Generator.csproj"
-             Targets="Build"
-             Properties="Configuration=$(Configuration)"
-             RemoveProperties="NoBuild;PublishAot;PublishTrimmed;PublishSingleFile;SelfContained;RuntimeIdentifier;TargetFramework;OutputPath;OutDir;PublishDir" />
-  </Target>
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
     <None Include="../../assets/icon.png" Pack="true" PackagePath="/" />
