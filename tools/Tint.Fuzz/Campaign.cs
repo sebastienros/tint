@@ -5,7 +5,7 @@ using Tint.Differential;
 namespace Tint.Fuzz;
 
 /// <summary>The settings of a campaign.</summary>
-public sealed record FuzzOptions(int Seed, TimeSpan Duration, int Workers, TimeSpan HangLimit, TimeSpan SlowLine, TimeSpan LineTimeLimit, int MinimizeBudget);
+public sealed record FuzzOptions(int Seed, TimeSpan Duration, int Workers, TimeSpan HangLimit, TimeSpan SlowLine, TimeSpan LineTimeLimit, int MinimizeBudget, TimeSpan MinimizeTime);
 
 /// <summary>A unique finding: the first input that showed it, minimized, and how many inputs showed it since.</summary>
 public sealed class Finding
@@ -97,6 +97,9 @@ public sealed class Campaign(FuzzOptions options, IEngine tint, IEngine referenc
     /// <summary>The unique findings.</summary>
     public IReadOnlyCollection<Finding> Findings => _findings.Values.ToList();
 
+    /// <summary>Workers that were still running an input (or minimizing a finding) when the campaign stopped.</summary>
+    public int LeftBehind { get; private set; }
+
     /// <summary>The counters, per grammar.</summary>
     public IReadOnlyDictionary<string, GrammarStats> Stats => _stats;
 
@@ -116,8 +119,18 @@ public sealed class Campaign(FuzzOptions options, IEngine tint, IEngine referenc
 
         var started = Stopwatch.StartNew();
         var lastStatus = TimeSpan.Zero;
+        // After the deadline, workers finish their input; one still busy after the hang limit is left behind (its
+        // thread is a background thread) so that the report is written.
         while (_workers.Values.Any(w => !w.Abandoned && w.Thread.IsAlive))
         {
+            if (Stopwatch.GetTimestamp() > _deadline + (long)(options.HangLimit.TotalSeconds * Stopwatch.Frequency))
+            {
+                var busy = _workers.Values.Count(w => !w.Abandoned && w.Thread.IsAlive);
+                Console.WriteLine($"  {busy} workers still busy past the deadline and the hang limit: not waiting for them");
+                LeftBehind = busy;
+                break;
+            }
+
             Thread.Sleep(250);
             var now = Stopwatch.GetTimestamp();
             foreach (var worker in _workers.Values)
@@ -337,7 +350,7 @@ public sealed class Campaign(FuzzOptions options, IEngine tint, IEngine referenc
 
         if (minimize is not null && tintTokenizer is not null && referenceTokenizer is not null)
         {
-            finding.Lines = Minimizer.Minimize(finding.Lines, minimize, options.MinimizeBudget);
+            finding.Lines = Minimizer.Minimize(finding.Lines, minimize, options.MinimizeBudget, options.MinimizeTime);
             Classify(finding.Lines, tintTokenizer, referenceTokenizer, out var line);
             finding.Line = Math.Min(line + 1, finding.Lines.Length);
 

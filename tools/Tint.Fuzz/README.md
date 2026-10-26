@@ -35,7 +35,8 @@ dotnet run -c Release --project tools/Tint.Fuzz -- --duration 00:20:00 --seed 20
 ```
 
 Options: `--grammars source.cs,yaml` (scope names or language ids), `--workers N`, `--hang-seconds 60`,
-`--slow-line-ms 1000`, `--line-time-limit-ms 10000` (both engines), `--minimize-budget 300`, `--referee false`,
+`--slow-line-ms 1000`, `--line-time-limit-ms 10000` (both engines), `--minimize-budget 300`, `--minimize-seconds 30`,
+`--referee false`,
 `--corpus dir`, `--out dir` (default `artifacts/fuzz`). The output has `findings.md` (summary per kind and per
 grammar, then each finding with its minimized input and both outputs), `findings.json` and the referee's input
 files. The exit code is 1 when Tint threw, hung, was slow, ran out of time, or disagrees with vscode-textmate.

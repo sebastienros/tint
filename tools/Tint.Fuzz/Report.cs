@@ -53,7 +53,7 @@ public static class Report
     }
 
     /// <summary>The report.</summary>
-    public static string Write(FuzzOptions options, string tintVersion, string referenceVersion, TimeSpan elapsed, IReadOnlyDictionary<string, GrammarStats> stats, IReadOnlyList<Finding> findings)
+    public static string Write(FuzzOptions options, string tintVersion, string referenceVersion, TimeSpan elapsed, IReadOnlyDictionary<string, GrammarStats> stats, IReadOnlyList<Finding> findings, int leftBehind)
     {
         var c = CultureInfo.InvariantCulture;
         var builder = new StringBuilder();
@@ -62,6 +62,10 @@ public static class Report
         builder.AppendLine(c, $"- Tint {tintVersion} against TextMateSharp {referenceVersion}; seed {options.Seed}, {elapsed:hh\\:mm\\:ss} with {options.Workers} workers.");
         builder.AppendLine(c, $"- Per-line time limit {options.LineTimeLimit.TotalSeconds:F0} s on both sides; lines over {options.SlowLine.TotalMilliseconds:F0} ms are reported; a line over {options.HangLimit.TotalSeconds:F0} s is a hang.");
         builder.AppendLine(c, $"- {stats.Values.Sum(s => s.Iterations):N0} inputs, {stats.Values.Sum(s => s.Lines):N0} lines, {stats.Values.Sum(s => s.Characters):N0} characters over {stats.Count} grammars; {findings.Count} unique findings.");
+        if (leftBehind > 0)
+        {
+            builder.AppendLine(c, $"- {leftBehind} workers were still busy (a long input or a minimization) when the campaign stopped; their current input is not counted.");
+        }
         builder.AppendLine();
 
         builder.AppendLine("| Kind | Unique | Inputs |").AppendLine("|---|--:|--:|");

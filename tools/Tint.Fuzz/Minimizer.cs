@@ -3,11 +3,23 @@ namespace Tint.Fuzz;
 /// <summary>Shrinks an input while it still shows the same kind of finding: lines first, then characters.</summary>
 public static class Minimizer
 {
-    /// <summary>The smallest input found within <paramref name="budget"/> runs of <paramref name="reproduces"/>.</summary>
-    public static string[] Minimize(string[] lines, Func<string[], bool> reproduces, int budget)
+    /// <summary>
+    /// The smallest input found within <paramref name="budget"/> runs of <paramref name="reproduces"/> and
+    /// <paramref name="timeBudget"/>: a long line can take seconds per run on the slower engine.
+    /// </summary>
+    public static string[] Minimize(string[] lines, Func<string[], bool> reproduces, int budget, TimeSpan timeBudget)
     {
         var runs = 0;
-        bool Try(string[] candidate) => runs++ < budget && reproduces(candidate);
+        var deadline = System.Diagnostics.Stopwatch.GetTimestamp() + (long)(timeBudget.TotalSeconds * System.Diagnostics.Stopwatch.Frequency);
+        bool Try(string[] candidate)
+        {
+            if (System.Diagnostics.Stopwatch.GetTimestamp() > deadline)
+            {
+                runs = budget;
+            }
+
+            return runs++ < budget && reproduces(candidate);
+        }
 
         var current = lines;
         for (var chunk = Math.Max(1, current.Length / 2); chunk >= 1; chunk /= 2)

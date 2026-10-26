@@ -24,6 +24,7 @@ var hangOption = new Option<int>("--hang-seconds") { Description = "A line runni
 var slowOption = new Option<int>("--slow-line-ms") { Description = "Lines slower than this on either side are reported.", DefaultValueFactory = _ => 1000 };
 var lineLimitOption = new Option<int>("--line-time-limit-ms") { Description = "The per-line time limit of both engines, 0 for none.", DefaultValueFactory = _ => 10_000 };
 var minimizeOption = new Option<int>("--minimize-budget") { Description = "Runs spent minimizing a new finding.", DefaultValueFactory = _ => 300 };
+var minimizeSecondsOption = new Option<int>("--minimize-seconds") { Description = "Time spent minimizing a new finding.", DefaultValueFactory = _ => 30 };
 var refereeOption = new Option<bool>("--referee")
 {
     Description = "Judge token and style findings with vscode-textmate (needs Node and npm install in tools/Tint.CorpusCheck/referee).",
@@ -36,7 +37,7 @@ var corpusOption = new Option<DirectoryInfo?>("--corpus")
 
 var root = new RootCommand("Differential fuzzer: mutated lines tokenized by Tint and TextMateSharp 2.0.4, compared for tokens, styles, exceptions and time.")
 {
-    repoOption, outOption, seedOption, durationOption, workersOption, grammarsOption, hangOption, slowOption, lineLimitOption, minimizeOption, refereeOption, corpusOption,
+    repoOption, outOption, seedOption, durationOption, workersOption, grammarsOption, hangOption, slowOption, lineLimitOption, minimizeOption, minimizeSecondsOption, refereeOption, corpusOption,
 };
 root.SetAction(result =>
 {
@@ -51,7 +52,8 @@ root.SetAction(result =>
         TimeSpan.FromSeconds(result.GetValue(hangOption)),
         TimeSpan.FromMilliseconds(result.GetValue(slowOption)),
         TimeSpan.FromMilliseconds(result.GetValue(lineLimitOption)),
-        result.GetValue(minimizeOption));
+        result.GetValue(minimizeOption),
+        TimeSpan.FromSeconds(result.GetValue(minimizeSecondsOption)));
 
     var seeds = Seeds.Load(repository, corpus, g => filter.Count == 0 || filter.Contains(g.ScopeName) || (g.Language is not null && filter.Contains(g.Language)));
     var tint = new TintEngine(repository);
@@ -71,7 +73,7 @@ root.SetAction(result =>
     }
 
     Directory.CreateDirectory(outDirectory);
-    File.WriteAllText(Path.Combine(outDirectory, "findings.md"), Report.Write(options, tint.Version, reference.Version, stopwatch.Elapsed, campaign.Stats, findings));
+    File.WriteAllText(Path.Combine(outDirectory, "findings.md"), Report.Write(options, tint.Version, reference.Version, stopwatch.Elapsed, campaign.Stats, findings, campaign.LeftBehind));
     File.WriteAllText(Path.Combine(outDirectory, "findings.json"), JsonSerializer.Serialize(new { options.Seed, Duration = stopwatch.Elapsed.ToString(), Stats = campaign.Stats, Findings = findings }, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true }));
     Console.WriteLine($"{campaign.Stats.Values.Sum(s => s.Iterations):N0} inputs, {campaign.Stats.Values.Sum(s => s.Lines):N0} lines, {findings.Count} unique findings; report in {outDirectory}");
 
