@@ -4,8 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-    <!-- 0.5.1 ships the compiled Oniguruma kernels, the KernelSource façade and OnigurumaCompileOptions.TextMate. Previews (0.1.0-preview.N) come from the Feedz feed in nuget.config. -->
-    <PackageVersion Include="GregsEx" Version="0.5.1" />
+    <!-- 0.5.2 adds kernels for patterns with subexpression calls (the C# grammar's declarations) and the interpreter's
+         branch skipping and possessive runs to every kernel; 0.5.1 shipped the compiled Oniguruma kernels, the KernelSource
+         façade and OnigurumaCompileOptions.TextMate. Previews (0.1.0-preview.N) come from the Feedz feed in nuget.config. -->
+    <PackageVersion Include="GregsEx" Version="0.5.2" />
     <PackageVersion Include="Meziantou.Polyfill" Version="1.0.166" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" />

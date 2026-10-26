@@ -3,6 +3,22 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
+## 0.1.1 (2026-10-26)
+
+### Tint
+
+- GregsEx 0.5.2: ahead-of-time kernels now cover patterns with subexpression calls (`\g<name>`, recursion included),
+  which are the VS Code C# grammar's type-name, generic, tuple and declaration patterns, and every kernel gained the
+  interpreter's alternative skipping and possessive runs. With `Kernels="true"` the C# grammar gets kernels for 327 of
+  its 338 patterns (293 before) and tokenizes TextMateSharp's `bigfile.cs` in 0.75 of the interpreted time (1.34 s
+  against 1.79 s on an Apple M4 Pro), where 0.5.1 gained 3-4%. Runtime-compiled hot patterns
+  (`TokenizerOptions.CompileHotPatterns`) gain the same. Grammars generated with `Kernels="true"` must be rebuilt
+  against 0.5.2: a kernel of another GregsEx revision is ignored at run time and the pattern runs interpreted.
+
+### Tint.Grammars, Tint.Themes
+
+- No content change; shipped with the same version.
+
 ## 0.1.0 (2026-10-26)
 
 First public release.

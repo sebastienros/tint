@@ -182,9 +182,10 @@ targeting .NET 8 or later (the generator checks that `MemoryExtensions.IndexOfAn
 and a reachable GregsEx; otherwise the grammar is generated without them and `TINT006` says why.
 `TINT011` reports how many patterns got kernels and how many GregsEx left to the interpreter.
 
-Measured on the VS Code C# grammar: 293 of 338 table entries get kernels, the generated source
-grows from 0.45 MB to 5.8 MB, the assembly from 135 KB to 954 KB, and the Roslyn compile of the
-generated code from 0.65 s to 2.8 s.
+Measured on the VS Code C# grammar with GregsEx 0.5.1: 293 of 338 table entries get kernels, the
+generated source grows from 0.45 MB to 5.8 MB, the assembly from 135 KB to 954 KB, and the Roslyn
+compile of the generated code from 0.65 s to 2.8 s. GregsEx 0.5.2 adds the subexpression-call
+patterns: 327 of 338.
 
 ## How the generator reaches GregsEx
 
