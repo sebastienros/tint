@@ -17,6 +17,11 @@ public sealed class TokenizerOptions
     /// tokenizers of the registry. Only takes effect on runtimes that can generate code: under NativeAOT, in trimmed
     /// apps and with GregsEx's <c>GregsEx.RuntimeCompilation.Auto</c> switch off, patterns stay interpreted.
     /// </summary>
+    /// <remarks>
+    /// Off by default: with GregsEx 0.5.1 the gain once warm is about 5% on large C# files and negative on short
+    /// documentation blocks, and compiling costs hundreds of milliseconds per grammar (docs/design.md section 5.5).
+    /// Consider it for long-running processes that tokenize large files of a few languages.
+    /// </remarks>
     public bool CompileHotPatterns { get; init; }
 
     /// <summary>

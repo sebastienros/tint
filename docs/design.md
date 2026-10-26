@@ -197,11 +197,25 @@ treats pattern execution as three tiers:
 1. **Interpreted** (default everywhere): `OnigurumaPattern.Parse` on first use, 18 µs per pattern,
    280 bytes of IL per pattern in a generated grammar. This is the tier the TextMateSharp branch
    measured its 1.4×–22× over Onigwrap with.
-2. **Runtime-compiled, tiered** (JIT runtimes only): when `RuntimeFeature.IsDynamicCodeSupported`
-   and GregsEx's `RuntimeCompilation` feature switch allow it, a pattern that has been searched more
-   than N times is `Compile()`d (GregsEx's FastExpressionCompiler path, about 260 µs and 170 KB per
-   pattern, kernel-class speed). Hot patterns pay once, cold patterns never do. Off under
-   NativeAOT and trimming by construction. P5 measures the threshold and the gain on `bigfile.cs`.
+2. **Runtime-compiled, tiered** (JIT runtimes only, opt-in): with
+   `TokenizerOptions.CompileHotPatterns`, a rule scanner that has been searched
+   `HotPatternThreshold` times (default 256; 0 compiles when the rule is first reached) swaps its
+   patterns for `OnigurumaPattern.Compile()`d ones (GregsEx's FastExpressionCompiler path). The
+   count is per rule scanner, since one search runs every pattern of the rule; the compiled pattern
+   is cached on the pattern's `CompiledRegex` and shared by every tokenizer of the registry, a
+   pattern GregsEx declines stays interpreted, and a scanner created later starts with the patterns
+   already compiled. Guarded by `RuntimeFeature.IsDynamicCodeSupported` and `IsDynamicCodeCompiled`
+   and by GregsEx's `GregsEx.RuntimeCompilation.Auto` switch (declared as a feature switch, so the
+   trimmer folds it to false when GregsEx's targets turn it off for `PublishTrimmed`/`PublishAot`);
+   `PlatformNotSupportedException` and `NotSupportedException` keep the interpreted pattern.
+   **Measured in P5 (GregsEx 0.5.1, M4 Pro, [benchmarks/README.md](../benchmarks/README.md)): off
+   by default.** Once warm, compiling every reached pattern gains 5% on `bigfile.cs` (1.79 s →
+   1.70 s) and 3% on `medium.cs`, and loses 20–26% on the docs-heavy mix (16.1 ms → 19.3–20.3 ms);
+   from a cold registry it costs 0.4 s on `bigfile.cs`, 0.25–0.46 s on `medium.cs` and about 1 s on
+   the docs mix, with 2–4× the allocations. N = 256 compiles the fewest patterns for the same warm
+   C# gain, so it is the default threshold for users who opt in for long-running C#-heavy
+   workloads. Revisit when GregsEx removes the per-call fixed cost of compiled kernels (section 15,
+   item 4).
 3. **Ahead-of-time kernels** (opt-in): the generator emits kernels only when asked (`Kernels = true`
    on the attribute, or `<TintKernels>true</TintKernels>`), through GregsEx's `KernelSource`
    façade (section 8.3). Meant for AOT and WebAssembly deployments of a few hot grammars, and for
@@ -456,12 +470,40 @@ shiki's `textmate-grammars-themes` for languages VS Code does not ship.
 
 ## 10. Renderers and the facade
 
-`Highlighter` is the two-line API: `registry.CreateHighlighter("source.cs", Themes.DarkPlus)`,
-then `ToHtml(code)` / `ToAnsi(code)` / `Tokenize(code)`. `HtmlRenderer` emits shiki-compatible
-markup (`<pre class="tint"><code><span class="line"><span style="color:…">`), merges adjacent
-same-style spans, and supports dual themes via CSS variables (`--tint-dark:#…`) so a site can
-switch theme with CSS only. `AnsiRenderer` emits 24-bit SGR sequences for terminals. Both write to
-`IBufferWriter<char>` / `TextWriter` without intermediate strings.
+`Highlighter` is the two-line API: `registry.CreateHighlighter("source.cs", theme)` (or `(scope,
+light, dark)`, or a default theme plus named themes), then `ToHtml(code)` / `ToAnsi(code)` /
+`Tokenize(code)`. It owns one `Tokenizer` per theme, so like a tokenizer it is not thread-safe: one
+per thread, reused. `Tokenize` returns one `HighlightedToken[]` per line (`Start`, `Length`, `Color`,
+`BackgroundColor`, `FontStyle`, `Scopes`) with the colors the tokenizer resolved.
+
+The renderers (`Tint.Rendering`) are immutable, thread-safe objects built from themes and options;
+a render takes the code and the tokenizers (one per theme, checked by reference) and writes to a
+`TextWriter`, an `IBufferWriter<char>` or a `StringBuilder` through a generic struct sink, so
+every write is a direct call and no per-token string exists. The string overloads write into an
+`ArrayPool` buffer, so the result string is the only allocation of a warm call. Both render from
+the encoded path (`TokenizeLineEncoded`): its tokens are already merged by metadata. Lines end at
+`\n` or `\r\n`; a newline at the very end terminates the last line instead of starting an empty
+one (HTML has no trailing empty line; ANSI output ends with a newline when the input does).
+
+- **`HtmlRenderer`** writes shiki's shape: `<pre class="tint" style="background-color:…;color:…"
+  tabindex="0"><code>`, one `<span class="line">` per line separated by `\n`, and one
+  `<span style="…">` per run of tokens with the same style, holding only what differs from the
+  theme's defaults (`color`, `background-color`, `font-style:italic`, `font-weight:bold`,
+  `text-decoration:underline|line-through`); unstyled runs are bare text. Text is escaped (`&`,
+  `<`, `>`). Colors are the theme's, lower-cased. Options: the `pre` class, `CssClasses` mode
+  (`tint-fg-<id>`, `tint-bg-<id>`, `tint-i`/`b`/`u`/`s`, with `GetStyleSheet()` emitting the
+  theme's rules), `data-line` line numbers (off by default), class and variable prefixes.
+- **Several themes** (at most eight): each theme is tokenized by its own tokenizer over the same
+  lines and the token boundaries are zipped, so runs split wherever any theme's style changes. The
+  first theme is written inline and the others as CSS variables named after them, theme by theme as
+  shiki does: `--tint-dark`, `--tint-dark-bg`, `--tint-dark-font-style`, `--tint-dark-font-weight`,
+  `--tint-dark-text-decoration`, with `inherit` for a property one theme sets and another does not
+  (custom properties inherit, so a span without a variable takes the `pre`'s). One CSS rule switches
+  themes (see the `HtmlRenderer` remarks and the README). CSS-class mode is single-theme.
+- **`AnsiRenderer`** writes 24-bit SGR: `ESC[38;2;r;g;bm` for every token's foreground (the
+  theme's default included, since the theme's palette assumes its background), `ESC[48;2;…m`
+  when `Background` is on, `1`/`3`/`4`/`9` for bold, italic, underline and strikethrough, a reset
+  when an attribute turns off, and `ESC[0m` at the end of every styled line.
 
 ## 11. Playground
 
@@ -520,11 +562,13 @@ trimmed app keeps only the grammars it references. The playground is the proof: 
    fixed cost (whole-input surrogate scan, guard setup) that makes trivial patterns slower than the
    interpreter; reconsider `AggressiveOptimization` on `Run` (blocks ReadyToRun, 1.2 ms JIT per
    kernel); generated code the ILLink analyzer can skip; lowering of nullable-body loops and
-   subexpression calls (the main decline reasons in C# and C++).
+   subexpression calls (the main decline reasons in C# and C++). P5 confirmed it at the tokenizer
+   level for runtime-compiled patterns too: 5% faster on C# once warm, slower on short documentation
+   blocks.
 5. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
 
-Decisions deferred to measurements: tier-2 compile threshold and gain (5.5, P5),
-combined-alternation experiment (5.4). Decided by the spike: bundle scope and partitioning, no
+Decisions deferred to measurements: combined-alternation experiment (5.4). Decided by P5: tier 2
+is opt-in, threshold 256 (5.5). Decided by the spike: bundle scope and partitioning, no
 kernel length threshold (8.4).
 
 ## 16. References
