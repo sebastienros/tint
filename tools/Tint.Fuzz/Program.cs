@@ -66,15 +66,24 @@ root.SetAction(result =>
     stopwatch.Stop();
 
     var findings = campaign.Findings.OrderBy(f => Report.Severity(f.Kind)).ThenBy(f => f.ScopeName, StringComparer.Ordinal).ThenBy(f => f.Signature, StringComparer.Ordinal).ToList();
+
+    // Inputs hold lone surrogates: JSON escapes them, and the Markdown report replaces them rather than failing.
+    var encoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: false);
+    Directory.CreateDirectory(outDirectory);
+    void Save()
+    {
+        File.WriteAllText(Path.Combine(outDirectory, "findings.json"), JsonSerializer.Serialize(new { options.Seed, Duration = stopwatch.Elapsed.ToString(), campaign.LeftBehind, Stats = campaign.Stats, Findings = findings }, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true }), encoding);
+        File.WriteAllText(Path.Combine(outDirectory, "findings.md"), Report.Write(options, tint.Version, reference.Version, stopwatch.Elapsed, campaign.Stats, findings, campaign.LeftBehind), encoding);
+    }
+
+    Save();
     var referee = new Referee(repository, tint, reference);
     if (result.GetValue(refereeOption) && referee.IsAvailable)
     {
         Report.Judge(referee, findings, Path.Combine(outDirectory, "inputs"));
+        Save();
     }
 
-    Directory.CreateDirectory(outDirectory);
-    File.WriteAllText(Path.Combine(outDirectory, "findings.md"), Report.Write(options, tint.Version, reference.Version, stopwatch.Elapsed, campaign.Stats, findings, campaign.LeftBehind));
-    File.WriteAllText(Path.Combine(outDirectory, "findings.json"), JsonSerializer.Serialize(new { options.Seed, Duration = stopwatch.Elapsed.ToString(), Stats = campaign.Stats, Findings = findings }, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true }));
     Console.WriteLine($"{campaign.Stats.Values.Sum(s => s.Iterations):N0} inputs, {campaign.Stats.Values.Sum(s => s.Lines):N0} lines, {findings.Count} unique findings; report in {outDirectory}");
 
     // Exit code 1 when Tint threw, hung, was slow or disagrees with vscode-textmate.

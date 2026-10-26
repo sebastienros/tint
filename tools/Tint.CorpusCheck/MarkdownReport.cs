@@ -123,5 +123,7 @@ public static class MarkdownReport
 
     private static string Short(string? version) => version is null ? "(none)" : version.Length > 60 ? $"`…{version[^40..]}`" : $"`{version}`";
 
-    private static string Truncate(string text, int max) => text.Length <= max ? text : text[..max] + "…\n";
+    // Never cuts a surrogate pair in two.
+    private static string Truncate(string text, int max)
+        => text.Length <= max ? text : text[..(char.IsHighSurrogate(text[max - 1]) ? max - 1 : max)] + "…\n";
 }

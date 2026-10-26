@@ -36,7 +36,7 @@ public static class Report
             }
 
             var path = Path.Combine(inputsDirectory, $"{Generator.StableHash(finding.Signature):x8}.txt");
-            File.WriteAllText(path, string.Join('\n', finding.Lines), new UTF8Encoding(false));
+            File.WriteAllText(path, string.Join('\n', finding.Lines), new UTF8Encoding(false, false));
             var (tintLine, referenceLine, error) = referee.Judge(finding.ScopeName, path, finding.Line);
             if (error is not null)
             {
@@ -119,5 +119,14 @@ public static class Report
     // A lone surrogate does not survive UTF-8.
     private static bool HasLoneSurrogate(string line) => Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(line)) != line;
 
-    private static string Truncate(string text, int max) => text.Length <= max ? text.TrimEnd() : text[..max] + "…";
+    // Never cuts a surrogate pair in two.
+    private static string Truncate(string text, int max)
+    {
+        if (text.Length <= max)
+        {
+            return text.TrimEnd();
+        }
+
+        return text[..(char.IsHighSurrogate(text[max - 1]) ? max - 1 : max)] + "…";
+    }
 }
