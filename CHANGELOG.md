@@ -3,7 +3,7 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
-## 0.1.0 (preview)
+## 0.1.0 (2026-10-26)
 
 First public release.
 
@@ -30,6 +30,8 @@ TextMate syntax colorization for .NET 8 and .NET 10, without native dependencies
   then (an invalid pattern is a build error with its position), patterns are parsed on first use, and hot grammars
   can opt into ahead-of-time compiled GregsEx kernels (`Kernels`).
 - Opt-in tier-2 compilation of hot patterns at runtime (`TokenizerOptions.CompileHotPatterns`).
+- Themes whose file has no `name` take it from the `DisplayName` item metadata or attribute property (VS Code labels
+  Monokai, Monokai Dimmed and Tomorrow Night Blue from their extension's `package.json`).
 
 ### Tint.Grammars
 

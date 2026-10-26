@@ -10,7 +10,7 @@ run on [GregsEx](https://github.com/sebastienros/gregsex), a managed Oniguruma-c
 with optional ahead-of-time compiled kernels. There is no native dependency and no JSON parsing at
 runtime, so it runs anywhere .NET runs, including WebAssembly.
 
-**Status: 0.1.0 preview.** [![NuGet.org](https://img.shields.io/nuget/v/Tint.svg?label=nuget.org)](https://www.nuget.org/packages/Tint) [![Feedz preview](https://img.shields.io/endpoint?url=https%3A%2F%2Ff.feedz.io%2Fsebastienros%2Ftint%2Fshield%2FTint%2Flatest)](https://f.feedz.io/sebastienros/tint/nuget/index.json) Releases are `v*.*.*` tags on nuget.org; `main` publishes previews to Feedz ([docs/release.md](docs/release.md)).
+**Version 0.1.0.** [![NuGet.org](https://img.shields.io/nuget/v/Tint.svg?label=nuget.org)](https://www.nuget.org/packages/Tint) [![Feedz preview](https://img.shields.io/endpoint?url=https%3A%2F%2Ff.feedz.io%2Fsebastienros%2Ftint%2Fshield%2FTint%2Flatest)](https://f.feedz.io/sebastienros/tint/nuget/index.json) Releases are `v*.*.*` tags on nuget.org; `main` publishes previews to Feedz ([docs/release.md](docs/release.md)).
 
 ## Install
 
