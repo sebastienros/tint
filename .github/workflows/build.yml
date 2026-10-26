@@ -55,6 +55,12 @@ jobs:
       run: dotnet build Tint.slnx --configuration Release --no-restore -p:VersionSuffix=preview.${{ github.run_number }} -p:ContinuousIntegrationBuild=True
     - name: Test
       run: dotnet test --solution Tint.slnx --configuration Release --no-build --minimum-expected-tests 1
+    - name: Run the generator sample
+      run: dotnet run --project test/Tint.Generator.Sample/Tint.Generator.Sample.csproj --configuration Release --no-build
+    # dotnet format loads the Debug configuration, where the sample needs the generator's Debug build to see the
+    # generated attributes and classes.
+    - name: Build the generator for dotnet format
+      run: dotnet build src/Tint.Generator/Tint.Generator.csproj --no-restore
     - name: Check formatting
       run: dotnet format Tint.slnx --severity warn --verify-no-changes --no-restore
 

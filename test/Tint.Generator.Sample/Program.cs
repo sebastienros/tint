@@ -29,7 +29,10 @@ public static class Program
         "}",
     ];
 
-    public static void Main() => Console.Write(Render(CSharpGrammar.Instance, JsonGrammar.Instance, DarkPlusTheme.Instance));
+    public static void Main() => Console.Write(RenderGenerated());
+
+    // The generated classes: CSharpGrammar from the attribute, JsonGrammar and DarkPlusTheme from the items.
+    public static string RenderGenerated() => Render(CSharpGrammar.Instance, JsonGrammar.Instance, DarkPlusTheme.Instance);
 
     // One line per token: the text, the foreground color and the scopes.
     public static string Render(IGrammarSource csharp, IGrammarSource json, IThemeSource themeSource)

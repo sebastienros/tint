@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Tint.Grammars;
 using Tint.Loading;
 using Xunit;
 
@@ -36,7 +37,26 @@ public sealed class TokenizationSuiteTests
 
     [Theory]
     [MemberData(nameof(Cases))]
-    public void TokenizesLikeVSCodeTextMate(string suite, int index)
+    public void TokenizesLikeVSCodeTextMate(string suite, int index) => Run(suite, index, path => GrammarLoader.Load(path));
+
+    // The grammar files every case of the suites uses, as full paths.
+    internal static IEnumerable<string> GrammarFiles()
+    {
+        foreach (var suite in new[] { "first-mate/tests.json", "suite1/tests.json", "suite1/whileTests.json" })
+        {
+            var suitePath = SuitePath(suite);
+            using var document = JsonDocument.Parse(File.ReadAllBytes(suitePath));
+            foreach (var test in document.RootElement.EnumerateArray())
+            {
+                foreach (var grammarFile in test.GetProperty("grammars").EnumerateArray())
+                {
+                    yield return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(suitePath)!, grammarFile.GetString()!));
+                }
+            }
+        }
+    }
+
+    internal static void Run(string suite, int index, Func<string, IGrammarSource> load)
     {
         var suitePath = SuitePath(suite);
         using var document = JsonDocument.Parse(File.ReadAllBytes(suitePath));
@@ -49,7 +69,7 @@ public sealed class TokenizationSuiteTests
         foreach (var grammarFile in test.GetProperty("grammars").EnumerateArray())
         {
             var relative = grammarFile.GetString()!;
-            var grammar = GrammarLoader.Load(Path.Combine(directory, relative));
+            var grammar = load(Path.GetFullPath(Path.Combine(directory, relative)));
             registry.Add(grammar);
             if (scopeName is null && relative == grammarPath)
             {
