@@ -1,0 +1,78 @@
+name: NativeAOT and Trimming
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+    - 'docs/**'
+    - '**/*.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+    - 'docs/**'
+    - '**/*.md'
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  aot-matrix:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-arm64
+
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: |
+            10.0.x
+          global-json-file: global.json
+          check-latest: false
+
+      # TintSmoke=trimmed|aot rather than -p:PublishTrimmed/-p:PublishAot, which would reach the netstandard2.0
+      # generator through restore.
+      - name: Publish and run the trimmed smoke app
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet publish test/Tint.TrimSmoke/Tint.TrimSmoke.csproj -c Release -r ${{ matrix.rid }} -p:TintSmoke=trimmed -p:TreatWarningsAsErrors=true -o artifacts/trim-smoke
+          # Fails unless the trimmed Tint.Grammars.dll and Tint.Themes.dll keep only CSharpGrammar, JsonGrammar and DarkPlusTheme.
+          ./artifacts/trim-smoke/Tint.TrimSmoke expect-trimmed
+
+      - name: Publish and run the NativeAOT smoke app
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet publish test/Tint.TrimSmoke/Tint.TrimSmoke.csproj -c Release -r ${{ matrix.rid }} -p:TintSmoke=aot -p:TreatWarningsAsErrors=true -p:IlcTreatWarningsAsErrors=true -o artifacts/aot-smoke
+          ./artifacts/aot-smoke/Tint.TrimSmoke
+
+      - name: Report sizes
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "### ${{ matrix.rid }}"
+            echo ""
+            echo "| File | Bytes |"
+            echo "|---|---|"
+            for file in artifacts/trim-smoke/Tint.Grammars.dll artifacts/trim-smoke/Tint.Themes.dll artifacts/trim-smoke/Tint.dll artifacts/aot-smoke/Tint.TrimSmoke; do
+              echo "| \`$file\` | $(wc -c < "$file" | tr -d ' ') |"
+            done
+            echo "| \`artifacts/trim-smoke/\` (self-contained) | $(du -sk artifacts/trim-smoke | cut -f1) KB |"
+          } >> "$GITHUB_STEP_SUMMARY"

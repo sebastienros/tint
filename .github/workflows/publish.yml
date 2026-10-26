@@ -13,11 +13,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # TODO: run the NativeAOT and trimming smoke app before publishing once it exists:
-  #   aot:
-  #     uses: ./.github/workflows/aot.yml
-  # and add `needs: aot` to the build job.
+  aot:
+    uses: ./.github/workflows/aot.yml
+
   build:
+    needs: aot
     runs-on: ubuntu-latest
     environment: release
     permissions:
