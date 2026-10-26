@@ -114,7 +114,14 @@ dotnet test
 dotnet run -c Release --project benchmarks/Tint.Benchmarks
 ```
 
-Design notes are in [docs/design.md](docs/design.md).
+Grammars and themes under `grammars/` and `themes/` are synced from a pinned VS Code commit, which
+also regenerates `THIRD-PARTY-NOTICES.txt`:
+
+```bash
+dotnet run --project tools/Tint.Sync -- sync --commit 3ac0f056
+```
+
+Design notes, the plan and research are indexed in [docs/README.md](docs/README.md).
 
 ## License
 
