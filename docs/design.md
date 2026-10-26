@@ -75,7 +75,7 @@ informational diagnostic, never a build error.
 | Package | Content |
 |---|---|
 | `Tint` | Runtime library and the source generator (`analyzers/dotnet/cs`, same convention as GregsEx). Depends on `GregsEx`. Targets `net8.0;net10.0`. |
-| `Tint.Grammars` | Code-generated VS Code grammars. Scope decided after the size spike (section 8.4): all 84, or a curated set with the rest importable by users. |
+| `Tint.Grammars` | Code-generated VS Code grammars, all 84 in one assembly with lazily parsed patterns (about 4–7 MB, see section 8.4). |
 | `Tint.Themes` | Code-generated VS Code themes (19). Small, always complete. |
 
 Users who need other grammars import the files themselves: the generator is the primary
@@ -185,7 +185,29 @@ to skip most of the line, and the result cache makes later searches on the same 
 is what the measurements on the TextMateSharp branch were made with, and it is where GregsEx
 invests. A combined-alternation experiment stays on the list for after the first benchmarks.
 
-### 5.5 Text identity for the result cache (GregsEx ask)
+### 5.5 Three execution tiers for a pattern
+
+The kernel-size spike ([research/kernel-spike.md](research/kernel-spike.md)) measured what
+ahead-of-time kernels cost and buy for grammar patterns: 3–11 KB of IL per pattern (60–100 MB for
+the VS Code corpus), 5–20 minutes of clean build dominated by the ILLink trim analyzer, 1.2 ms of
+JIT per kernel on first use, for a 1.33× geometric-mean speedup over all C# patterns (2.5× on the
+hottest). Most searches in a tokenizer fail in the prefilters, which the interpreter shares. So Tint
+treats pattern execution as three tiers:
+
+1. **Interpreted** (default everywhere): `OnigurumaPattern.Parse` on first use, 18 µs per pattern,
+   280 bytes of IL per pattern in a generated grammar. This is the tier the TextMateSharp branch
+   measured its 1.4×–22× over Onigwrap with.
+2. **Runtime-compiled, tiered** (JIT runtimes only): when `RuntimeFeature.IsDynamicCodeSupported`
+   and GregsEx's `RuntimeCompilation` feature switch allow it, a pattern that has been searched more
+   than N times is `Compile()`d (GregsEx's FastExpressionCompiler path, about 260 µs and 170 KB per
+   pattern, kernel-class speed). Hot patterns pay once, cold patterns never do. Off under
+   NativeAOT and trimming by construction. P5 measures the threshold and the gain on `bigfile.cs`.
+3. **Ahead-of-time kernels** (opt-in): the generator emits kernels only when asked (`Kernels = true`
+   on the attribute, or `<TintKernels>true</TintKernels>`), through GregsEx's `KernelSource`
+   façade (section 8.3). Meant for AOT and WebAssembly deployments of a few hot grammars, and for
+   future opt-in per-family kernel packages, not for the bundles.
+
+### 5.6 Text identity for the result cache (GregsEx ask)
 
 `OnigurumaScanner`'s cache keys text identity on the `string` behind a `ReadOnlyMemory<char>`, so
 `char[]`-backed memory disables it. TextMateSharp-gregsex therefore allocates `line + "\n"` as a
@@ -308,19 +330,21 @@ partial class CSharpGrammar : IGrammarSource
     public GrammarInfo Info => s_info;                       // static readonly literals
     public RawGrammar GetGrammar() => s_grammar ??= Build(); // object initializers, lazily
 
-    // One method per distinct pattern text (de-duplicated across the grammar), per anchor variant
-    // actually needed. Kernels emitted by GregsEx; patterns it declines are parsed at first call.
-    private static OnigurumaPattern P0() => …;
+    // One entry per distinct pattern text (de-duplicated across the grammar), per anchor variant
+    // actually needed. Parsed on first use with the TextMate compile limits (tier 1); with Kernels
+    // opted in, the entry also binds the emitted kernel classes (tier 3).
+    private static OnigurumaPattern P0() => s_p0 ??= OnigurumaPattern.Parse(P0Text, Profile, Limits);
     …
     public static FrozenDictionary<string, int> PatternIndex { get; } = …; // pattern text → index
 }
 ```
 
-Design choices: no reflection; patterns compile on first call (GregsEx's generated methods cache
-lazily), so a grammar whose heavy rules are never reached never pays for them; de-duplication by
-pattern text within an assembly (the C/C++ family shares most of its 1,000+ patterns across four
-grammars). The `PatternIndex` dictionary is the lookup surface the design calls for; the hot path
-binds rules to patterns by index at generation time and never hashes strings.
+Design choices: no reflection; every pattern is validated at build time (an invalid regex is a
+build error with its position in the grammar file) but parsed at first use, so a grammar whose heavy
+rules are never reached never pays for them; de-duplication by pattern text within an assembly (the
+C/C++ family shares most of its 1,000+ patterns across four grammars). The `PatternIndex`
+dictionary is the lookup surface the design calls for; the hot path binds rules to patterns by index
+at generation time and never hashes strings.
 
 ### 8.3 Chaining with GregsEx (the one hard dependency)
 
@@ -330,13 +354,16 @@ output is, and that step cannot read `AdditionalFiles`; see
 class depends on its grammar file, so it is main-pipeline output, and the `[GeneratedPattern]`
 methods it would carry are invisible to GregsEx's generator. Two options, both planned:
 
-1. **Preferred:** GregsEx exposes a public kernel-emission façade in `GregsEx.Generator.dll`. As of
-   0.5.0 the consumption side is public (`OnigurumaPattern.WithGeneratedKernels(ulong fingerprint,
-   CoreKernel plain, CoreKernel capture)`, `GregsEx.Execution.Compiled.CoreKernel`, `KernelGuard`)
-   but the emission side is internal: `SourcePlanner.TryPlan(string pattern, RegexProfile profile,
-   out CoreKernelPlan? plan, out string reason, out RegexDiagnostic diagnostic)`,
-   `KernelEmitter.EmitClass(string className, CoreKernelPlan plan, bool track)` and
-   `CoreKernelPlan.Fingerprint()`. The façade Tint needs wraps exactly those three calls:
+1. **Preferred:** GregsEx exposes a public kernel-emission façade in `GregsEx.Generator.dll`.
+   Implemented by [gregsex#27](https://github.com/sebastienros/gregsex/pull/27) (after 0.5.0):
+   `GregsEx.SourceGeneration.KernelSource.TryEmit(pattern, OnigurumaOptions, plainClassName,
+   captureClassName, OnigurumaCompileOptions?)` returning `KernelSourceResult { Status
+   (Succeeded | Declined | Invalid), Fingerprint, GroupCount, PlainClass, CaptureClass,
+   DeclineReason, Diagnostic }`. The emitted classes go inside the consumer type in a file that
+   starts with `using System;`, and the pattern must be parsed at runtime with the same options and
+   compile limits. The caller also has to check, as `PatternGenerator` does, that the consumer
+   targets .NET 8 or later (`System.MemoryExtensions.IndexOfAnyInRange` exists in the compilation).
+   The shape as proposed was:
 
    ```csharp
    namespace GregsEx.SourceGeneration;
@@ -380,13 +407,28 @@ through `TintGrammar`/`TintTheme` items over `grammars/` and `themes/`. Until op
 run on the interpreter like everyone else; when it lands they pick up kernels with no change to this
 repository beyond a GregsEx version bump. No second code path, no tool.
 
-### 8.4 Size budget (spike before committing)
+### 8.4 Size budget (decided by the spike)
 
-17,314 patterns compiled to kernels may be tens of megabytes of IL. The Phase 2 spike generates
-the C# and TypeScript grammars both ways and records: assembly size, build time, first-use time,
-tokenization speed vs interpreted. Outcomes it decides: whether `Tint.Grammars` ships all 84
-grammars or a curated set; whether kernels above a pattern-length threshold are skipped; and
-whether bundles are split into a few assemblies so Blazor can lazy-load them per language.
+Measured in [research/kernel-spike.md](research/kernel-spike.md) on GregsEx 0.5.0 for the C#,
+TypeScript and C++ grammars:
+
+| | Kernels | Lazy `Parse` |
+|---|---|---|
+| IL per pattern | 3.0 KB (C#) to 10.7 KB (C++) | 280 B |
+| C# grammar assembly | 1,013 KB | 95 KB |
+| Clean build, C# grammar | 10–12 s (87–93% ILLink trim analyzer) | 0.7–1.4 s |
+| First search of every C# pattern | 417 ms (JIT, 1.2 ms per kernel) | 6 ms |
+| Search speedup, all C# patterns, geometric mean | 1.33× (2.5× on the 30 hottest; 28 patterns slower) | 1× |
+| Full corpus extrapolation | 60–100 MB, 5–20 min build | 4–7 MB, seconds |
+
+Decisions: `Tint.Grammars` ships all 84 VS Code grammars in **one assembly** with lazily parsed
+patterns (about 4–7 MB; a trimmed app keeps only the grammar classes it references). No pattern
+length threshold on Tint's side: GregsEx already declines patterns above roughly 940 characters.
+Kernels are opt-in (section 5.5); per-family kernel packages come only when a tokenizer-level
+benchmark shows a gain worth their size, after GregsEx addresses the spike's findings (shared
+`SearchValues`/bitmap tables between kernels, per-call surrogate scan overhead, `AggressiveOptimization`
+blocking ReadyToRun, trim-analyzer cost). Blazor lazy-loading per language is therefore not needed
+for the bundle; it stays an option for kernel packages.
 
 ## 9. Bundles and sourcing
 
@@ -454,16 +496,27 @@ trimmed app keeps only the grammars it references. The playground is the proof: 
 
 ## 15. Open items and asks on GregsEx
 
-1. Public kernel-emission façade `GregsEx.SourceGeneration.KernelSource` in `GregsEx.Generator.dll`
-   (section 8.3 has the proposed shape), filed as
-   [sebastienros/gregsex#26](https://github.com/sebastienros/gregsex/issues/26). 0.5.0 made the
-   consumption side public; emission is still internal.
-2. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
-   result cache (section 5.5).
-3. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
+1. Done in [gregsex#27](https://github.com/sebastienros/gregsex/pull/27): the `KernelSource` façade
+   (issue [#26](https://github.com/sebastienros/gregsex/issues/26)).
+2. A `TextMate` compile-limits preset (`OnigurumaCompileOptions.TextMate` or
+   `RegexCompileLimits.TextMate`: `maxPatternUnits 1 << 22`, `maxNestingDepth 4096`,
+   `maxInstructions 1 << 24`, `maxClassRanges 1 << 20`, `maxCaptureGroups 32767`, raised compile
+   work/plan/memory) so the façade caller, the runtime `Parse` and a future `[GeneratedPattern]`
+   knob all name the same limits and fingerprints agree by construction. Without it Tint's
+   generator builds `RegexCompileLimits` through an 8-argument constructor by reflection.
+3. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
+   result cache (section 5.6).
+4. From the kernel spike, for kernels to become worth their size: share `SearchValues`/bitmap
+   tables between a pattern's plain and capture kernels and across an assembly; remove the per-call
+   fixed cost (whole-input surrogate scan, guard setup) that makes trivial patterns slower than the
+   interpreter; reconsider `AggressiveOptimization` on `Run` (blocks ReadyToRun, 1.2 ms JIT per
+   kernel); generated code the ILLink analyzer can skip; lowering of nullable-body loops and
+   subexpression calls (the main decline reasons in C# and C++).
+5. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
 
-Decisions deferred to measurements: bundle scope and partitioning (8.4), kernel length threshold
-(8.4), combined-alternation experiment (5.4).
+Decisions deferred to measurements: tier-2 compile threshold and gain (5.5, P5),
+combined-alternation experiment (5.4). Decided by the spike: bundle scope and partitioning, no
+kernel length threshold (8.4).
 
 ## 16. References
 

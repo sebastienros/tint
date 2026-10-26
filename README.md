@@ -3,9 +3,10 @@
 **TextMate syntax colorization for .NET, built for speed, NativeAOT and trimming.**
 
 Tint tokenizes and colors source code with the same grammars and themes VS Code uses. Grammars and
-themes are compiled into your assembly by a source generator, regexes are compiled ahead of time by
-[GregsEx](https://github.com/sebastienros/gregsex), and nothing is parsed at runtime. There is no
-native dependency, so it runs anywhere .NET runs, including WebAssembly.
+themes are compiled into your assembly by a source generator and validated at build time; regexes
+run on [GregsEx](https://github.com/sebastienros/gregsex), a managed Oniguruma-compatible engine,
+with optional ahead-of-time compiled kernels. There is no native dependency and no JSON parsing at
+runtime, so it runs anywhere .NET runs, including WebAssembly.
 
 > Tint is under active development. The API below describes the intended 0.1.0 surface.
 
