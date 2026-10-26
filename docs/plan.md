@@ -88,6 +88,13 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   `licenses/`.
 - Done when: every bundled grammar tokenizes its sample file, package sizes recorded, trim and AOT
   smoke apps that reference one grammar show only that grammar in the trimmed output.
+- Delivered: `tools/Tint.Sync` writes `VSCodeGrammars.props`/`VSCodeThemes.props` with explicit
+  class names; the generator's opt-in `TintGrammarsClass`/`TintThemesClass` aggregates (`All`,
+  `Find`, one property per class); 84 grammars in `Tint.Grammars` (5.2 MB assembly, 1.9 MB package,
+  10.5 s build per target framework) and 19 themes in `Tint.Themes` (180 KB, 94 KB package); every
+  grammar tokenizes its shiki sample like the loader path; the smoke app trims `Tint.Grammars.dll`
+  to 146 KB with only `CSharpGrammar` and `JsonGrammar` left, and runs as a 2.9 MB NativeAOT binary
+  (osx-arm64), in `.github/workflows/aot.yml` on linux-x64 and osx-arm64.
 
 ## P5 — Renderers, facade, benchmarks
 

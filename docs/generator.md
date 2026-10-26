@@ -94,7 +94,8 @@ plus `Theme`. Two items that produce the same fully qualified name are `TINT002`
 | `ThemeMode` | themes | `VSCode` (default): VS Code's default rule from `editor.foreground`/`editor.background` and no other scopeless rules. `Raw`: the rules as written, as vscode-textmate's tests use them. |
 
 Lists are MSBuild lists (`.json;.jsonc`); commas work too. `Tint.props` rewrites the semicolons to
-commas because the analyzer config file the compiler reads cuts values at `;`. An entry that does
+commas, and `#` and `%` to `%23` and `%25` (the generator decodes them), because the analyzer config
+file the compiler reads cuts values at `;` and `#` (`C#` would arrive as `C`). An entry that does
 not parse is `TINT010` and is ignored. `GrammarInfo.Dependencies` is computed from the grammar's
 includes of other scopes.
 
@@ -103,9 +104,33 @@ includes of other scopes.
 | Property | Meaning |
 |---|---|
 | `TintKernels` | `true` turns kernels on for every grammar of the project without its own `Kernels` value. |
+| `TintGrammarsClass` | Name of a static class to generate listing every grammar of the compilation (see below); `My.Namespace.Name` picks the namespace, otherwise `RootNamespace`. |
+| `TintThemesClass` | The same for themes. |
 | `TintGregsExPackagePath` | The GregsEx package directory (the one holding `lib/` and `analyzers/`), when it cannot be derived from the `GregsEx.dll` reference. |
 
 `RootNamespace` and `ProjectDir` are read as well (the SDK makes both visible to the compiler).
+
+### Aggregate classes
+
+With `<TintGrammarsClass>TintGrammars</TintGrammarsClass>` the generator adds:
+
+```csharp
+public static partial class TintGrammars
+{
+    public static IReadOnlyList<IGrammarSource> All { get; }      // every grammar, ordered by scope name
+    public static IGrammarSource? Find(string scopeName);          // FrozenDictionary, ordinal
+    public static CSharpGrammar CSharp => CSharpGrammar.Instance;  // one property per class
+    ...
+}
+```
+
+`TintThemesClass` does the same for themes, ordered by class name, with `Find(string name)`
+matching the theme's `name` or its property name (`Dark+` or `DarkPlus`), ignoring case. Property
+names are class names without the `Grammar`/`Theme` suffix; a name that would be empty, start with a
+digit, or clash with `All`, `Find`, the class or another property keeps the full class name (then a
+number). The class is `public` when every listed class is public, otherwise `internal`. `All` and
+`Find` live in nested holder classes, so an application that only reads `TintGrammars.CSharp` keeps
+only `CSharpGrammar` when trimmed. `Tint.Grammars` and `Tint.Themes` are built this way.
 
 ## Generated code
 
@@ -189,7 +214,7 @@ lazy parse path needs nothing from the build.
 |---|---|---|
 | `TINT001` | Error | `[TextMateGrammar]`/`[TextMateTheme]` path matches no `AdditionalFiles` item. |
 | `TINT002` | Error | Two items or attributes generate the same fully qualified class name. |
-| `TINT003` | Error | The grammar or theme file is not valid JSON or plist, or not a grammar (line and column when the parser gives one). |
+| `TINT003` | Error | The grammar or theme file cannot be read, is not valid JSON or plist, or is not a grammar (line and column when the parser gives one). |
 | `TINT004` | Error | Invalid regex: rule path, GregsEx offset and message. The pattern never matches at run time. |
 | `TINT005` | Info | The grammar includes other grammars; lists the scopes to register alongside it. |
 | `TINT006` | Info | Kernels were requested but are not emitted (GregsEx unreachable, or the project targets an older framework). |

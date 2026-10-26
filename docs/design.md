@@ -75,8 +75,8 @@ informational diagnostic, never a build error.
 | Package | Content |
 |---|---|
 | `Tint` | Runtime library and the source generator (`analyzers/dotnet/cs`, same convention as GregsEx). Depends on `GregsEx`. Targets `net8.0;net10.0`. |
-| `Tint.Grammars` | Code-generated VS Code grammars, all 84 in one assembly with lazily parsed patterns (about 4–7 MB, see section 8.4). |
-| `Tint.Themes` | Code-generated VS Code themes (19). Small, always complete. |
+| `Tint.Grammars` | Code-generated VS Code grammars, all 84 in one assembly with lazily parsed patterns (5.2 MB per target framework, 1.9 MB package, see section 8.4), `TintGrammars.All`/`Find`. Depends on `Tint` and `GregsEx`. |
+| `Tint.Themes` | Code-generated VS Code themes (19, 180 KB), `TintThemes.All`/`Find`. Depends on `Tint`. |
 
 Users who need other grammars import the files themselves: the generator is the primary
 distribution model, the bundles are a convenience and what the playground uses.
@@ -442,6 +442,18 @@ benchmark shows a gain worth their size, after GregsEx addresses the spike's fin
 blocking ReadyToRun, trim-analyzer cost). Blazor lazy-loading per language is therefore not needed
 for the bundle; it stays an option for kernel packages.
 
+Measured on the P4 bundle (84 grammar files, GregsEx 0.5.1, Apple M4 Pro, cold compiler server):
+
+| | `Tint.Grammars` | `Tint.Themes` |
+|---|---|---|
+| Assembly, per target framework | 5,223,936 B | 179,712 B |
+| Package (`net8.0` + `net10.0`) | 1,946,456 B | 94,345 B |
+| Build, one target framework | 10.5 s | 1.9 s |
+| Trimmed, app using `CSharp` + `Json` / `DarkPlus` | 146,432 B (2 grammar classes kept) | 23,552 B (1 theme class kept) |
+
+The trim and NativeAOT smoke app (`test/Tint.TrimSmoke`) is 2.9 MB as a NativeAOT binary on
+osx-arm64, including the runtime, Tint, GregsEx's interpreter and both grammars.
+
 ## 9. Bundles and sourcing
 
 `tools/Tint.Sync` is a repository maintenance tool (the equivalent of vscode's `update-grammar`
@@ -453,6 +465,24 @@ TextMate Bundle License, 1 BSD, 1 Apache-2.0 among the grammar registrations). T
 extension `package.json` provides language ids, aliases, extensions, `embeddedLanguages`,
 `injectTo`, `tokenTypes` and bracket scopes for `GrammarInfo`. A later addition can pull from
 shiki's `textmate-grammars-themes` for languages VS Code does not ship.
+
+The same tool writes the bundles' item lists from the manifests, `src/Tint.Grammars/VSCodeGrammars.props`
+and `src/Tint.Themes/VSCodeThemes.props` (`dotnet run --project tools/Tint.Sync -- props` regenerates
+them offline): one public `TintGrammar` item per grammar file with every `GrammarInfo` field the
+manifest has, and one public `TintTheme` item per theme. Class names are written explicitly, derived
+with the generator's own rules (the tool compiles `src/Tint.Generator/Naming.cs`), so a sync never
+renames a public class silently; collisions get the scope's first segment, then a number. A file
+registered for several languages (`source.ini` for `ini` and `properties`, `source.yaml` for
+`yaml` and `dockercompose`) keeps the language named like the scope's last segment, else the
+first, and merges the others' aliases and extensions. The projects set
+`TintGrammarsClass`/`TintThemesClass`, so the bundles expose `TintGrammars.All`,
+`TintGrammars.Find("source.cs")`, `TintGrammars.CSharp`, `TintThemes.DarkPlus` and so on.
+
+Registering `TintGrammars.All` leaves 31 included scopes unresolved, none of them a grammar VS Code
+ships: inline assembly in C/C++ (`source.asm`, `source.x86`, ...), fenced or embedded languages in
+Markdown, LaTeX and reStructuredText (`source.scala`, `source.haskell`, `source.cmake`, ...), Ruby
+and Perl heredocs, pug filters, and two stale scope names (`source.less` in pug, `source.html` in
+sassdoc). `BundleTests` lists them; their rules are skipped, as in VS Code.
 
 ## 10. Renderers and the facade
 
@@ -495,15 +525,20 @@ of shiki's per-language modules.
 - Differential testing against TextMateSharp 2.0.4 over a corpus of real files per grammar (the
   branch's `CorpusCheck` approach: 21,364 files, 8 known divergences, all explained).
 - Fuzzing harness (the branch's `Fuzz` tool pattern) comparing tokens, time and exceptions.
-- AOT smoke (`test/Tint.AotSmoke`) and trim smoke published on linux-x64, linux-arm64, win-x64,
-  osx-arm64 in CI, as GregsEx does.
+- Bundles: every bundled grammar tokenizes its shiki sample (or its own file when shiki has none)
+  identically through the generated class and through `GrammarLoader`, and every bundled theme
+  colors the C# sample identically to `ThemeLoader` (`BundleTests`).
+- Trim and NativeAOT smoke (`test/Tint.TrimSmoke`, `.github/workflows/aot.yml`) published on
+  linux-x64 and osx-arm64, run, and checked: the trimmed `Tint.Grammars.dll` and `Tint.Themes.dll`
+  must keep exactly the classes the app uses. Publishing a release waits for it.
 
 ## 14. AOT and trimming
 
 `IsAotCompatible` and `IsTrimmable` on every shipped assembly; `EnableTrimAnalyzer`,
 `EnableSingleFileAnalyzer`. Loaders use a System.Text.Json source-generated context. No
 `Type.GetType`, no `Activator`, no `dynamic`. Generated grammars are plain static classes, so a
-trimmed app keeps only the grammars it references. The playground is the proof: published with
+trimmed app keeps only the grammars it references: the smoke app keeps 2 of the 84 grammar classes
+and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type names. The playground is the proof: published with
 `RunAOTCompilation`, trimmed, lazy-loaded.
 
 ## 15. Open items and asks on GregsEx
