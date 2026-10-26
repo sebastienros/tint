@@ -5,18 +5,9 @@ namespace Tint.Internal.Regex;
 internal static class RegexCompiler
 {
     // Grammars hold patterns far longer than GregsEx's default ceilings (objective-c's platform list is 282k units).
-    // These are the limits the TextMateSharp + GregsEx branch validated over the VS Code corpus.
-    public static OnigurumaCompileOptions Options { get; } = new(
-        new RegexCompileLimits(
-            maxPatternUnits: 1 << 22,
-            maxNestingDepth: 4096,
-            maxInstructions: 1 << 24,
-            maxClassRanges: 1 << 20,
-            maxCaptureGroups: 32767,
-            maxCompileWork: 1L << 32,
-            maxPlanBytes: 1L << 30,
-            maxCompileMemoryBytes: 1L << 30),
-        new RegexMatchLimits(maxWork: 10_000_000, maxWorkspaceBytes: 64L << 20));
+    // GregsEx's TextMate preset carries the limits the TextMateSharp + GregsEx branch validated over the VS Code
+    // corpus, with the default match limits (10M work units, 64 MiB workspace).
+    public static OnigurumaCompileOptions Options => OnigurumaCompileOptions.TextMate;
 
     private static readonly OnigurumaPattern s_never = OnigurumaPattern.Parse("(?!)", RegexProfiles.OnigurumaTextMate, Options);
 
