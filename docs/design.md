@@ -46,8 +46,8 @@ Oniguruma 6.9.10 default syntax over UTF-16 including every construct above. `On
 already implements the vscode-oniguruma multi-pattern search with its per-pattern result cache.
 The source generator emits kernels for `static partial OnigurumaPattern` methods marked
 `[GeneratedPattern(pattern, OnigurumaOptions)]`; patterns the planner declines (back-references,
-subexpression calls, conditionals, absent operator, `\K`) fall back to the interpreter with an
-informational diagnostic, never a build error.
+conditionals, absent operator, `\K`, loops over a nullable body; subexpression calls since GregsEx
+0.5.2) fall back to the interpreter with an informational diagnostic, never a build error.
 
 ## 3. Architecture
 
@@ -676,6 +676,14 @@ and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type na
    the planner declines, so they run interpreted with or without kernels. Lowering subexpression
    calls, or a faster interpreter path for them, is where kernel-level gains for C#, Razor, Swift,
    Markdown and Go would come from.
+8. Done in GregsEx 0.5.2 ([gregsex#28](https://github.com/sebastienros/gregsex/pull/28)): kernels
+   for subexpression calls, and the interpreter's first-unit branch skipping and possessive runs in
+   every kernel. The C# grammar gets kernels for 327 of 338 patterns (the 11 left: the absent
+   operator and `(.*)?`), and the kernel-compiled grammar tokenizes `bigfile.cs` in 0.75 of the
+   interpreted time (1.34–1.37 s against 1.79–1.82 s, two in-process runs); in a CPU profile the
+   interpreter falls from 79% of the time to nothing measurable. Tint 0.1.1 pins 0.5.2. The
+   remaining per-call fixed costs (the whole-input surrogate scan, look-around frames) still make a
+   few short literal-anchored patterns 15–20% slower than the interpreter.
 
 Decisions deferred to measurements: combined-alternation experiment (5.4). Decided by P5: tier 2
 is opt-in, threshold 256 (5.5). Decided by the spike: bundle scope and partitioning, no

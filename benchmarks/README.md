@@ -30,9 +30,10 @@ What each row tokenizes:
 - **Tint, bundled**: `TintGrammars.CSharp` from `Tint.Grammars` (generated from the synced VS Code
   grammar, patterns parsed on first use and interpreted). This is what `Tint.Grammars` users get.
 - **Tint, kernel-compiled**: `CSharpKernelsGrammar`, the same VS Code grammar generated in this
-  project with `<TintGrammar ... Kernels="true" />`: 293 of the 338 pattern-table entries run
-  ahead-of-time GregsEx kernels, the rest stay interpreted. It is what a project that imports a
-  grammar with `Kernels="true"` gets.
+  project with `<TintGrammar ... Kernels="true" />`: 327 of the 338 pattern-table entries run
+  ahead-of-time GregsEx kernels (293 with GregsEx 0.5.1, before kernels covered subexpression
+  calls), the rest stay interpreted. It is what a project that imports a grammar with
+  `Kernels="true"` gets.
 - **Tint, tier 2**: the bundled grammar with `TokenizerOptions.CompileHotPatterns` (threshold 256).
 - **Tint, loader**: `GrammarLoader` on `grammars/csharp/syntaxes/csharp.tmLanguage.json`.
 - **TextMateLib 0.2.1** (native Oniguruma) reads the same synced VS Code grammar file.
@@ -69,12 +70,35 @@ row, the pass with the smaller error.
 | TextMateLib 0.2.1 | **2.807 s** ± 0.49 | 3.621 s ± 4.5 | 2.07 / 1.60 | 31.0 MB |
 | TextMateSharp 2.0.4 | 9.554 s ± 15.4 | **7.867 s** ± 0.71 | 0.61 / 0.74 | 507.3 MB |
 
-± is BenchmarkDotNet's error (half the 99.9% confidence interval). **Kernels do not change the
-picture at the tokenizer level: the kernel-compiled grammar is 3–4% faster than the bundled one**
-(1.69–1.74 s against 1.77–1.80 s), about the spread between the bundled and loader rows, which run
-the same interpreted patterns. Allocations are identical: kernels change how a pattern searches, not
-what the tokenizer allocates. Most searches in a tokenizer end in the prefilters the interpreter
-shares (design section 5.5), so the spike's 1.33× per-search geometric mean does not carry over.
+± is BenchmarkDotNet's error (half the 99.9% confidence interval). With GregsEx 0.5.1, kernels did
+not change the picture at the tokenizer level: the kernel-compiled grammar was 3–4% faster than the
+bundled one (1.69–1.74 s against 1.77–1.80 s), about the spread between the bundled and loader
+rows, which run the same interpreted patterns, because the type-name patterns built on subexpression
+calls (about 83% of matching time) were declined and ran interpreted either way. Allocations are
+identical: kernels change how a pattern searches, not what the tokenizer allocates.
+
+#### GregsEx 0.5.2 (kernels for subexpression calls)
+
+.NET 10.0.11, GregsEx 0.5.2, 2026-10-26, two runs back to back on an idle machine, in-process
+(`--inProcess --warmupCount 2 --iterationCount 3`: in-process because the `.claude/worktrees`
+copies of this project stop BenchmarkDotNet from picking it, and in-process drops the class's
+`ShortRun` job). `TINT011`: 327 of 338 patterns compiled ahead of time.
+
+| Library | Run 1 | Run 2 | MB/s (1 / 2) | Allocated |
+|---|---:|---:|---:|---:|
+| **Tint, bundled grammar** (interpreted) | 1.824 s ± 0.08 | 1.793 s ± 0.03 | 3.18 / 3.24 | 32.6 MB |
+| Tint, kernel-compiled grammar | **1.371 s** ± 0.01 | **1.337 s** ± 0.19 | 4.24 / 4.34 | 32.6 MB |
+| Tint, tier 2 (N = 256) | 1.412 s ± 0.44 | 1.380 s ± 0.36 | 4.11 / 4.21 | 32.6 MB |
+| Tint, loader | 1.812 s ± 0.21 | 1.827 s ± 0.29 | 3.21 / 3.18 | 32.6 MB |
+| TextMateLib 0.2.1 | 2.910 s ± 0.12 | 2.918 s ± 0.26 | 2.00 / 1.99 | 31.0 MB |
+| TextMateSharp 2.0.4 | 8.117 s ± 0.85 | 7.991 s ± 0.27 | 0.72 / 0.73 | 507.3 MB |
+
+**The kernel-compiled grammar now tokenizes the file in 0.75 of the interpreted time**, and tier 2
+(runtime `Compile()` of hot patterns, the same kernels) gains the same. A `dotnet-trace` CPU profile
+of one tokenization per grammar: with the interpreted grammar `OnigMatcher` is 79% of the samples;
+with the kernel grammar it no longer appears among the top 400 functions, the kernels are 56% and
+vectorized span helpers 12% of a smaller total. The property and field declaration patterns are the
+two hottest kernels.
 
 ### Docs-heavy (40 fences per language)
 
