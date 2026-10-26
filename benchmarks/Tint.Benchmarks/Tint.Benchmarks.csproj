@@ -6,6 +6,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
+    <!-- Baselines. TextMateLib ships natives for win-x64, linux-x64, osx-x64 and osx-arm64 only; its benchmarks are
+         skipped when the library does not load. -->
+    <PackageReference Include="TextMateSharp" />
+    <PackageReference Include="TextMateSharp.Grammars" />
+    <PackageReference Include="TextMateLib" />
     <ProjectReference Include="../../src/Tint/Tint.csproj" />
     <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
