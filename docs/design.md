@@ -452,8 +452,9 @@ trimmed app keeps only the grammars it references. The playground is the proof: 
 ## 15. Open items and asks on GregsEx
 
 1. Public kernel-emission façade `GregsEx.SourceGeneration.KernelSource` in `GregsEx.Generator.dll`
-   (section 8.3 has the proposed shape). 0.5.0 made the consumption side public; emission is still
-   internal.
+   (section 8.3 has the proposed shape), filed as
+   [sebastienros/gregsex#26](https://github.com/sebastienros/gregsex/issues/26). 0.5.0 made the
+   consumption side public; emission is still internal.
 2. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
    result cache (section 5.5).
 3. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
