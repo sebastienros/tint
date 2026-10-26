@@ -40,7 +40,8 @@ Options: `--grammars source.cs,yaml` (scope names or language ids), `--workers N
 grammar, then each finding with its minimized input and both outputs), `findings.json` and the referee's input
 files. The exit code is 1 when Tint threw, hung, was slow, ran out of time, or disagrees with vscode-textmate.
 
-Replay findings (all, or one by signature) with both engines:
+Replay findings (all, or one by signature) with both engines; each line says whether they still differ and the
+slowest line of each engine once warm:
 
 ```bash
 dotnet run -c Release --project tools/Tint.Fuzz -- repro artifacts/fuzz/findings.json --signature "tokens source.yaml …"

@@ -106,20 +106,30 @@ repro.SetAction(result =>
         var tintTokenizer = tint.CreateTokenizer(scope, limit)!;
         var referenceTokenizer = reference.CreateTokenizer(scope, limit)!;
         var outcome = "same";
-        for (var i = 0; i < lines.Length; i++)
+        long tintMax = 0, referenceMax = 0;
+
+        // Twice: the second run is warm (rules compiled, patterns parsed), and its slowest lines are reported.
+        for (var run = 0; run < 2; run++)
         {
-            var tintOutput = tintTokenizer.Tokenize(lines[i]);
-            var referenceOutput = referenceTokenizer.Tokenize(lines[i]);
-            var difference = Comparison.Compare(tintOutput, referenceOutput);
-            if (difference != Difference.None)
+            tintTokenizer.Reset();
+            referenceTokenizer.Reset();
+            tintMax = referenceMax = 0;
+            for (var i = 0; i < lines.Length; i++)
             {
-                outcome = $"{difference} at line {i + 1} (Tint {tintOutput.Ticks * 1000.0 / Stopwatch.Frequency:F0} ms, TextMateSharp {referenceOutput.Ticks * 1000.0 / Stopwatch.Frequency:F0} ms)";
-                differing++;
-                break;
+                var tintOutput = tintTokenizer.Tokenize(lines[i]);
+                var referenceOutput = referenceTokenizer.Tokenize(lines[i]);
+                tintMax = Math.Max(tintMax, tintOutput.Ticks);
+                referenceMax = Math.Max(referenceMax, referenceOutput.Ticks);
+                var difference = Comparison.Compare(tintOutput, referenceOutput);
+                if (difference != Difference.None && run == 1 && outcome == "same")
+                {
+                    outcome = $"{difference} at line {i + 1}";
+                    differing++;
+                }
             }
         }
 
-        Console.WriteLine($"{finding.GetProperty("Signature").GetString()}: {outcome}");
+        Console.WriteLine($"{finding.GetProperty("Signature").GetString()}: {outcome}; slowest line warm: Tint {tintMax * 1000.0 / Stopwatch.Frequency:F0} ms, TextMateSharp {referenceMax * 1000.0 / Stopwatch.Frequency:F0} ms");
     }
 
     return differing == 0 ? 0 : 1;
