@@ -120,6 +120,24 @@ internal static class PatternRewriter
     // RegExpSource._buildAnchorCache: a disallowed \A or \G becomes \ followed by U+FFFF.
     public static string ResolveAnchors(string text, bool allowA, bool allowG)
     {
+#if TINT_GENERATOR
+        var chars = text.ToCharArray();
+        for (var pos = 0; pos < chars.Length - 1; pos++)
+        {
+            if (chars[pos] == '\\')
+            {
+                var next = chars[pos + 1];
+                if ((next == 'A' && !allowA) || (next == 'G' && !allowG))
+                {
+                    chars[pos + 1] = '\uffff';
+                }
+
+                pos++;
+            }
+        }
+
+        return new string(chars);
+#else
         return string.Create(text.Length, (text, allowA, allowG), static (span, state) =>
         {
             var (source, a, g) = state;
@@ -138,8 +156,10 @@ internal static class PatternRewriter
                 }
             }
         });
+#endif
     }
 
+#if !TINT_GENERATOR
     // RegExpSource.resolveBackReferences: every \N becomes the escaped text of capture N of the begin match ('' when
     // the capture does not exist). A lone surrogate in the captured text becomes (?:\p{Cs}|\x{FFFD}), since the
     // engine cannot parse it as a literal.
@@ -218,4 +238,5 @@ internal static class PatternRewriter
             }
         }
     }
+#endif
 }
