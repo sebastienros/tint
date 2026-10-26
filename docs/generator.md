@@ -58,7 +58,7 @@ its own name, namespace and accessibility. A path that matches no item is `TINT0
 `TextMateGrammarAttribute` properties: `Kernels`, `LanguageId`, `Aliases`, `FileExtensions`,
 `EmbeddedLanguages` (`scope=languageId` pairs), `InjectTo`, `InjectionSelector`, `TokenTypes`
 (`selector=comment|string|regex|other` pairs), `BalancedBracketScopes`, `UnbalancedBracketScopes`.
-They win over the item's metadata of the same name. `TextMateThemeAttribute` has `ThemeMode`.
+They win over the item's metadata of the same name. `TextMateThemeAttribute` has `ThemeMode` and `DisplayName`.
 
 ## Item-only classes
 
@@ -95,6 +95,7 @@ plus `Theme`. Two items that produce the same fully qualified name are `TINT002`
 | `TokenTypes` | grammars | `selector=type` pairs, the type one of `comment`, `string`, `regex`, `other`. |
 | `BalancedBracketScopes` | grammars | Selectors of tokens with balanced brackets (default: every scope). |
 | `UnbalancedBracketScopes` | grammars | Selectors of tokens without balanced brackets. |
+| `DisplayName` | themes | `IThemeSource.Name` when the theme file has no `name` (VS Code labels such themes from the extension's `package.json`). |
 | `ThemeMode` | themes | `VSCode` (default): VS Code's default rule from `editor.foreground`/`editor.background` and no other scopeless rules. `Raw`: the rules as written, as vscode-textmate's tests use them. |
 
 Lists are MSBuild lists (`.json;.jsonc`); commas work too. `Tint.props` rewrites the semicolons to

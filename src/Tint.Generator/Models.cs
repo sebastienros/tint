@@ -70,9 +70,10 @@ internal sealed record SourceSettings(
     EquatableArray<string> TokenTypes,
     EquatableArray<string>? BalancedBracketScopes,
     EquatableArray<string> UnbalancedBracketScopes,
-    string? ThemeMode)
+    string? ThemeMode,
+    string? DisplayName)
 {
-    public static SourceSettings Empty { get; } = new(null, default, default, default, default, null, default, null, default, null);
+    public static SourceSettings Empty { get; } = new(null, default, default, default, default, null, default, null, default, null, null);
 
     public static SourceSettings FromMetadata(Func<string, string?> get) => new(
         NullIfEmpty(get("LanguageId")),
@@ -84,7 +85,8 @@ internal sealed record SourceSettings(
         List(get("TokenTypes")),
         string.IsNullOrWhiteSpace(get("BalancedBracketScopes")) ? null : List(get("BalancedBracketScopes")),
         List(get("UnbalancedBracketScopes")),
-        NullIfEmpty(get("ThemeMode")));
+        NullIfEmpty(get("ThemeMode")),
+        NullIfEmpty(get("DisplayName")));
 
     public static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value!.Trim();
 

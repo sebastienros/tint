@@ -184,6 +184,7 @@ internal static class BundleProps
         {
             builder.Append("    <").Append(target.ItemName).Append(" Include=\"").Append(target.PathPrefix).Append(Escape(theme.Path)).Append('"');
             Attribute(builder, "Name", names[theme]);
+            Attribute(builder, "DisplayName", theme.Label);
             Attribute(builder, "Accessibility", target.Accessibility);
             builder.Append(" />\n");
         }

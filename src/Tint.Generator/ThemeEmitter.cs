@@ -68,10 +68,13 @@ internal static class ThemeEmitter
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        return new GenerationResult(unit.HintName, Emit(unit, theme), null, diagnostics.ToEquatableArray(), AggregateEntry.For(unit, theme.Name));
+
+        // VS Code labels a theme without a "name" from its extension's package.json; DisplayName carries that label.
+        var name = theme.Name ?? unit.Settings.DisplayName;
+        return new GenerationResult(unit.HintName, Emit(unit, theme, name), null, diagnostics.ToEquatableArray(), AggregateEntry.For(unit, name));
     }
 
-    private static string Emit(GenerationUnit unit, RawTheme theme)
+    private static string Emit(GenerationUnit unit, RawTheme theme, string? name)
     {
         const string RuleType = "global::Tint.Themes.RawThemeRule";
         var w = new CodeWriter();
@@ -84,7 +87,7 @@ internal static class ThemeEmitter
         w.Line();
         GrammarEmitter.PrivateConstructor(w, unit);
         w.Line("/// <inheritdoc/>");
-        w.Line("public string? Name => " + CodeWriter.Literal(theme.Name) + ";");
+        w.Line("public string? Name => " + CodeWriter.Literal(name) + ";");
         w.Line();
         w.Line("/// <inheritdoc/>");
         w.Open("public global::Tint.Themes.RawTheme GetTheme()");
@@ -138,7 +141,7 @@ internal static class ThemeEmitter
             w.Line("colors[" + CodeWriter.Literal(color.Key) + "] = " + CodeWriter.Literal(color.Value) + ";");
         }
 
-        w.Line("return new global::Tint.Themes.RawTheme(rules, " + CodeWriter.Literal(theme.Name) + ", " + CodeWriter.Literal(theme.Type)
+        w.Line("return new global::Tint.Themes.RawTheme(rules, " + CodeWriter.Literal(name) + ", " + CodeWriter.Literal(theme.Type)
             + ", global::System.Collections.Frozen.FrozenDictionary.ToFrozenDictionary(colors, global::System.StringComparer.Ordinal));");
         w.Close();
         GrammarEmitter.Footer(w, nesting);
