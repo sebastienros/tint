@@ -57,6 +57,10 @@ jobs:
       run: dotnet test --solution Tint.slnx --configuration Release --no-build --minimum-expected-tests 1
     - name: Run the generator sample
       run: dotnet run --project test/Tint.Generator.Sample/Tint.Generator.Sample.csproj --configuration Release --no-build
+    # Restore packed Tint.Grammars.Sources and Tint.Themes.Sources into artifacts/sources-feed/ and the sample restored
+    # them from there as packages (test/Tint.Sources.Sample/Tint.Sources.Sample.csproj).
+    - name: Run the sources sample
+      run: dotnet run --project test/Tint.Sources.Sample/Tint.Sources.Sample.csproj --configuration Release --no-build
     # dotnet format loads the Debug configuration, where the sample needs the generator's Debug build to see the
     # generated attributes and classes.
     - name: Build the generator for dotnet format
@@ -69,7 +73,7 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        for project in src/Tint/Tint.csproj src/Tint.Grammars/Tint.Grammars.csproj src/Tint.Themes/Tint.Themes.csproj; do
+        for project in src/Tint/Tint.csproj src/Tint.Grammars/Tint.Grammars.csproj src/Tint.Themes/Tint.Themes.csproj src/Tint.Grammars.Sources/Tint.Grammars.Sources.csproj src/Tint.Themes.Sources/Tint.Themes.Sources.csproj; do
           dotnet pack "$project" --output artifacts --configuration Release --no-build -p:VersionSuffix=preview.${{ github.run_number }} -p:ContinuousIntegrationBuild=True
         done
 

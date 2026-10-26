@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Consumes Tint.Grammars.Sources and Tint.Themes.Sources as packages, the way an application does: a
+       ProjectReference would not deliver content/ and build/ as a package does. Before restore, PackTintSources packs
+       both projects into artifacts/sources-feed/ (version 0.0.0-local), which nuget.config next to this file maps the
+       two package ids to; packages restore into obj/packages/ so a repack never reads a stale global cache. Tint itself
+       comes from the repository as in Tint.Generator.Sample. CI runs it, and Tint.Tests compares its output to the
+       Tint.Grammars and Tint.Themes bundles. -->
+  <Import Project="../../src/Tint/build/Tint.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Tint.Sources.Sample</RootNamespace>
+    <TintSourcesFeed>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', 'artifacts', 'sources-feed'))</TintSourcesFeed>
+    <TintSourcesVersion>0.0.0-local</TintSourcesVersion>
+    <RestorePackagesPath>$(MSBuildThisFileDirectory)obj/packages/</RestorePackagesPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Tint/Tint.csproj" />
+    <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="GregsEx" />
+    <PackageReference Include="Tint.Grammars.Sources" VersionOverride="$(TintSourcesVersion)" PrivateAssets="all" />
+    <PackageReference Include="Tint.Themes.Sources" VersionOverride="$(TintSourcesVersion)" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <TintGrammar Include="$(TintGrammarsSourcesPath)csharp/syntaxes/csharp.tmLanguage.json" Kernels="true" />
+    <!-- Bound by [TextMateGrammar("$(TintGrammarsSourcesPath)...")] in Program.cs. -->
+    <TintGrammar Include="$(TintGrammarsSourcesPath)json/syntaxes/JSON.tmLanguage.json" />
+    <TintTheme Include="$(TintThemesSourcesPath)theme-defaults/dark_plus.json" />
+    <AdditionalFiles Include="$(TintThemesSourcesPath)theme-defaults/dark_vs.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TintSourcesProject Include="../../src/Tint.Grammars.Sources/Tint.Grammars.Sources.csproj" PackageId="Tint.Grammars.Sources" />
+    <TintSourcesProject Include="../../src/Tint.Themes.Sources/Tint.Themes.Sources.csproj" PackageId="Tint.Themes.Sources" />
+    <TintSourcesInput Include="../../grammars/**/syntaxes/*;../../grammars/manifest.json;../../themes/**/*.json;../../src/Tint.*.Sources/**/*.props;../../src/Tint.*.Sources/*.csproj" />
+  </ItemGroup>
+  <!-- Restore evaluates this project before anything builds, so the packages are packed from the restore graph walk.
+       The sources projects compile nothing, so they pack with NoBuild after a restore into their own obj/sources-pack/
+       folder here (apart from the solution's restore of the same projects). A repack also drops the extracted copies. -->
+  <Target Name="PackTintSources" BeforeTargets="_GenerateRestoreProjectSpec;CollectPackageReferences" Condition="'$(MSBuildIsRestoring)' == 'true'" Inputs="@(TintSourcesInput)" Outputs="$(TintSourcesFeed)Tint.Grammars.Sources.$(TintSourcesVersion).nupkg;$(TintSourcesFeed)Tint.Themes.Sources.$(TintSourcesVersion).nupkg">
+    <PropertyGroup>
+      <_TintSourcesPackProperties>Configuration=Release;BaseIntermediateOutputPath=$(MSBuildThisFileDirectory)obj/sources-pack/%(TintSourcesProject.PackageId)/;Version=$(TintSourcesVersion)</_TintSourcesPackProperties>
+    </PropertyGroup>
+    <MSBuild Projects="%(TintSourcesProject.Identity)" Targets="Restore" Properties="$(_TintSourcesPackProperties);MSBuildRestoreSessionId=$([System.Guid]::NewGuid())" RemoveProperties="ExcludeRestorePackageImports;_RestoreProjectPathItems" />
+    <MSBuild Projects="%(TintSourcesProject.Identity)" Targets="Pack" Properties="$(_TintSourcesPackProperties);NoBuild=true;PackageOutputPath=$(TintSourcesFeed)" RemoveProperties="ExcludeRestorePackageImports;_RestoreProjectPathItems;MSBuildRestoreSessionId" />
+    <RemoveDir Directories="@(TintSourcesProject->'$(RestorePackagesPath)%(PackageId)'->ToLowerInvariant())" />
+  </Target>
+</Project>

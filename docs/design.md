@@ -503,6 +503,25 @@ Markdown, LaTeX and reStructuredText (`source.scala`, `source.haskell`, `source.
 and Perl heredocs, pug filters, and two stale scope names (`source.less` in pug, `source.html` in
 sassdoc). `BundleTests` lists them; their rules are skipped, as in VS Code.
 
+The synced files also ship as two file-only packages for projects that run the generator on their
+own selection instead of taking the precompiled bundles:
+
+| Package | Contents | Assembly |
+|---|---|---|
+| `Tint` | Runtime, `Tint.props`, the generator under `analyzers/dotnet/cs` | yes |
+| `Tint.Grammars` | The 84 VS Code grammars, generated (public classes, `TintGrammars`) | yes |
+| `Tint.Themes` | The 19 VS Code themes, generated (public classes, `TintThemes`) | yes |
+| `Tint.Grammars.Sources` | `grammars/**/syntaxes/*` and `manifest.json` under `content/grammars/`; props defining `$(TintGrammarsSourcesPath)` and `@(TintGrammarsSourcesAll)` | no (development dependency) |
+| `Tint.Themes.Sources` | The theme JSON files and `manifest.json` under `content/themes/`; props defining `$(TintThemesSourcesPath)`, `@(TintThemesSourcesAll)` and `@(TintThemesSourcesIncludes)` | no (development dependency) |
+
+`package.json` and `cgmanifest.json` stay in the repository: provenance reaches the sources
+packages through `manifest.json` and `licenses/THIRD-PARTY-NOTICES.txt`. `tools/Tint.Sync` writes the
+sources props with the same emitter as the bundles' item lists (`SourcesPackageTests` checks that
+they agree item for item), and the generator's table of VS Code scopes
+(`src/Tint.Generator/VSCodeScopes.cs`) that `TINT005` uses to point at a missing grammar's file.
+Item paths from a package folder are absolute and outside the project directory; the generator
+normalizes them like any other path and names them in full in diagnostics.
+
 ## 10. Renderers and the facade
 
 `Highlighter` is the two-line API: `registry.CreateHighlighter("source.cs", theme)` (or `(scope,

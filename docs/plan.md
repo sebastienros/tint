@@ -96,6 +96,12 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   to 146 KB with only `CSharpGrammar` and `JsonGrammar` left, and runs as a 2.9 MB NativeAOT binary
   (osx-arm64), in `.github/workflows/aot.yml` on linux-x64 and osx-arm64.
 
+- Follow-up: `Tint.Grammars.Sources` and `Tint.Themes.Sources`, file-only development-dependency
+  packages of the synced files with `$(TintGrammarsSourcesPath)`/`$(TintThemesSourcesPath)` and
+  `TintGrammarsSourcesAll`/`TintThemesSourcesAll` items written by `tools/Tint.Sync`, so users
+  generate only what they use (design.md section 9). `test/Tint.Sources.Sample` consumes them as
+  packages from a local feed it packs before restore.
+
 ## P5 — Renderers, facade, benchmarks
 
 - `HtmlRenderer` (single and dual theme, line spans, style merging), `AnsiRenderer`,

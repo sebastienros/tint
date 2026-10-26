@@ -372,7 +372,7 @@ public sealed class GeneratorTests
 
         var diagnostic = Assert.Single(run.Tint("TINT005"));
         Assert.Equal(DiagnosticSeverity.Info, diagnostic.Severity);
-        Assert.Contains("source.js, source.css", diagnostic.GetMessage());
+        Assert.Contains("source.js ($(TintGrammarsSourcesPath)javascript/syntaxes/JavaScript.tmLanguage.json), source.css (", diagnostic.GetMessage());
     }
 
     [Fact]

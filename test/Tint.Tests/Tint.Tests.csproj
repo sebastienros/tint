@@ -15,6 +15,7 @@
     <!-- The generator as a library, for CSharpGeneratorDriver; aliased because it compiles Tint's model types too. -->
     <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" Aliases="TintGenerator" />
     <ProjectReference Include="../Tint.Generator.Sample/Tint.Generator.Sample.csproj" />
+    <ProjectReference Include="../Tint.Sources.Sample/Tint.Sources.Sample.csproj" />
     <ProjectReference Include="../../src/Tint.Grammars/Tint.Grammars.csproj" />
     <ProjectReference Include="../../src/Tint.Themes/Tint.Themes.csproj" />
     <ProjectReference Include="../../samples/Tint.Playground.Core/Tint.Playground.Core.csproj" />

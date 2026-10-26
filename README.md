@@ -106,6 +106,24 @@ from 5.2 MB to 146 KB. Reading `All` or calling `Find` keeps every class, as it 
 that includes another (Markdown fenced blocks, HTML with CSS and JavaScript) needs that one
 registered too; `registry.GetMissingGrammars(scopeName)` lists what is missing.
 
+#### Generating from the VS Code sources
+
+To compile only the grammars and themes you use, with your own class names and optional kernels,
+reference the file-only `Tint.Grammars.Sources` and `Tint.Themes.Sources` packages (development
+dependencies, nothing ships with your app) and include the files from their folders:
+
+```xml
+<PackageReference Include="Tint" Version="..." />
+<PackageReference Include="Tint.Grammars.Sources" Version="..." PrivateAssets="all" />
+<PackageReference Include="Tint.Themes.Sources" Version="..." PrivateAssets="all" />
+<TintGrammar Include="$(TintGrammarsSourcesPath)csharp/syntaxes/csharp.tmLanguage.json" Kernels="true" />
+<TintTheme Include="$(TintThemesSourcesPath)theme-defaults/dark_plus.json" />
+<AdditionalFiles Include="$(TintThemesSourcesPath)theme-defaults/dark_vs.json" />
+```
+
+`@(TintGrammarsSourcesAll)` and `@(TintThemesSourcesAll)` list every file with the bundles' metadata;
+see [docs/generator.md](docs/generator.md#vs-code-sources-packages).
+
 ### Tokens
 
 For editors and custom renderers, work with tokens directly. Line state carries over between
