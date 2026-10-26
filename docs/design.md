@@ -503,6 +503,25 @@ Markdown, LaTeX and reStructuredText (`source.scala`, `source.haskell`, `source.
 and Perl heredocs, pug filters, and two stale scope names (`source.less` in pug, `source.html` in
 sassdoc). `BundleTests` lists them; their rules are skipped, as in VS Code.
 
+The synced files also ship as two file-only packages for projects that run the generator on their
+own selection instead of taking the precompiled bundles:
+
+| Package | Contents | Assembly |
+|---|---|---|
+| `Tint` | Runtime, `Tint.props`, the generator under `analyzers/dotnet/cs` | yes |
+| `Tint.Grammars` | The 84 VS Code grammars, generated (public classes, `TintGrammars`) | yes |
+| `Tint.Themes` | The 19 VS Code themes, generated (public classes, `TintThemes`) | yes |
+| `Tint.Grammars.Sources` | `grammars/**/syntaxes/*` and `manifest.json` under `content/grammars/`; props defining `$(TintGrammarsSourcesPath)` and `@(TintGrammarsSourcesAll)` | no (development dependency) |
+| `Tint.Themes.Sources` | The theme JSON files and `manifest.json` under `content/themes/`; props defining `$(TintThemesSourcesPath)`, `@(TintThemesSourcesAll)` and `@(TintThemesSourcesIncludes)` | no (development dependency) |
+
+`package.json` and `cgmanifest.json` stay in the repository: provenance reaches the sources
+packages through `manifest.json` and `licenses/THIRD-PARTY-NOTICES.txt`. `tools/Tint.Sync` writes the
+sources props with the same emitter as the bundles' item lists (`SourcesPackageTests` checks that
+they agree item for item), and the generator's table of VS Code scopes
+(`src/Tint.Generator/VSCodeScopes.cs`) that `TINT005` uses to point at a missing grammar's file.
+Item paths from a package folder are absolute and outside the project directory; the generator
+normalizes them like any other path and names them in full in diagnostics.
+
 ## 10. Renderers and the facade
 
 `Highlighter` is the two-line API: `registry.CreateHighlighter("source.cs", theme)` (or `(scope,
@@ -542,11 +561,32 @@ one (HTML has no trailing empty line; ANSI output ends with a newline when the i
 
 ## 11. Playground
 
-`samples/Tint.Playground`: Blazor WebAssembly, published to GitHub Pages by a workflow. Language
-and theme pickers, a code box, live HTML output, token inspector (scopes and matched theme rule per
-token, like shiki's `explanation`), permalink state in the URL. Grammar bundles are loaded lazily
-with `LazyAssemblyLoader` when they are split per language family, which is the Blazor equivalent
-of shiki's per-language modules.
+`samples/Tint.Playground`: Blazor WebAssembly, published to GitHub Pages
+(<https://sebastienros.github.io/tint/>) by `.github/workflows/pages.yml`, in the spirit of shiki's playground:
+language and theme pickers (themes grouped dark and light, an optional second theme for dual-theme output), a code box
+that re-highlights as you type, a token inspector, the HTML `ToHtml` produced (and the CSS that switches to the second
+theme), and permalinks (`#lang=…&theme=…&theme2=…&code=…`, the code deflated when that is shorter).
+
+- **One assembly per bundle, no lazy loading.** The app registers `TintGrammars.All` and `TintThemes.All` up front:
+  `Tint.Grammars` is one assembly, so `LazyAssemblyLoader` has nothing to split, and its 449 KB (Brotli) are a tenth of
+  the download. Splitting the grammars per language family would only pay off if the runtime were much smaller.
+- **Compiled ahead of time**, trimmed, Brotli-compressed, invariant globalization. `RunAOTCompilation` is behind
+  `-p:TintPlaygroundAot=true` because the SDK requires the `wasm-tools` workload as soon as it is set, even to build;
+  the Pages workflow sets it, CI builds the app without it.
+- **Highlighting** goes through one `GrammarRegistry` and a most-recently-used cache of eight `Highlighter`s, one per
+  grammar and theme(s). The code box is a transparent `textarea` over the highlighted `pre`, both owned by a small
+  script: input is debounced 50 ms, .NET returns the HTML and the script writes it, so Blazor never diffs the code.
+- **Inspector.** The token under the mouse or the caret, its scope stack, and the theme rules that set its foreground
+  and font style: the tokenizer keeps the resolved style at every level of the scope stack, so the deepest level whose
+  style differs from its parent's names the scope, and the most specific selector matching it and that value names
+  the rule (tests check the explanation reproduces the tokenizer's style on every token of 13 language and theme
+  pairs). The grammar rule behind a token is not exposed by the public API, so the inspector does not show it.
+- **Measured** (2026-10-25, M4 Pro, .NET 10.0.4xx SDK, Edge 156 and Playwright Chromium 153, served locally with
+  Brotli): `_framework` is 5.4 MB compressed (`dotnet.native.wasm` 3.9 MB of it, 25 MB raw; `Tint.Grammars.wasm`
+  449 KB, 5.2 MB raw). A cold load reaches the first highlight in 0.40–0.53 s. The C# sample (33 lines, 200 tokens)
+  tokenizes in 44–48 ms the first time (patterns parsed on first use) and 0.9 ms after; `ToHtml` takes 0.8–0.9 ms.
+  Interpreted (no AOT) the download is 2.4 MB and the same sample takes 145 ms cold and 7 ms warm. The AOT publish
+  takes 2.5 minutes locally.
 
 ## 12. Performance plan
 
@@ -594,7 +634,7 @@ of shiki's per-language modules.
 `Type.GetType`, no `Activator`, no `dynamic`. Generated grammars are plain static classes, so a
 trimmed app keeps only the grammars it references: the smoke app keeps 2 of the 84 grammar classes
 and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type names. The playground is the proof: published with
-`RunAOTCompilation`, trimmed, lazy-loaded.
+`RunAOTCompilation` and trimmed (section 11).
 
 ## 15. Open items and asks on GregsEx
 

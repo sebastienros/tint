@@ -80,7 +80,7 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        for project in src/Tint/Tint.csproj src/Tint.Grammars/Tint.Grammars.csproj src/Tint.Themes/Tint.Themes.csproj; do
+        for project in src/Tint/Tint.csproj src/Tint.Grammars/Tint.Grammars.csproj src/Tint.Themes/Tint.Themes.csproj src/Tint.Grammars.Sources/Tint.Grammars.Sources.csproj src/Tint.Themes.Sources/Tint.Themes.Sources.csproj; do
           dotnet pack "$project" --output artifacts --configuration Release --no-build -p:Version=${{ steps.release.outputs.version }} -p:ContinuousIntegrationBuild=True
         done
 

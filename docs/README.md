@@ -7,6 +7,8 @@
   diagnostics, kernels and how the generator finds GregsEx.
 - [Releasing](release.md): tagging `vX.Y.Z`, what `publish.yml` does, verifying on nuget.org,
   previews on Feedz, the branch ruleset.
+- [HTML output](html-output.md): the markup `ToHtml` writes, with rendered samples, CSS-class mode
+  and the CSS-variable scheme for several themes.
 
 ## Research
 

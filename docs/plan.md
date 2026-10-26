@@ -96,6 +96,12 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   to 146 KB with only `CSharpGrammar` and `JsonGrammar` left, and runs as a 2.9 MB NativeAOT binary
   (osx-arm64), in `.github/workflows/aot.yml` on linux-x64 and osx-arm64.
 
+- Follow-up: `Tint.Grammars.Sources` and `Tint.Themes.Sources`, file-only development-dependency
+  packages of the synced files with `$(TintGrammarsSourcesPath)`/`$(TintThemesSourcesPath)` and
+  `TintGrammarsSourcesAll`/`TintThemesSourcesAll` items written by `tools/Tint.Sync`, so users
+  generate only what they use (design.md section 9). `test/Tint.Sources.Sample` consumes them as
+  packages from a local feed it packs before restore.
+
 ## P5 — Renderers, facade, benchmarks
 
 - `HtmlRenderer` (single and dual theme, line spans, style merging), `AnsiRenderer`,
@@ -120,6 +126,14 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   token inspector, permalinks; AOT + trimmed publish; lazy assembly loading; `pages.yml` workflow
   deploying to GitHub Pages.
 - Done when: the site is live from `main`.
+- Outcome (2026-10-25): `samples/Tint.Playground` (Blazor WebAssembly, plain CSS) and
+  `samples/Tint.Playground.Core` (URL state, pickers, token lookup, theme rule explanation; tested in
+  `test/Tint.Tests/Playground`). No lazy assembly loading: `Tint.Grammars` is a single assembly and only 449 KB of
+  the 5.4 MB compressed download (design section 11). AOT publish in 2.5 minutes; cold load to first highlight
+  0.40–0.53 s; the C# sample tokenizes in 0.9 ms warm (7 ms interpreted). `pages.yml` deploys from `main` once Pages
+  is enabled with the "GitHub Actions" source (the repository is private until it goes public); `build.yml` builds
+  the app without AOT. Three VS Code themes (Monokai, Monokai Dimmed, Tomorrow Night Blue) have no `name`, so
+  `IThemeSource.Name` is null for them; the playground names them after their class.
 
 ## P7 — Hardening and 0.1.0
 

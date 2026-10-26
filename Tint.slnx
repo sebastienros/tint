@@ -2,14 +2,21 @@
   <Folder Name="/benchmarks/">
     <Project Path="benchmarks/Tint.Benchmarks/Tint.Benchmarks.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Tint.Playground/Tint.Playground.csproj" />
+    <Project Path="samples/Tint.Playground.Core/Tint.Playground.Core.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Tint/Tint.csproj" />
     <Project Path="src/Tint.Generator/Tint.Generator.csproj" />
     <Project Path="src/Tint.Grammars/Tint.Grammars.csproj" />
+    <Project Path="src/Tint.Grammars.Sources/Tint.Grammars.Sources.csproj" />
     <Project Path="src/Tint.Themes/Tint.Themes.csproj" />
+    <Project Path="src/Tint.Themes.Sources/Tint.Themes.Sources.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Tint.Generator.Sample/Tint.Generator.Sample.csproj" />
+    <Project Path="test/Tint.Sources.Sample/Tint.Sources.Sample.csproj" />
     <Project Path="test/Tint.Tests/Tint.Tests.csproj" />
     <Project Path="test/Tint.TrimSmoke/Tint.TrimSmoke.csproj" />
   </Folder>

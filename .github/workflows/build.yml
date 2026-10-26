@@ -56,6 +56,10 @@ jobs:
       run: dotnet test --solution Tint.slnx --configuration Release --no-build --minimum-expected-tests 1
     - name: Run the generator sample
       run: dotnet run --project test/Tint.Generator.Sample/Tint.Generator.Sample.csproj --configuration Release --no-build
+    # Restore packed Tint.Grammars.Sources and Tint.Themes.Sources into artifacts/sources-feed/ and the sample restored
+    # them from there as packages (test/Tint.Sources.Sample/Tint.Sources.Sample.csproj).
+    - name: Run the sources sample
+      run: dotnet run --project test/Tint.Sources.Sample/Tint.Sources.Sample.csproj --configuration Release --no-build
     # dotnet format loads the Debug configuration, where the sample needs the generator's Debug build to see the
     # generated attributes and classes.
     - name: Build the generator for dotnet format
@@ -68,7 +72,7 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        for project in src/Tint/Tint.csproj src/Tint.Grammars/Tint.Grammars.csproj src/Tint.Themes/Tint.Themes.csproj; do
+        for project in src/Tint/Tint.csproj src/Tint.Grammars/Tint.Grammars.csproj src/Tint.Themes/Tint.Themes.csproj src/Tint.Grammars.Sources/Tint.Grammars.Sources.csproj src/Tint.Themes.Sources/Tint.Themes.Sources.csproj; do
           dotnet pack "$project" --output artifacts --configuration Release --no-build -p:VersionSuffix=preview.${{ github.run_number }} -p:ContinuousIntegrationBuild=True
         done
 
@@ -86,3 +90,25 @@ jobs:
         for package in artifacts/*.nupkg; do
           dotnet nuget push "$package" --api-key "$FEEDZ_IO_API_KEY" --source https://f.feedz.io/sebastienros/tint/nuget/index.json --skip-duplicate
         done
+
+  # The solution build above covers the playground too; this job keeps a plain Release build of it visible as its own
+  # check. It needs no workload: AOT (TintPlaygroundAot=true) is only for the Pages deployment (pages.yml).
+  playground:
+    name: Playground
+    runs-on: ubuntu-latest
+    env:
+        DOTNET_NOLOGO: true
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      with:
+        persist-credentials: false
+    - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+      with:
+        dotnet-version: |
+          10.0.x
+        global-json-file: global.json
+        check-latest: false
+    - name: Build the playground
+      run: dotnet build samples/Tint.Playground -c Release

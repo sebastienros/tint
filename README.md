@@ -2,6 +2,8 @@
 
 **TextMate syntax colorization for .NET, built for speed, NativeAOT and trimming.**
 
+[Playground](https://sebastienros.github.io/tint/): every bundled grammar and theme, in the browser.
+
 Tint tokenizes and colors source code with the same grammars and themes VS Code uses. Grammars and
 themes are compiled into your assembly by a source generator and validated at build time; regexes
 run on [GregsEx](https://github.com/sebastienros/gregsex), a managed Oniguruma-compatible engine,
@@ -69,7 +71,9 @@ grammars, VS Code JSON themes (with `include`) and `.tmTheme` files are supporte
 
 `Tint.Grammars` and `Tint.Themes` ship the VS Code grammars (84 files, from 51 extensions) and its
 19 color themes already generated, for quick starts, demos and the
-[playground](https://sebastienros.github.io/tint/). No items or generator setup needed.
+[playground](https://sebastienros.github.io/tint/). No items or generator setup needed. The playground
+([samples/Tint.Playground](samples/Tint.Playground)) registers all of them in a Blazor WebAssembly app compiled ahead
+of time.
 
 ```bash
 dotnet add package Tint.Grammars
@@ -104,6 +108,24 @@ from 5.2 MB to 146 KB. Reading `All` or calling `Find` keeps every class, as it 
 that includes another (Markdown fenced blocks, HTML with CSS and JavaScript) needs that one
 registered too; `registry.GetMissingGrammars(scopeName)` lists what is missing.
 
+#### Generating from the VS Code sources
+
+To compile only the grammars and themes you use, with your own class names and optional kernels,
+reference the file-only `Tint.Grammars.Sources` and `Tint.Themes.Sources` packages (development
+dependencies, nothing ships with your app) and include the files from their folders:
+
+```xml
+<PackageReference Include="Tint" Version="..." />
+<PackageReference Include="Tint.Grammars.Sources" Version="..." PrivateAssets="all" />
+<PackageReference Include="Tint.Themes.Sources" Version="..." PrivateAssets="all" />
+<TintGrammar Include="$(TintGrammarsSourcesPath)csharp/syntaxes/csharp.tmLanguage.json" Kernels="true" />
+<TintTheme Include="$(TintThemesSourcesPath)theme-defaults/dark_plus.json" />
+<AdditionalFiles Include="$(TintThemesSourcesPath)theme-defaults/dark_vs.json" />
+```
+
+`@(TintGrammarsSourcesAll)` and `@(TintThemesSourcesAll)` list every file with the bundles' metadata;
+see [docs/generator.md](docs/generator.md#vs-code-sources-packages).
+
 ### Tokens
 
 For editors and custom renderers, work with tokens directly. Line state carries over between
@@ -132,9 +154,11 @@ thread or per open document and keep it alive; the compiled grammar behind it is
 
 ### HTML
 
-`ToHtml` writes shiki-compatible markup: the theme's colors on the `pre`, one `<span class="line">`
-per line, one `<span style="…">` per run of tokens with the same style holding only what differs from
-the theme's defaults, text HTML-escaped. `HtmlRendererOptions` sets the `pre` class, `data-line`
+`ToHtml` writes markup in the shape shiki made common, so stylesheets and tools written for shiki
+output apply unchanged: the theme's colors on the `pre`, one `<span class="line">` per line, one
+`<span style="…">` per run of tokens with the same style holding only what differs from the theme's
+defaults, text HTML-escaped. A rendered sample and the exact conventions are in
+[docs/html-output.md](docs/html-output.md). `HtmlRendererOptions` sets the `pre` class, `data-line`
 line numbers, and a CSS-class mode with a matching stylesheet:
 
 ```csharp
@@ -196,10 +220,6 @@ also regenerates `THIRD-PARTY-NOTICES.txt`:
 ```bash
 dotnet run --project tools/Tint.Sync -- sync --commit 3ac0f056
 ```
-
-The [Sync VS Code grammars and themes](.github/workflows/sync-vscode.yml) workflow runs this
-every Monday against VS Code `main` and opens a pull request from the `sync/vscode` branch when
-anything changed.
 
 Design notes, the plan and research are indexed in [docs/README.md](docs/README.md).
 

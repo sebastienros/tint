@@ -9,7 +9,15 @@ internal enum SourceKind
 }
 
 // Project-wide options (build_property.*).
-internal sealed record GlobalOptions(string? ProjectDirectory, string? RootNamespace, bool Kernels, string? GregsExPackagePath, string? GrammarsClass, string? ThemesClass)
+internal sealed record GlobalOptions(
+    string? ProjectDirectory,
+    string? RootNamespace,
+    bool Kernels,
+    string? GregsExPackagePath,
+    string? GrammarsClass,
+    string? ThemesClass,
+    string? GrammarsSourcesPath = null,
+    string? ThemesSourcesPath = null)
 {
     public static GlobalOptions From(AnalyzerConfigOptions options)
     {
@@ -19,13 +27,30 @@ internal sealed record GlobalOptions(string? ProjectDirectory, string? RootNames
         options.TryGetValue("build_property.tintgregsexpackagepath", out var gregsEx);
         options.TryGetValue("build_property.tintgrammarsclass", out var grammarsClass);
         options.TryGetValue("build_property.tintthemesclass", out var themesClass);
+        options.TryGetValue("build_property.tintgrammarssourcespath", out var grammarsSources);
+        options.TryGetValue("build_property.tintthemessourcespath", out var themesSources);
         return new GlobalOptions(
             string.IsNullOrWhiteSpace(projectDir) ? null : PathUtilities.Normalize(projectDir!, null),
             string.IsNullOrWhiteSpace(rootNamespace) ? null : rootNamespace!.Trim(),
             IsTrue(kernels),
             string.IsNullOrWhiteSpace(gregsEx) ? null : gregsEx!.Trim(),
             SourceSettings.NullIfEmpty(grammarsClass),
-            SourceSettings.NullIfEmpty(themesClass));
+            SourceSettings.NullIfEmpty(themesClass),
+            SourceSettings.NullIfEmpty(grammarsSources),
+            SourceSettings.NullIfEmpty(themesSources));
+    }
+
+    // The sources package properties (Tint.Grammars.Sources, Tint.Themes.Sources) an attribute path may start with,
+    // as MSBuild would expand them in an item: [TextMateGrammar("$(TintGrammarsSourcesPath)csharp/...")].
+    public string ExpandSourcesPaths(string path)
+    {
+        path = Expand(path, "$(TintGrammarsSourcesPath)", GrammarsSourcesPath);
+        return Expand(path, "$(TintThemesSourcesPath)", ThemesSourcesPath);
+
+        static string Expand(string path, string token, string? value)
+            => value is not null && path.StartsWith(token, StringComparison.OrdinalIgnoreCase)
+                ? value.Replace('\\', '/').TrimEnd('/') + "/" + path.Substring(token.Length).TrimStart('/', '\\')
+                : path;
     }
 
     public static bool IsTrue(string? value) => string.Equals(value?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
@@ -146,11 +171,18 @@ internal static class PathUtilities
 
     public static bool PathEquals(string left, string right) => string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
 
+    // The path relative to the project directory, or the full path (forward slashes) for a file outside it, such as
+    // one from a package folder: diagnostics then name the file wherever it is.
     public static string Relative(string fullPath, string? projectDirectory)
     {
-        if (projectDirectory is not null && fullPath.StartsWith(projectDirectory + "/", StringComparison.OrdinalIgnoreCase))
+        fullPath = fullPath.Replace('\\', '/');
+        if (projectDirectory is not null)
         {
-            return fullPath.Substring(projectDirectory.Length + 1);
+            var directory = projectDirectory.Replace('\\', '/').TrimEnd('/');
+            if (fullPath.StartsWith(directory + "/", StringComparison.OrdinalIgnoreCase) && fullPath.Length > directory.Length + 1)
+            {
+                return fullPath.Substring(directory.Length + 1);
+            }
         }
 
         return fullPath;

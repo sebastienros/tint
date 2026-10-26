@@ -391,9 +391,10 @@ public sealed class TintGenerator : IIncrementalGenerator
                     continue;
                 }
 
-                var full = PathUtilities.Normalize(target.Path, globals.ProjectDirectory);
+                var path = globals.ExpandSourcesPaths(target.Path);
+                var full = PathUtilities.Normalize(path, globals.ProjectDirectory);
                 var file = files.FirstOrDefault(f => f.Text is not null && PathUtilities.PathEquals(f.FullPath, full))
-                    ?? (globals.ProjectDirectory is null ? files.FirstOrDefault(f => f.Text is not null && EndsWithPath(f.FullPath, target.Path)) : null);
+                    ?? UniqueSuffixMatch(files, path);
                 if (file is null)
                 {
                     diagnostics.Add(DiagnosticInfo.Create(
@@ -483,6 +484,33 @@ public sealed class TintGenerator : IIncrementalGenerator
             }
 
             return new Plan(unique.ToEquatableArray(), diagnostics.ToEquatableArray());
+        }
+
+        // A relative attribute path that is not under the project directory binds the one item whose path ends with it,
+        // so "csharp/syntaxes/csharp.tmLanguage.json" finds an item included from a package folder; an ambiguous suffix
+        // binds nothing (TINT001).
+        private static ProjectFile? UniqueSuffixMatch(EquatableArray<ProjectFile> files, string path)
+        {
+            if (Path.IsPathRooted(path.Replace('\\', '/')))
+            {
+                return null;
+            }
+
+            ProjectFile? match = null;
+            foreach (var file in files)
+            {
+                if (file.Text is not null && EndsWithPath(file.FullPath, path))
+                {
+                    if (match is not null)
+                    {
+                        return null;
+                    }
+
+                    match = file;
+                }
+            }
+
+            return match;
         }
 
         private static bool EndsWithPath(string fullPath, string path)

@@ -55,7 +55,7 @@ var propsRootOption = new Option<DirectoryInfo?>("--root")
 {
     Description = "The repository root. Defaults to the nearest directory containing Tint.slnx.",
 };
-var props = new Command("props", "Regenerate src/Tint.Grammars/VSCodeGrammars.props and src/Tint.Themes/VSCodeThemes.props from the manifests. Downloads nothing; sync runs this too.")
+var props = new Command("props", "Regenerate the bundle item lists, the sources package props and the generator scope table from the manifests. Downloads nothing; sync runs this too.")
 {
     propsRootOption,
 };

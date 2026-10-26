@@ -7,6 +7,8 @@
     <!-- 0.5.1 ships the compiled Oniguruma kernels, the KernelSource façade and OnigurumaCompileOptions.TextMate. Previews (0.1.0-preview.N) come from the Feedz feed in nuget.config. -->
     <PackageVersion Include="GregsEx" Version="0.5.1" />
     <PackageVersion Include="Meziantou.Polyfill" Version="1.0.166" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" />
     <!-- Pinned to the Roslyn shipped with the base .NET 10.0.100 SDK so the generator does not force a newer SDK. -->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <!-- Tracks the public surface of the shipped packages in PublicAPI.*.txt (RS0016/RS0017). 4.x runs on any SDK 10 compiler. -->
