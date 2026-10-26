@@ -134,9 +134,11 @@ thread or per open document and keep it alive; the compiled grammar behind it is
 
 ### HTML
 
-`ToHtml` writes shiki-compatible markup: the theme's colors on the `pre`, one `<span class="line">`
-per line, one `<span style="…">` per run of tokens with the same style holding only what differs from
-the theme's defaults, text HTML-escaped. `HtmlRendererOptions` sets the `pre` class, `data-line`
+`ToHtml` writes markup in the shape shiki made common, so stylesheets and tools written for shiki
+output apply unchanged: the theme's colors on the `pre`, one `<span class="line">` per line, one
+`<span style="…">` per run of tokens with the same style holding only what differs from the theme's
+defaults, text HTML-escaped. A rendered sample and the exact conventions are in
+[docs/html-output.md](docs/html-output.md). `HtmlRendererOptions` sets the `pre` class, `data-line`
 line numbers, and a CSS-class mode with a matching stylesheet:
 
 ```csharp
@@ -198,10 +200,6 @@ also regenerates `THIRD-PARTY-NOTICES.txt`:
 ```bash
 dotnet run --project tools/Tint.Sync -- sync --commit 3ac0f056
 ```
-
-The [Sync VS Code grammars and themes](.github/workflows/sync-vscode.yml) workflow runs this
-every Monday against VS Code `main` and opens a pull request from the `sync/vscode` branch when
-anything changed.
 
 Design notes, the plan and research are indexed in [docs/README.md](docs/README.md).
 

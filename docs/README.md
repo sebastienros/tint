@@ -5,6 +5,8 @@
 - [Plan](plan.md): phases P0 to P7, what each delivers and when it is done.
 - [Source generator](generator.md): `TintGrammar`/`TintTheme` items, the attributes, metadata,
   diagnostics, kernels and how the generator finds GregsEx.
+- [HTML output](html-output.md): the markup `ToHtml` writes, with rendered samples, CSS-class mode
+  and the CSS-variable scheme for several themes.
 
 ## Research
 
