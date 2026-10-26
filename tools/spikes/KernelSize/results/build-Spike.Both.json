@@ -6,20 +6,29 @@
  "source_bytes": 225006,
  "generated_bytes": 19429582,
  "dll_bytes": 3913216,
- "build_clean_cold_s": 44.33,
+ "build_clean_cold_s": 47.99,
  "build_clean_warm_s": [
-  41.06,
-  40.71,
-  40.74
+  42.58,
+  42.22,
+  42.5
  ],
- "build_clean_warm_median_s": 40.74,
+ "build_clean_warm_median_s": 42.5,
  "build_noop_s": [
-  0.51,
-  0.54,
-  0.5
+  0.53,
+  0.48,
+  0.47
  ],
- "build_noop_median_s": 0.51,
- "build_emit_generated_s": 41.7,
+ "build_noop_median_s": 0.48,
+ "build_emit_generated_s": 42.36,
+ "build_clean_no_trim_analyzers_s": [
+  3.18,
+  3.17,
+  3.1
+ ],
+ "build_clean_no_trim_analyzers_median_s": 3.17,
+ "analyzer_cpu_s": 551.413,
+ "illink_analyzer_cpu_s": 550.574,
+ "generator_s": 0.126,
  "diagnostics": {
   "GREGEX003": 71
  },
@@ -104,6 +113,89 @@
   656,
   661
  ],
+ "declined_by_reason": {
+  "Subexpression calls are not lowered.": [
+   21,
+   51,
+   52,
+   53,
+   54,
+   55,
+   65,
+   145,
+   157,
+   159,
+   160,
+   165,
+   166,
+   247,
+   252,
+   255,
+   264,
+   270
+  ],
+  "A loop whose body can match the empty string is not lowered.": [
+   41,
+   71,
+   72,
+   146,
+   150,
+   161,
+   162,
+   163,
+   229,
+   230,
+   233,
+   237,
+   239,
+   240,
+   241,
+   275,
+   306,
+   307,
+   308,
+   309,
+   310,
+   311,
+   312,
+   315,
+   656
+  ],
+  "The absent operator is not lowered.": [
+   322,
+   323,
+   324
+  ],
+  "The program exceeds the lowering node bound.": [
+   368,
+   372,
+   383,
+   389,
+   403,
+   404,
+   409,
+   473,
+   481,
+   488,
+   489,
+   491,
+   502,
+   503,
+   552,
+   581,
+   608,
+   611,
+   612,
+   661
+  ],
+  "A character class exceeds the class bound.": [
+   370,
+   553,
+   555,
+   557,
+   558
+  ]
+ },
  "errors": [],
  "per_method": [
   {

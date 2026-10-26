@@ -134,16 +134,47 @@ foreach (var i in top)
 Console.WriteLine($"{{\"summary\":true,\"mean_kernel_ns_pos0\":{sumKernel0 / top.Length:F1},\"mean_interp_ns_pos0\":{sumInterp0 / top.Length:F1}," +
     $"\"mean_kernel_ns_inner\":{sumKernelIn / top.Length:F1},\"mean_interp_ns_inner\":{sumInterpIn / top.Length:F1}," +
     $"\"geomean_speedup\":{GeoMean(speedups):F2},\"geomean_speedup_kernel_backed\":{GeoMean(kernelOnlySpeedups):F2},\"kernel_backed_in_top\":{kernelOnlySpeedups.Count}}}");
+// The top 30 by match rate is dominated by trivial patterns ($, \G, lookarounds) that match
+// everywhere; a tokenizer mostly runs patterns that fail. Same timing over every pattern.
+var all = new List<double>();
+var allKernel = new List<double>();
+var allMatched = new List<double>();
+for (var i = 0; i < kernels.Length; i++)
+{
+    var groups = kernels[i].GroupCount;
+    var k = Time(kernelWorkspaces[i], captureBuffer, groups, inner: false) + 3 * Time(kernelWorkspaces[i], captureBuffer, groups, inner: true);
+    var n = Time(interpretedWorkspaces[i], interpretedBuffer, groups, inner: false) + 3 * Time(interpretedWorkspaces[i], interpretedBuffer, groups, inner: true);
+    all.Add(n / k);
+    if (kernels[i].ExecutionBackend == RegexExecutionBackend.Compiled)
+    {
+        allKernel.Add(n / k);
+        if (matchCounts[i] > 0)
+        {
+            allMatched.Add(n / k);
+        }
+    }
+}
+
+allKernel.Sort();
+Console.WriteLine($"{{\"all_patterns\":true,\"geomean_speedup\":{GeoMean(all):F2},\"geomean_speedup_kernel_backed\":{GeoMean(allKernel):F2}," +
+    $"\"geomean_speedup_kernel_backed_matching\":{GeoMean(allMatched):F2},\"kernel_backed\":{allKernel.Count},\"kernel_backed_matching\":{allMatched.Count}," +
+    $"\"kernel_slower\":{allKernel.Count(x => x < 1)},\"p10\":{allKernel[allKernel.Count / 10]:F2},\"median\":{allKernel[allKernel.Count / 2]:F2},\"p90\":{allKernel[allKernel.Count * 9 / 10]:F2},\"max\":{allKernel[^1]:F2}}}");
 return mismatches == 0 ? 0 : 1;
 
 // ns per search: Iterations rounds over the 20 lines (line = round % 20); position 0 only, or the
-// three inner positions. 1,000 warm-up rounds first.
+// three inner positions. 1,000 warm-up rounds first, then the best of five trials.
 double Time(OnigurumaWorkspace workspace, RegexCapture[] buffer, int groups, bool inner)
 {
     Rounds(workspace, buffer, groups, inner, 1_000);
-    var start = Stopwatch.GetTimestamp();
-    var count = Rounds(workspace, buffer, groups, inner, Iterations);
-    return Stopwatch.GetElapsedTime(start).TotalNanoseconds / count;
+    var best = double.MaxValue;
+    for (var trial = 0; trial < 5; trial++)
+    {
+        var start = Stopwatch.GetTimestamp();
+        var count = Rounds(workspace, buffer, groups, inner, Iterations);
+        best = Math.Min(best, Stopwatch.GetElapsedTime(start).TotalNanoseconds / count);
+    }
+
+    return best;
 }
 
 long Rounds(OnigurumaWorkspace workspace, RegexCapture[] buffer, int groups, bool inner, int rounds)

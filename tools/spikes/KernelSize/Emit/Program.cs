@@ -18,11 +18,21 @@ for (var i = 0; i < args.Length; i++)
 {
     switch (args[i])
     {
-        case "--lazy": lazy = true; break;
-        case "--class": className = args[++i]; break;
-        case "--namespace": ns = args[++i]; break;
-        case "--out": outPath = args[++i]; break;
-        default: grammars.Add(args[i]); break;
+        case "--lazy":
+            lazy = true;
+            break;
+        case "--class":
+            className = args[++i];
+            break;
+        case "--namespace":
+            ns = args[++i];
+            break;
+        case "--out":
+            outPath = args[++i];
+            break;
+        default:
+            grammars.Add(args[i]);
+            break;
     }
 }
 
@@ -213,10 +223,18 @@ void Collect(string key, string source)
     stats.Patterns++;
     switch (key)
     {
-        case "match": stats.Match++; break;
-        case "begin": stats.Begin++; break;
-        case "end": stats.End++; break;
-        default: stats.While++; break;
+        case "match":
+            stats.Match++;
+            break;
+        case "begin":
+            stats.Begin++;
+            break;
+        case "end":
+            stats.End++;
+            break;
+        default:
+            stats.While++;
+            break;
     }
 
     // vscode-textmate: HAS_BACK_REFERENCES = /\\(\d+)/; such end/while patterns are resolved per match.
@@ -366,8 +384,12 @@ static string Literal(string text)
     {
         switch (c)
         {
-            case '\\': builder.Append("\\\\"); break;
-            case '"': builder.Append("\\\""); break;
+            case '\\':
+                builder.Append("\\\\");
+                break;
+            case '"':
+                builder.Append("\\\"");
+                break;
             default:
                 if (c is >= ' ' and <= '~')
                 {

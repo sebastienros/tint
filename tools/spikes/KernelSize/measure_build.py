@@ -19,14 +19,14 @@ RESULTS = os.path.join(ROOT, "results")
 RUNS = 3
 
 
-def run(args, cwd):
+def run(args, cwd, output=False):
     start = time.perf_counter()
     proc = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
     elapsed = time.perf_counter() - start
     if proc.returncode != 0:
         print(proc.stdout[-4000:], proc.stderr[-4000:])
         raise SystemExit(f"{' '.join(args)} failed in {cwd}")
-    return elapsed
+    return (elapsed, proc.stdout) if output else elapsed
 
 
 def clean(project_dir):
@@ -35,8 +35,17 @@ def clean(project_dir):
     shutil.rmtree(os.path.join(project_dir, "obj", "gen"), ignore_errors=True)
 
 
-def build(project_dir, *extra):
-    return run(["dotnet", "build", "-c", "Release", "--no-restore", "-nologo", *extra], project_dir)
+def build(project_dir, *extra, output=False):
+    return run(["dotnet", "build", "-c", "Release", "--no-restore", "-nologo", *extra], project_dir, output)
+
+
+# IsAotCompatible/IsTrimmable turn on the ILLink Roslyn analyzers; these switch them off.
+NO_TRIM_ANALYZERS = ["-p:EnableTrimAnalyzer=false", "-p:EnableAotAnalyzer=false", "-p:EnableSingleFileAnalyzer=false"]
+
+
+def seconds(pattern, log):
+    m = re.search(pattern + r": ([0-9.]+) seconds", log)
+    return float(m.group(1)) if m else None
 
 
 def measure(project):
@@ -56,6 +65,18 @@ def measure(project):
     noop = [build(project_dir) for _ in range(RUNS)]
     dll = os.path.join(project_dir, "bin", "Release", "net10.0", assembly)
     dll_bytes = os.path.getsize(dll)
+
+    # Clean builds without the trim/AOT analyzers, and one build reporting analyzer/generator time.
+    no_trim = []
+    for _ in range(RUNS):
+        clean(project_dir)
+        no_trim.append(build(project_dir, *NO_TRIM_ANALYZERS))
+    clean(project_dir)
+    _, log = build(project_dir, "-v:d", "-p:ReportAnalyzer=true", output=True)
+    analyzer_s = seconds("Total analyzer execution time", log)
+    generator_s = seconds("Total generator execution time", log)
+    illink = re.search(r"([0-9.]+)\s+\d+\s+ILLink\.RoslynAnalyzer,", log)
+    illink_s = float(illink.group(1)) if illink else None
 
     # Same build with the generated files written to disk.
     clean(project_dir)
@@ -120,6 +141,11 @@ def measure(project):
         "build_noop_s": [round(x, 2) for x in noop],
         "build_noop_median_s": round(statistics.median(noop), 2),
         "build_emit_generated_s": round(emit, 2),
+        "build_clean_no_trim_analyzers_s": [round(x, 2) for x in no_trim],
+        "build_clean_no_trim_analyzers_median_s": round(statistics.median(no_trim), 2),
+        "analyzer_cpu_s": analyzer_s,
+        "illink_analyzer_cpu_s": illink_s,
+        "generator_s": generator_s,
         "diagnostics": dict(by_id),
         "declined": len(declined),
         "declined_reasons": dict(reasons.most_common()),
