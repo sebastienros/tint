@@ -33,14 +33,18 @@
         @if (_secondTheme is not null)
         {
             <div class="segmented" role="group" aria-label="Preview">
-                <button type="button" class="@(_showSecond ? null : "active")" @onclick="() => ShowSecond(false)" title="Preview the first theme">@_theme.Name</button>
-                <button type="button" class="@(_showSecond ? "active" : null)" @onclick="() => ShowSecond(true)" title="Preview the second theme, as the CSS below switches to it">@_secondTheme.Name</button>
+                <button type="button" class="@(_showSecond ? null : "active")" @onclick="() => ShowSecond(false)" data-tip="Preview the first theme: the colors Highlighter.ToHtml emits inline.">
+                    <span class="clip">@_theme.Name</span>
+                </button>
+                <button type="button" class="@(_showSecond ? "active" : null)" @onclick="() => ShowSecond(true)" data-tip="Preview the second theme: the CSS in the HTML output switches the markup to it.">
+                    <span class="clip">@_secondTheme.Name</span>
+                </button>
             </div>
         }
 
         <div class="actions">
-            <button type="button" @onclick="LoadSampleAsync" disabled="@(_loading)" title="Load the sample for this language">Sample</button>
-            <button type="button" @onclick="CopyHtmlAsync" title="Copy the HTML Highlighter.ToHtml produced">@_copyLabel</button>
+            <button type="button" @onclick="LoadSampleAsync" disabled="@(_loading)" data-tip="Replace the code with the sample for this language. Picking a language does the same.">Sample</button>
+            <button type="button" @onclick="CopyHtmlAsync" data-tip="Copy the highlighted markup, as Highlighter.ToHtml produces it, to the clipboard.">@_copyLabel</button>
         </div>
     </header>
 
@@ -119,7 +123,7 @@
     </footer>
 
     <section class="html-output">
-        <button type="button" class="disclosure" aria-expanded="@(_showHtml ? "true" : "false")" @onclick="() => _showHtml = !_showHtml">
+        <button type="button" class="disclosure" aria-expanded="@(_showHtml ? "true" : "false")" @onclick="() => _showHtml = !_showHtml" data-tip="@(_showHtml ? "Hide" : "Show") the markup Highlighter.ToHtml produced for this code, and the CSS for the second theme.">
             <span class="chevron">@(_showHtml ? "▾" : "▸")</span> HTML output
         </button>
         @if (_showHtml && _result is not null)

@@ -127,6 +127,10 @@ select:focus-visible, button:focus-visible, .editor-input:focus-visible {
 .segmented button {
     border-radius: 0;
     max-width: 160px;
+}
+
+.segmented .clip {
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -149,6 +153,57 @@ select:focus-visible, button:focus-visible, .editor-input:focus-visible {
     display: flex;
     gap: 8px;
     margin-left: auto;
+}
+
+/* Tooltips: data-tip on a control, shown under it on hover and on keyboard focus. */
+
+[data-tip] {
+    position: relative;
+}
+
+[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    z-index: 10;
+    width: max-content;
+    max-width: 260px;
+    padding: 5px 8px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--page-bg);
+    color: var(--page-fg);
+    font: 12px/1.35 var(--sans);
+    font-weight: 400;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 0 4px 12px rgb(0 0 0 / .25);
+    transform: translateX(-50%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .12s, visibility .12s;
+}
+
+[data-tip]:hover::after, [data-tip]:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: .3s;
+}
+
+/* The actions sit at the right edge and the disclosure at the bottom left: keep their tooltips on screen. */
+.actions [data-tip]::after {
+    left: auto;
+    right: 0;
+    transform: none;
+}
+
+.disclosure[data-tip]::after {
+    top: auto;
+    bottom: calc(100% + 4px);
+    left: 0;
+    transform: none;
 }
 
 /* Editor: a transparent textarea over the highlighted pre, same metrics, scroll synchronized by script. */
