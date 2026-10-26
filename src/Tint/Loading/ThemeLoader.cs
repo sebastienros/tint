@@ -113,6 +113,14 @@ public static class ThemeLoader
             ReadRules(settings, rules);
         }
 
+        if (depth == 0 && format == DocumentFormat.Json
+            && (colors.TryGetValue("editor.foreground", out var foreground) | colors.TryGetValue("editor.background", out var background)))
+        {
+            // VS Code color themes: the default rule comes from the editor colors and replaces any scopeless rule.
+            rules.RemoveAll(rule => rule.Scopes is null);
+            rules.Insert(0, new RawThemeRule { Foreground = foreground, Background = background });
+        }
+
         return new RawTheme(rules, name, type, colors.ToFrozenDictionary(StringComparer.Ordinal));
     }
 

@@ -65,6 +65,8 @@ public sealed class Theme
         return Match(scopePath[^1], new ListCursor(scopePath, scopePath.Count - 2));
     }
 
+    internal ThemeTrieElement Root => _root;
+
     internal StyleAttributes? Match(string scopeName, AttributedScopeStack? parent) => Match(scopeName, new NodeCursor(parent));
 
     private StyleAttributes? Match<TCursor>(string scopeName, TCursor parent)
