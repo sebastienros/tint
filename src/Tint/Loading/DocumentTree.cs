@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text;
+#if !TINT_GENERATOR
 using System.Text.Json;
+#endif
 using System.Xml;
 
 namespace Tint.Loading;
@@ -55,14 +57,18 @@ internal sealed class TreeMap
     }
 }
 
+// JSON goes through System.Text.Json in the runtime and through JsonTreeReader in Tint.Generator (TINT_GENERATOR); both
+// produce the same tree.
 internal static class DocumentTree
 {
+#if !TINT_GENERATOR
     private static readonly JsonDocumentOptions s_jsonOptions = new()
     {
         CommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true,
         MaxDepth = 1024,
     };
+#endif
 
     public static bool LooksLikeJson(ReadOnlySpan<byte> utf8)
     {
@@ -80,6 +86,10 @@ internal static class DocumentTree
         return false;
     }
 
+#if TINT_GENERATOR
+    public static object? ParseJson(ReadOnlyMemory<byte> utf8)
+        => JsonTreeReader.Parse(Encoding.UTF8.GetString(SkipBom(utf8.Span).ToArray()));
+#else
     public static object? ParseJson(ReadOnlyMemory<byte> utf8)
     {
         if (utf8.Span.StartsWith("﻿"u8))
@@ -123,6 +133,7 @@ internal static class DocumentTree
                 return null;
         }
     }
+#endif
 
     public static object? ParsePlist(ReadOnlyMemory<byte> utf8)
     {

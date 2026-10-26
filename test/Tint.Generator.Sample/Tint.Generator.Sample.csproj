@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Consumes the generator the way a package reference does: Tint.props, the generator as an analyzer, GregsEx from
+       the package. CI runs it, and Tint.Tests checks its output against the loader path. -->
+  <Import Project="../../src/Tint/build/Tint.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Tint.Generator.Sample</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Tint/Tint.csproj" />
+    <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="GregsEx" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Bound by [TextMateGrammar] in Program.cs. -->
+    <TintGrammar Include="../../grammars/csharp/syntaxes/csharp.tmLanguage.json" />
+    <!-- Item-only: generates JsonGrammar (from source.json) in the root namespace. -->
+    <TintGrammar Include="../../grammars/json/syntaxes/JSON.tmLanguage.json" LanguageId="json" FileExtensions=".json;.jsonc" />
+    <!-- Item-only: generates DarkPlusTheme; dark_vs.json is only an include, so it is a plain AdditionalFiles item. -->
+    <TintTheme Include="../../themes/theme-defaults/dark_plus.json" />
+    <AdditionalFiles Include="../../themes/theme-defaults/dark_vs.json" />
+  </ItemGroup>
+</Project>

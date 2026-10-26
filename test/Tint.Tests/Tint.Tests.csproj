@@ -7,7 +7,21 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="xunit.v3.mtp-v2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <!-- Generator tests compile against GregsEx as consumers do: from the package layout, which is how the generator
+         finds GregsEx.Generator.dll. -->
+    <PackageReference Include="GregsEx" GeneratePathProperty="true" />
     <ProjectReference Include="../../src/Tint/Tint.csproj" />
-    <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <!-- The generator as a library, for CSharpGeneratorDriver; aliased because it compiles Tint's model types too. -->
+    <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" Aliases="TintGenerator" />
+    <ProjectReference Include="../Tint.Generator.Sample/Tint.Generator.Sample.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The generator's JSON reader, checked against System.Text.Json over the grammars and themes. -->
+    <Compile Include="../../src/Tint/Loading/JsonTreeReader.cs" Link="Shared/JsonTreeReader.cs" />
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>GregsExPackagePath</_Parameter1>
+      <_Parameter2>$(PkgGregsEx)</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 </Project>

@@ -70,9 +70,9 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   dependency scope, unmatched attribute path, duplicate class name).
 - Patterns parsed lazily with the TextMate compile limits by default (design 5.5 tier 1). Kernels
   opt-in (`Kernels = true` / `<TintKernels>`) through GregsEx's `KernelSource` façade (gregsex#27),
-  reached by loading the consumer's `GregsEx.Generator.dll` from `$(PkgGregsEx)` via a
-  `CompilerVisibleProperty` and a reflection shim; informational diagnostic and interpreted fallback
-  when the façade is absent. No command-line tool anywhere in the product; the bundles use the same
+  reached by loading the consumer's `GregsEx.Generator.dll`, found from the compilation's
+  `GregsEx.dll` reference (or the `TintGregsExPackagePath` property), through a reflection shim;
+  informational diagnostic and interpreted fallback when the façade is absent. No command-line tool anywhere in the product; the bundles use the same
   generator.
 - Generator tests in the GregsEx style (`CSharpGeneratorDriver`, assert diagnostics and output),
   plus the vscode-textmate suites run through generated grammars.

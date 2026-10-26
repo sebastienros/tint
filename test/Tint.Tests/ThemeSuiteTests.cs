@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Tint.Grammars;
 using Tint.Loading;
+using Tint.Themes;
 using Xunit;
 
 namespace Tint.Tests;
@@ -10,7 +11,7 @@ namespace Tint.Tests;
 // themes, foreground colors compared with the .result files.
 public sealed class ThemeSuiteTests
 {
-    private static readonly (string Name, string File)[] s_themes =
+    internal static readonly (string Name, string File)[] ThemeFiles =
     [
         ("abyss", "Abyss.tmTheme"),
         ("dark_vs", "dark_vs.json"),
@@ -28,9 +29,11 @@ public sealed class ThemeSuiteTests
         ("tomorrow_night_blue", "Tomorrow-Night-Blue.tmTheme"),
     ];
 
-    private static readonly Lazy<Suite> s_suite = new(() => new Suite());
+    private static readonly Lazy<Suite> s_suite = new(() => new Suite(
+        (path, info) => GrammarLoader.Load(path, info),
+        path => ThemeLoader.Load(path, ThemeLoadMode.Raw)));
 
-    private static string ThemesPath => Path.Combine(Fixtures.VSCodeTextMate, "themes");
+    internal static string ThemesPath => Path.Combine(Fixtures.VSCodeTextMate, "themes");
 
     public static IEnumerable<TheoryDataRow<string>> Cases()
     {
@@ -48,9 +51,22 @@ public sealed class ThemeSuiteTests
 
     [Theory]
     [MemberData(nameof(Cases))]
-    public void ColorsLikeVSCodeTextMate(string file)
+    public void ColorsLikeVSCodeTextMate(string file) => Run(s_suite.Value, file);
+
+    // The suite's grammars (full path, language and embedded languages) and themes (full path).
+    internal static IEnumerable<(string Path, string? Language, IReadOnlyDictionary<string, string> EmbeddedLanguages)> GrammarFiles()
     {
-        var suite = s_suite.Value;
+        using var grammars = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(ThemesPath, "grammars.json")));
+        foreach (var grammar in grammars.RootElement.EnumerateArray())
+        {
+            yield return (Path.GetFullPath(Path.Combine(ThemesPath, grammar.GetProperty("path").GetString()!)), Language(grammar), EmbeddedLanguages(grammar));
+        }
+    }
+
+    internal static Suite CreateSuite(Func<string, GrammarInfo, IGrammarSource> loadGrammar, Func<string, IThemeSource> loadTheme) => new(loadGrammar, loadTheme);
+
+    internal static void Run(Suite suite, string file)
+    {
         var contents = File.ReadAllText(Path.Combine(ThemesPath, "tests", file));
         using var expected = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(ThemesPath, "tests", file + ".result")));
 
@@ -89,12 +105,28 @@ public sealed class ThemeSuiteTests
         }
     }
 
-    private sealed class Suite
+    private static string? Language(JsonElement grammar) => grammar.TryGetProperty("language", out var l) ? l.GetString() : null;
+
+    private static Dictionary<string, string> EmbeddedLanguages(JsonElement grammar)
+    {
+        var embedded = new Dictionary<string, string>();
+        if (grammar.TryGetProperty("embeddedLanguages", out var e))
+        {
+            foreach (var entry in e.EnumerateObject())
+            {
+                embedded[entry.Name] = entry.Value.GetString()!;
+            }
+        }
+
+        return embedded;
+    }
+
+    internal sealed class Suite
     {
         private readonly List<(string Id, string[] Extensions, string[] Filenames)> _languages = [];
         private readonly List<(string? Language, string ScopeName)> _grammars = [];
 
-        public Suite()
+        public Suite(Func<string, GrammarInfo, IGrammarSource> loadGrammar, Func<string, IThemeSource> loadTheme)
         {
             using (var languages = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(ThemesPath, "languages.json"))))
             {
@@ -108,29 +140,17 @@ public sealed class ThemeSuiteTests
                 }
             }
 
-            using var grammars = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(ThemesPath, "grammars.json")));
-            foreach (var grammar in grammars.RootElement.EnumerateArray())
+            foreach (var (path, language, embedded) in GrammarFiles())
             {
-                var language = grammar.TryGetProperty("language", out var l) ? l.GetString() : null;
-                var embedded = new Dictionary<string, string>();
-                if (grammar.TryGetProperty("embeddedLanguages", out var e))
-                {
-                    foreach (var entry in e.EnumerateObject())
-                    {
-                        embedded[entry.Name] = entry.Value.GetString()!;
-                    }
-                }
-
-                var info = new GrammarInfo { LanguageId = language, EmbeddedLanguages = embedded };
-                var loaded = GrammarLoader.Load(Path.Combine(ThemesPath, grammar.GetProperty("path").GetString()!), info);
+                var loaded = loadGrammar(path, new GrammarInfo { LanguageId = language, EmbeddedLanguages = embedded });
                 Registry.Add(loaded);
                 _grammars.Add((language, loaded.ScopeName));
             }
 
             // vscode-textmate's tests hand the theme files to the tokenizer as written, without VS Code's defaults.
-            foreach (var (name, file) in s_themes)
+            foreach (var (name, file) in ThemeFiles)
             {
-                Themes.Add((name, Theme.FromSource(ThemeLoader.Load(Path.Combine(ThemesPath, file), ThemeLoadMode.Raw))));
+                Themes.Add((name, Theme.FromSource(loadTheme(Path.GetFullPath(Path.Combine(ThemesPath, file))))));
             }
         }
 

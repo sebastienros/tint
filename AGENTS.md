@@ -19,7 +19,8 @@
   `sync/vscode` branch; review and merge that pull request instead of syncing by hand.
 - Code style is `.editorconfig`: 4-space C#, `var` everywhere, braces always, file-scoped
   namespaces, `_camelCase` fields. Run `dotnet format Tint.slnx --severity warn --verify-no-changes`
-  before opening a pull request.
+  before opening a pull request (after `dotnet build src/Tint.Generator`: format loads the Debug
+  configuration, and the generator sample needs the generator's Debug build).
 - Preserve fixture provenance and license notices. Regenerate `THIRD-PARTY-NOTICES.txt` with
   `tools/Tint.Sync` when grammars or themes change.
 - Work on a branch, open a pull request against `main`, never push to `main` directly. Do not

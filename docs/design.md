@@ -317,8 +317,12 @@ Either way the generator emits `partial class CSharpGrammar : IGrammarSource` wi
 the scopes to register alongside, and `GrammarInfo.Dependencies` lists them.
 
 Supported inputs: `.tmLanguage.json` (JSON with comments), `.tmLanguage` / `.plist`, themes as
-`.json` (VS Code, with `include`) and `.tmTheme`. Both the generator and `Tint.Loading` share one
-parsing library (netstandard2.0, no System.Text.Json dependency inside the generator).
+`.json` (VS Code, with `include`) and `.tmTheme`. The generator and `Tint.Loading` share one
+reading of the files: the generator compiles `GrammarLoader.ReadGrammar`, the theme reader,
+`DocumentTree`, the `RawGrammar`/`RawTheme` model and `PatternRewriter` from `src/Tint` under
+`TINT_GENERATOR`, with a small hand-written JSON reader (comments, trailing commas) in place of
+System.Text.Json, which analyzer hosts cannot load reliably. Items, metadata and diagnostics are
+documented in [generator.md](generator.md).
 
 ### 8.2 Generated code shape
 
@@ -331,11 +335,12 @@ partial class CSharpGrammar : IGrammarSource
     public RawGrammar GetGrammar() => s_grammar ??= Build(); // object initializers, lazily
 
     // One entry per distinct pattern text (de-duplicated across the grammar), per anchor variant
-    // actually needed. Parsed on first use with the TextMate compile limits (tier 1); with Kernels
-    // opted in, the entry also binds the emitted kernel classes (tier 3).
-    private static OnigurumaPattern P0() => s_p0 ??= OnigurumaPattern.Parse(P0Text, Profile, Limits);
+    // actually needed, texts stored as one UTF-8 literal. Parsed on first use with the TextMate
+    // compile limits (tier 1); with Kernels opted in, the entry also binds the emitted kernel
+    // classes (tier 3). Each RegexSource gets a factory mapping its anchor variants to entries.
+    private static OnigurumaPattern __TintPattern(int index) => …; // Parse(Text(index), …) once
     …
-    public static FrozenDictionary<string, int> PatternIndex { get; } = …; // pattern text → index
+    public static FrozenDictionary<string, int> PatternIndex => …; // pattern text → index
 }
 ```
 
@@ -390,14 +395,21 @@ methods it would carry are invisible to GregsEx's generator. Two options, both p
    }
    ```
 
-   How Tint's generator reaches it without a compile-time reference: `Tint.targets` marks the
-   consumer's `GregsEx` package reference with `GeneratePathProperty="true"` and passes
-   `$(PkgGregsEx)/analyzers/dotnet/cs/GregsEx.Generator.dll` to the generator as a
-   `CompilerVisibleProperty`; the generator loads that assembly and calls the façade through a
-   small reflection shim bound to the public signature above. Kernels are therefore always emitted
-   by the exact GregsEx version the consumer runs, so the fingerprint always matches and no copy of
-   `GregsEx.Generator.dll` ships inside Tint. If the property is missing or the façade is absent
-   (older GregsEx), Tint reports an informational diagnostic and emits the fallback below.
+   How Tint's generator reaches it without a compile-time reference: it finds the compilation's
+   `GregsEx.dll` metadata reference, which NuGet places at `<package>/lib/<tfm>/GregsEx.dll`,
+   derives `<package>/analyzers/dotnet/cs/GregsEx.Generator.dll` from it, loads that assembly once
+   (reusing the copy the compiler already loaded for GregsEx's own generator when it can), and calls
+   the façade through a small reflection shim bound to the public signature above, with
+   `OnigurumaOptions.CaptureGroup` and `OnigurumaCompileOptions.TextMate` read from the loaded
+   assembly. A `TintGregsExPackagePath` compiler-visible property overrides the discovery (a project
+   reference to GregsEx, a custom layout). This needs no `GeneratePathProperty` on the consumer's
+   package reference, which a transitive reference through Tint would not have. Kernels are
+   therefore always emitted by the exact GregsEx version the consumer runs, so the fingerprint
+   always matches and no copy of `GregsEx.Generator.dll` ships inside Tint. Every pattern goes
+   through `TryEmit` as build-time validation, kernels or not (an `Invalid` status is a build error
+   with the rule path and offset). If GregsEx cannot be located, the façade is absent (older
+   GregsEx) or any reflection step fails, Tint reports an informational diagnostic, skips
+   validation and kernels, and emits the fallback below.
 2. **Fallback, available today:** generated pattern methods call `OnigurumaPattern.Parse` lazily.
    Still AOT-safe, still no JSON, interpreted matching speed (the speed the TextMateSharp branch
    measured). The Phase 2 spike measures both.
