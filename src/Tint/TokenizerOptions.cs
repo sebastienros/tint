@@ -6,7 +6,7 @@ public sealed class TokenizerOptions
     private readonly int _hotPatternThreshold = DefaultHotPatternThreshold;
 
     /// <summary>The default <see cref="HotPatternThreshold"/>.</summary>
-    public const int DefaultHotPatternThreshold = 256;
+    public static int DefaultHotPatternThreshold => 256;
 
     /// <summary>The default options: interpreted patterns only.</summary>
     public static TokenizerOptions Default { get; } = new();

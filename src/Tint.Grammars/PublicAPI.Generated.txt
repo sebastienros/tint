@@ -1,569 +1,412 @@
-Tint.Grammars.BatchGrammar.BatchGrammar()
 Tint.Grammars.BatchGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.BatchGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.BatchGrammar.ScopeName.get -> System.String
-Tint.Grammars.BibtexGrammar.BibtexGrammar()
 Tint.Grammars.BibtexGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.BibtexGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.BibtexGrammar.ScopeName.get -> System.String
-Tint.Grammars.CGrammar.CGrammar()
 Tint.Grammars.CGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CGrammar.ScopeName.get -> System.String
-Tint.Grammars.CPlatformGrammar.CPlatformGrammar()
 Tint.Grammars.CPlatformGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CPlatformGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CPlatformGrammar.ScopeName.get -> System.String
-Tint.Grammars.CSharpGrammar.CSharpGrammar()
 Tint.Grammars.CSharpGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CSharpGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CSharpGrammar.ScopeName.get -> System.String
-Tint.Grammars.ClojureGrammar.ClojureGrammar()
 Tint.Grammars.ClojureGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.ClojureGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.ClojureGrammar.ScopeName.get -> System.String
-Tint.Grammars.CoffeeScriptGrammar.CoffeeScriptGrammar()
 Tint.Grammars.CoffeeScriptGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CoffeeScriptGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CoffeeScriptGrammar.ScopeName.get -> System.String
-Tint.Grammars.CppEmbeddedLatexGrammar.CppEmbeddedLatexGrammar()
 Tint.Grammars.CppEmbeddedLatexGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CppEmbeddedLatexGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CppEmbeddedLatexGrammar.ScopeName.get -> System.String
-Tint.Grammars.CppGrammar.CppGrammar()
 Tint.Grammars.CppGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CppGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CppGrammar.ScopeName.get -> System.String
-Tint.Grammars.CppMacroGrammar.CppMacroGrammar()
 Tint.Grammars.CppMacroGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CppMacroGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CppMacroGrammar.ScopeName.get -> System.String
-Tint.Grammars.CssGrammar.CssGrammar()
 Tint.Grammars.CssGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CssGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CssGrammar.ScopeName.get -> System.String
-Tint.Grammars.CudaCppGrammar.CudaCppGrammar()
 Tint.Grammars.CudaCppGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.CudaCppGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.CudaCppGrammar.ScopeName.get -> System.String
-Tint.Grammars.DartGrammar.DartGrammar()
 Tint.Grammars.DartGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.DartGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.DartGrammar.ScopeName.get -> System.String
-Tint.Grammars.DiffGrammar.DiffGrammar()
 Tint.Grammars.DiffGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.DiffGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.DiffGrammar.ScopeName.get -> System.String
-Tint.Grammars.DockerfileGrammar.DockerfileGrammar()
 Tint.Grammars.DockerfileGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.DockerfileGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.DockerfileGrammar.ScopeName.get -> System.String
-Tint.Grammars.DotenvGrammar.DotenvGrammar()
 Tint.Grammars.DotenvGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.DotenvGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.DotenvGrammar.ScopeName.get -> System.String
-Tint.Grammars.FSharpGrammar.FSharpGrammar()
 Tint.Grammars.FSharpGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.FSharpGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.FSharpGrammar.ScopeName.get -> System.String
 Tint.Grammars.GitCommitGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.GitCommitGrammar.GitCommitGrammar()
 Tint.Grammars.GitCommitGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.GitCommitGrammar.ScopeName.get -> System.String
 Tint.Grammars.GitRebaseGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.GitRebaseGrammar.GitRebaseGrammar()
 Tint.Grammars.GitRebaseGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.GitRebaseGrammar.ScopeName.get -> System.String
 Tint.Grammars.GoGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.GoGrammar.GoGrammar()
 Tint.Grammars.GoGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.GoGrammar.ScopeName.get -> System.String
 Tint.Grammars.GroovyGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.GroovyGrammar.GroovyGrammar()
 Tint.Grammars.GroovyGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.GroovyGrammar.ScopeName.get -> System.String
 Tint.Grammars.HandlebarsGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.HandlebarsGrammar.HandlebarsGrammar()
 Tint.Grammars.HandlebarsGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.HandlebarsGrammar.ScopeName.get -> System.String
 Tint.Grammars.HlslGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.HlslGrammar.HlslGrammar()
 Tint.Grammars.HlslGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.HlslGrammar.ScopeName.get -> System.String
 Tint.Grammars.HtmlBasicGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.HtmlBasicGrammar.HtmlBasicGrammar()
 Tint.Grammars.HtmlBasicGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.HtmlBasicGrammar.ScopeName.get -> System.String
 Tint.Grammars.HtmlGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.HtmlGrammar.HtmlGrammar()
 Tint.Grammars.HtmlGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.HtmlGrammar.ScopeName.get -> System.String
 Tint.Grammars.IgnoreGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
-Tint.Grammars.IgnoreGrammar.IgnoreGrammar()
 Tint.Grammars.IgnoreGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.IgnoreGrammar.ScopeName.get -> System.String
 Tint.Grammars.IniGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.IniGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.IniGrammar.IniGrammar()
 Tint.Grammars.IniGrammar.ScopeName.get -> System.String
 Tint.Grammars.JavaGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JavaGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JavaGrammar.JavaGrammar()
 Tint.Grammars.JavaGrammar.ScopeName.get -> System.String
 Tint.Grammars.JavaScriptGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JavaScriptGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JavaScriptGrammar.JavaScriptGrammar()
 Tint.Grammars.JavaScriptGrammar.ScopeName.get -> System.String
 Tint.Grammars.JavaScriptReactGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JavaScriptReactGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JavaScriptReactGrammar.JavaScriptReactGrammar()
 Tint.Grammars.JavaScriptReactGrammar.ScopeName.get -> System.String
 Tint.Grammars.JavaScriptRegexpGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JavaScriptRegexpGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JavaScriptRegexpGrammar.JavaScriptRegexpGrammar()
 Tint.Grammars.JavaScriptRegexpGrammar.ScopeName.get -> System.String
 Tint.Grammars.JsDocJavaScriptInjectionGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JsDocJavaScriptInjectionGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JsDocJavaScriptInjectionGrammar.JsDocJavaScriptInjectionGrammar()
 Tint.Grammars.JsDocJavaScriptInjectionGrammar.ScopeName.get -> System.String
 Tint.Grammars.JsDocTypeScriptInjectionGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JsDocTypeScriptInjectionGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JsDocTypeScriptInjectionGrammar.JsDocTypeScriptInjectionGrammar()
 Tint.Grammars.JsDocTypeScriptInjectionGrammar.ScopeName.get -> System.String
 Tint.Grammars.JsonGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JsonGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JsonGrammar.JsonGrammar()
 Tint.Grammars.JsonGrammar.ScopeName.get -> System.String
 Tint.Grammars.JsonLinesGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JsonLinesGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JsonLinesGrammar.JsonLinesGrammar()
 Tint.Grammars.JsonLinesGrammar.ScopeName.get -> System.String
 Tint.Grammars.JsoncGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JsoncGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JsoncGrammar.JsoncGrammar()
 Tint.Grammars.JsoncGrammar.ScopeName.get -> System.String
 Tint.Grammars.JuliaGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.JuliaGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.JuliaGrammar.JuliaGrammar()
 Tint.Grammars.JuliaGrammar.ScopeName.get -> System.String
 Tint.Grammars.LatexGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.LatexGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.LatexGrammar.LatexGrammar()
 Tint.Grammars.LatexGrammar.ScopeName.get -> System.String
 Tint.Grammars.LessGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.LessGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.LessGrammar.LessGrammar()
 Tint.Grammars.LessGrammar.ScopeName.get -> System.String
 Tint.Grammars.LogGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.LogGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.LogGrammar.LogGrammar()
 Tint.Grammars.LogGrammar.ScopeName.get -> System.String
 Tint.Grammars.LuaGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.LuaGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.LuaGrammar.LuaGrammar()
 Tint.Grammars.LuaGrammar.ScopeName.get -> System.String
 Tint.Grammars.MakefileGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.MakefileGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.MakefileGrammar.MakefileGrammar()
 Tint.Grammars.MakefileGrammar.ScopeName.get -> System.String
 Tint.Grammars.MarkdownGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.MarkdownGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.MarkdownGrammar.MarkdownGrammar()
 Tint.Grammars.MarkdownGrammar.ScopeName.get -> System.String
 Tint.Grammars.MarkdownLatexCombinedGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.MarkdownLatexCombinedGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.MarkdownLatexCombinedGrammar.MarkdownLatexCombinedGrammar()
 Tint.Grammars.MarkdownLatexCombinedGrammar.ScopeName.get -> System.String
 Tint.Grammars.MarkdownMathBlockGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.MarkdownMathBlockGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.MarkdownMathBlockGrammar.MarkdownMathBlockGrammar()
 Tint.Grammars.MarkdownMathBlockGrammar.ScopeName.get -> System.String
 Tint.Grammars.MarkdownMathCodeBlockGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.MarkdownMathCodeBlockGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.MarkdownMathCodeBlockGrammar.MarkdownMathCodeBlockGrammar()
 Tint.Grammars.MarkdownMathCodeBlockGrammar.ScopeName.get -> System.String
 Tint.Grammars.MarkdownMathGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.MarkdownMathGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.MarkdownMathGrammar.MarkdownMathGrammar()
 Tint.Grammars.MarkdownMathGrammar.ScopeName.get -> System.String
 Tint.Grammars.MarkdownMathInlineGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.MarkdownMathInlineGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.MarkdownMathInlineGrammar.MarkdownMathInlineGrammar()
 Tint.Grammars.MarkdownMathInlineGrammar.ScopeName.get -> System.String
 Tint.Grammars.ObjectiveCGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.ObjectiveCGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.ObjectiveCGrammar.ObjectiveCGrammar()
 Tint.Grammars.ObjectiveCGrammar.ScopeName.get -> System.String
 Tint.Grammars.ObjectiveCppGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.ObjectiveCppGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.ObjectiveCppGrammar.ObjectiveCppGrammar()
 Tint.Grammars.ObjectiveCppGrammar.ScopeName.get -> System.String
 Tint.Grammars.PerlGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PerlGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PerlGrammar.PerlGrammar()
 Tint.Grammars.PerlGrammar.ScopeName.get -> System.String
 Tint.Grammars.PhpGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PhpGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PhpGrammar.PhpGrammar()
 Tint.Grammars.PhpGrammar.ScopeName.get -> System.String
 Tint.Grammars.PhpSourceGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PhpSourceGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PhpSourceGrammar.PhpSourceGrammar()
 Tint.Grammars.PhpSourceGrammar.ScopeName.get -> System.String
 Tint.Grammars.PowerShellGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PowerShellGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PowerShellGrammar.PowerShellGrammar()
 Tint.Grammars.PowerShellGrammar.ScopeName.get -> System.String
 Tint.Grammars.PromptGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PromptGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PromptGrammar.PromptGrammar()
 Tint.Grammars.PromptGrammar.ScopeName.get -> System.String
 Tint.Grammars.PugGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PugGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PugGrammar.PugGrammar()
 Tint.Grammars.PugGrammar.ScopeName.get -> System.String
 Tint.Grammars.PythonGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PythonGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PythonGrammar.PythonGrammar()
 Tint.Grammars.PythonGrammar.ScopeName.get -> System.String
 Tint.Grammars.PythonRegexpGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.PythonRegexpGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.PythonRegexpGrammar.PythonRegexpGrammar()
 Tint.Grammars.PythonRegexpGrammar.ScopeName.get -> System.String
 Tint.Grammars.RGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.RGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.RGrammar.RGrammar()
 Tint.Grammars.RGrammar.ScopeName.get -> System.String
 Tint.Grammars.RakuGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.RakuGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.RakuGrammar.RakuGrammar()
 Tint.Grammars.RakuGrammar.ScopeName.get -> System.String
 Tint.Grammars.RazorGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.RazorGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.RazorGrammar.RazorGrammar()
 Tint.Grammars.RazorGrammar.ScopeName.get -> System.String
 Tint.Grammars.RestructuredTextGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.RestructuredTextGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.RestructuredTextGrammar.RestructuredTextGrammar()
 Tint.Grammars.RestructuredTextGrammar.ScopeName.get -> System.String
 Tint.Grammars.RubyGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.RubyGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.RubyGrammar.RubyGrammar()
 Tint.Grammars.RubyGrammar.ScopeName.get -> System.String
 Tint.Grammars.RustGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.RustGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.RustGrammar.RustGrammar()
 Tint.Grammars.RustGrammar.ScopeName.get -> System.String
 Tint.Grammars.SassdocGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.SassdocGrammar.Info.get -> Tint.Grammars.GrammarInfo
-Tint.Grammars.SassdocGrammar.SassdocGrammar()
 Tint.Grammars.SassdocGrammar.ScopeName.get -> System.String
 Tint.Grammars.ScssGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.ScssGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.ScssGrammar.ScopeName.get -> System.String
-Tint.Grammars.ScssGrammar.ScssGrammar()
 Tint.Grammars.SearchResultGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.SearchResultGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.SearchResultGrammar.ScopeName.get -> System.String
-Tint.Grammars.SearchResultGrammar.SearchResultGrammar()
 Tint.Grammars.ShaderLabGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.ShaderLabGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.ShaderLabGrammar.ScopeName.get -> System.String
-Tint.Grammars.ShaderLabGrammar.ShaderLabGrammar()
 Tint.Grammars.ShellScriptGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.ShellScriptGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.ShellScriptGrammar.ScopeName.get -> System.String
-Tint.Grammars.ShellScriptGrammar.ShellScriptGrammar()
 Tint.Grammars.SnippetsGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.SnippetsGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.SnippetsGrammar.ScopeName.get -> System.String
-Tint.Grammars.SnippetsGrammar.SnippetsGrammar()
 Tint.Grammars.SqlGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.SqlGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.SqlGrammar.ScopeName.get -> System.String
-Tint.Grammars.SqlGrammar.SqlGrammar()
 Tint.Grammars.SwiftGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.SwiftGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.SwiftGrammar.ScopeName.get -> System.String
-Tint.Grammars.SwiftGrammar.SwiftGrammar()
 Tint.Grammars.TexGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.TexGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.TexGrammar.ScopeName.get -> System.String
-Tint.Grammars.TexGrammar.TexGrammar()
 Tint.Grammars.TypeScriptGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.TypeScriptGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.TypeScriptGrammar.ScopeName.get -> System.String
-Tint.Grammars.TypeScriptGrammar.TypeScriptGrammar()
 Tint.Grammars.TypeScriptReactGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.TypeScriptReactGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.TypeScriptReactGrammar.ScopeName.get -> System.String
-Tint.Grammars.TypeScriptReactGrammar.TypeScriptReactGrammar()
 Tint.Grammars.VisualBasicGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.VisualBasicGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.VisualBasicGrammar.ScopeName.get -> System.String
-Tint.Grammars.VisualBasicGrammar.VisualBasicGrammar()
 Tint.Grammars.XmlGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.XmlGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.XmlGrammar.ScopeName.get -> System.String
-Tint.Grammars.XmlGrammar.XmlGrammar()
 Tint.Grammars.XslGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.XslGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.XslGrammar.ScopeName.get -> System.String
-Tint.Grammars.XslGrammar.XslGrammar()
 Tint.Grammars.Yaml10Grammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.Yaml10Grammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.Yaml10Grammar.ScopeName.get -> System.String
-Tint.Grammars.Yaml10Grammar.Yaml10Grammar()
 Tint.Grammars.Yaml11Grammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.Yaml11Grammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.Yaml11Grammar.ScopeName.get -> System.String
-Tint.Grammars.Yaml11Grammar.Yaml11Grammar()
 Tint.Grammars.Yaml12Grammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.Yaml12Grammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.Yaml12Grammar.ScopeName.get -> System.String
-Tint.Grammars.Yaml12Grammar.Yaml12Grammar()
 Tint.Grammars.Yaml13Grammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.Yaml13Grammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.Yaml13Grammar.ScopeName.get -> System.String
-Tint.Grammars.Yaml13Grammar.Yaml13Grammar()
 Tint.Grammars.YamlEmbeddedGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.YamlEmbeddedGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.YamlEmbeddedGrammar.ScopeName.get -> System.String
-Tint.Grammars.YamlEmbeddedGrammar.YamlEmbeddedGrammar()
 Tint.Grammars.YamlGrammar.GetGrammar() -> Tint.Grammars.RawGrammar
 Tint.Grammars.YamlGrammar.Info.get -> Tint.Grammars.GrammarInfo
 Tint.Grammars.YamlGrammar.ScopeName.get -> System.String
-Tint.Grammars.YamlGrammar.YamlGrammar()
-class Tint.Grammars.BatchGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.BibtexGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CPlatformGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CSharpGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.ClojureGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CoffeeScriptGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CppEmbeddedLatexGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CppGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CppMacroGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CssGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.CudaCppGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.DartGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.DiffGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.DockerfileGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.DotenvGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.FSharpGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.GitCommitGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.GitRebaseGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.GoGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.GroovyGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.HandlebarsGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.HlslGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.HtmlBasicGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.HtmlGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.IgnoreGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.IniGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JavaGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JavaScriptGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JavaScriptReactGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JavaScriptRegexpGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JsDocJavaScriptInjectionGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JsDocTypeScriptInjectionGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JsonGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JsonLinesGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JsoncGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.JuliaGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.LatexGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.LessGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.LogGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.LuaGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.MakefileGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.MarkdownGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.MarkdownLatexCombinedGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.MarkdownMathBlockGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.MarkdownMathCodeBlockGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.MarkdownMathGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.MarkdownMathInlineGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.ObjectiveCGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.ObjectiveCppGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PerlGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PhpGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PhpSourceGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PowerShellGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PromptGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PugGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PythonGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.PythonRegexpGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.RGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.RakuGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.RazorGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.RestructuredTextGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.RubyGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.RustGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.SassdocGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.ScssGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.SearchResultGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.ShaderLabGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.ShellScriptGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.SnippetsGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.SqlGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.SwiftGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.TexGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.TypeScriptGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.TypeScriptReactGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.VisualBasicGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.XmlGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.XslGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.Yaml10Grammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.Yaml11Grammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.Yaml12Grammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.Yaml13Grammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.YamlEmbeddedGrammar : Tint.Grammars.IGrammarSource
-class Tint.Grammars.YamlGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.BatchGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.BibtexGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CPlatformGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CSharpGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.ClojureGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CoffeeScriptGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CppEmbeddedLatexGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CppGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CppMacroGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CssGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.CudaCppGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.DartGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.DiffGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.DockerfileGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.DotenvGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.FSharpGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.GitCommitGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.GitRebaseGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.GoGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.GroovyGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.HandlebarsGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.HlslGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.HtmlBasicGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.HtmlGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.IgnoreGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.IniGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JavaGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JavaScriptGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JavaScriptReactGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JavaScriptRegexpGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JsDocJavaScriptInjectionGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JsDocTypeScriptInjectionGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JsonGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JsonLinesGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JsoncGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.JuliaGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.LatexGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.LessGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.LogGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.LuaGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.MakefileGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.MarkdownGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.MarkdownLatexCombinedGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.MarkdownMathBlockGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.MarkdownMathCodeBlockGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.MarkdownMathGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.MarkdownMathInlineGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.ObjectiveCGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.ObjectiveCppGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PerlGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PhpGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PhpSourceGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PowerShellGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PromptGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PugGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PythonGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.PythonRegexpGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.RGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.RakuGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.RazorGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.RestructuredTextGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.RubyGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.RustGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.SassdocGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.ScssGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.SearchResultGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.ShaderLabGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.ShellScriptGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.SnippetsGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.SqlGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.SwiftGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.TexGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.TypeScriptGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.TypeScriptReactGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.VisualBasicGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.XmlGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.XslGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.Yaml10Grammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.Yaml11Grammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.Yaml12Grammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.Yaml13Grammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.YamlEmbeddedGrammar : Tint.Grammars.IGrammarSource
+sealed class Tint.Grammars.YamlGrammar : Tint.Grammars.IGrammarSource
 static Tint.Grammars.BatchGrammar.Instance.get -> Tint.Grammars.BatchGrammar
-static Tint.Grammars.BatchGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.BibtexGrammar.Instance.get -> Tint.Grammars.BibtexGrammar
-static Tint.Grammars.BibtexGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CGrammar.Instance.get -> Tint.Grammars.CGrammar
-static Tint.Grammars.CGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CPlatformGrammar.Instance.get -> Tint.Grammars.CPlatformGrammar
-static Tint.Grammars.CPlatformGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CSharpGrammar.Instance.get -> Tint.Grammars.CSharpGrammar
-static Tint.Grammars.CSharpGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.ClojureGrammar.Instance.get -> Tint.Grammars.ClojureGrammar
-static Tint.Grammars.ClojureGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CoffeeScriptGrammar.Instance.get -> Tint.Grammars.CoffeeScriptGrammar
-static Tint.Grammars.CoffeeScriptGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CppEmbeddedLatexGrammar.Instance.get -> Tint.Grammars.CppEmbeddedLatexGrammar
-static Tint.Grammars.CppEmbeddedLatexGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CppGrammar.Instance.get -> Tint.Grammars.CppGrammar
-static Tint.Grammars.CppGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CppMacroGrammar.Instance.get -> Tint.Grammars.CppMacroGrammar
-static Tint.Grammars.CppMacroGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CssGrammar.Instance.get -> Tint.Grammars.CssGrammar
-static Tint.Grammars.CssGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.CudaCppGrammar.Instance.get -> Tint.Grammars.CudaCppGrammar
-static Tint.Grammars.CudaCppGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.DartGrammar.Instance.get -> Tint.Grammars.DartGrammar
-static Tint.Grammars.DartGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.DiffGrammar.Instance.get -> Tint.Grammars.DiffGrammar
-static Tint.Grammars.DiffGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.DockerfileGrammar.Instance.get -> Tint.Grammars.DockerfileGrammar
-static Tint.Grammars.DockerfileGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.DotenvGrammar.Instance.get -> Tint.Grammars.DotenvGrammar
-static Tint.Grammars.DotenvGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.FSharpGrammar.Instance.get -> Tint.Grammars.FSharpGrammar
-static Tint.Grammars.FSharpGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.GitCommitGrammar.Instance.get -> Tint.Grammars.GitCommitGrammar
-static Tint.Grammars.GitCommitGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.GitRebaseGrammar.Instance.get -> Tint.Grammars.GitRebaseGrammar
-static Tint.Grammars.GitRebaseGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.GoGrammar.Instance.get -> Tint.Grammars.GoGrammar
-static Tint.Grammars.GoGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.GroovyGrammar.Instance.get -> Tint.Grammars.GroovyGrammar
-static Tint.Grammars.GroovyGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.HandlebarsGrammar.Instance.get -> Tint.Grammars.HandlebarsGrammar
-static Tint.Grammars.HandlebarsGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.HlslGrammar.Instance.get -> Tint.Grammars.HlslGrammar
-static Tint.Grammars.HlslGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.HtmlBasicGrammar.Instance.get -> Tint.Grammars.HtmlBasicGrammar
-static Tint.Grammars.HtmlBasicGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.HtmlGrammar.Instance.get -> Tint.Grammars.HtmlGrammar
-static Tint.Grammars.HtmlGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.IgnoreGrammar.Instance.get -> Tint.Grammars.IgnoreGrammar
-static Tint.Grammars.IgnoreGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.IniGrammar.Instance.get -> Tint.Grammars.IniGrammar
-static Tint.Grammars.IniGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JavaGrammar.Instance.get -> Tint.Grammars.JavaGrammar
-static Tint.Grammars.JavaGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JavaScriptGrammar.Instance.get -> Tint.Grammars.JavaScriptGrammar
-static Tint.Grammars.JavaScriptGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JavaScriptReactGrammar.Instance.get -> Tint.Grammars.JavaScriptReactGrammar
-static Tint.Grammars.JavaScriptReactGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JavaScriptRegexpGrammar.Instance.get -> Tint.Grammars.JavaScriptRegexpGrammar
-static Tint.Grammars.JavaScriptRegexpGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JsDocJavaScriptInjectionGrammar.Instance.get -> Tint.Grammars.JsDocJavaScriptInjectionGrammar
-static Tint.Grammars.JsDocJavaScriptInjectionGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JsDocTypeScriptInjectionGrammar.Instance.get -> Tint.Grammars.JsDocTypeScriptInjectionGrammar
-static Tint.Grammars.JsDocTypeScriptInjectionGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JsonGrammar.Instance.get -> Tint.Grammars.JsonGrammar
-static Tint.Grammars.JsonGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JsonLinesGrammar.Instance.get -> Tint.Grammars.JsonLinesGrammar
-static Tint.Grammars.JsonLinesGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JsoncGrammar.Instance.get -> Tint.Grammars.JsoncGrammar
-static Tint.Grammars.JsoncGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.JuliaGrammar.Instance.get -> Tint.Grammars.JuliaGrammar
-static Tint.Grammars.JuliaGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.LatexGrammar.Instance.get -> Tint.Grammars.LatexGrammar
-static Tint.Grammars.LatexGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.LessGrammar.Instance.get -> Tint.Grammars.LessGrammar
-static Tint.Grammars.LessGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.LogGrammar.Instance.get -> Tint.Grammars.LogGrammar
-static Tint.Grammars.LogGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.LuaGrammar.Instance.get -> Tint.Grammars.LuaGrammar
-static Tint.Grammars.LuaGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.MakefileGrammar.Instance.get -> Tint.Grammars.MakefileGrammar
-static Tint.Grammars.MakefileGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.MarkdownGrammar.Instance.get -> Tint.Grammars.MarkdownGrammar
-static Tint.Grammars.MarkdownGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.MarkdownLatexCombinedGrammar.Instance.get -> Tint.Grammars.MarkdownLatexCombinedGrammar
-static Tint.Grammars.MarkdownLatexCombinedGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.MarkdownMathBlockGrammar.Instance.get -> Tint.Grammars.MarkdownMathBlockGrammar
-static Tint.Grammars.MarkdownMathBlockGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.MarkdownMathCodeBlockGrammar.Instance.get -> Tint.Grammars.MarkdownMathCodeBlockGrammar
-static Tint.Grammars.MarkdownMathCodeBlockGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.MarkdownMathGrammar.Instance.get -> Tint.Grammars.MarkdownMathGrammar
-static Tint.Grammars.MarkdownMathGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.MarkdownMathInlineGrammar.Instance.get -> Tint.Grammars.MarkdownMathInlineGrammar
-static Tint.Grammars.MarkdownMathInlineGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.ObjectiveCGrammar.Instance.get -> Tint.Grammars.ObjectiveCGrammar
-static Tint.Grammars.ObjectiveCGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.ObjectiveCppGrammar.Instance.get -> Tint.Grammars.ObjectiveCppGrammar
-static Tint.Grammars.ObjectiveCppGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PerlGrammar.Instance.get -> Tint.Grammars.PerlGrammar
-static Tint.Grammars.PerlGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PhpGrammar.Instance.get -> Tint.Grammars.PhpGrammar
-static Tint.Grammars.PhpGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PhpSourceGrammar.Instance.get -> Tint.Grammars.PhpSourceGrammar
-static Tint.Grammars.PhpSourceGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PowerShellGrammar.Instance.get -> Tint.Grammars.PowerShellGrammar
-static Tint.Grammars.PowerShellGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PromptGrammar.Instance.get -> Tint.Grammars.PromptGrammar
-static Tint.Grammars.PromptGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PugGrammar.Instance.get -> Tint.Grammars.PugGrammar
-static Tint.Grammars.PugGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PythonGrammar.Instance.get -> Tint.Grammars.PythonGrammar
-static Tint.Grammars.PythonGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.PythonRegexpGrammar.Instance.get -> Tint.Grammars.PythonRegexpGrammar
-static Tint.Grammars.PythonRegexpGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.RGrammar.Instance.get -> Tint.Grammars.RGrammar
-static Tint.Grammars.RGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.RakuGrammar.Instance.get -> Tint.Grammars.RakuGrammar
-static Tint.Grammars.RakuGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.RazorGrammar.Instance.get -> Tint.Grammars.RazorGrammar
-static Tint.Grammars.RazorGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.RestructuredTextGrammar.Instance.get -> Tint.Grammars.RestructuredTextGrammar
-static Tint.Grammars.RestructuredTextGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.RubyGrammar.Instance.get -> Tint.Grammars.RubyGrammar
-static Tint.Grammars.RubyGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.RustGrammar.Instance.get -> Tint.Grammars.RustGrammar
-static Tint.Grammars.RustGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.SassdocGrammar.Instance.get -> Tint.Grammars.SassdocGrammar
-static Tint.Grammars.SassdocGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.ScssGrammar.Instance.get -> Tint.Grammars.ScssGrammar
-static Tint.Grammars.ScssGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.SearchResultGrammar.Instance.get -> Tint.Grammars.SearchResultGrammar
-static Tint.Grammars.SearchResultGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.ShaderLabGrammar.Instance.get -> Tint.Grammars.ShaderLabGrammar
-static Tint.Grammars.ShaderLabGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.ShellScriptGrammar.Instance.get -> Tint.Grammars.ShellScriptGrammar
-static Tint.Grammars.ShellScriptGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.SnippetsGrammar.Instance.get -> Tint.Grammars.SnippetsGrammar
-static Tint.Grammars.SnippetsGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.SqlGrammar.Instance.get -> Tint.Grammars.SqlGrammar
-static Tint.Grammars.SqlGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.SwiftGrammar.Instance.get -> Tint.Grammars.SwiftGrammar
-static Tint.Grammars.SwiftGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.TexGrammar.Instance.get -> Tint.Grammars.TexGrammar
-static Tint.Grammars.TexGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.TintGrammars.All.get -> System.Collections.Generic.IReadOnlyList<Tint.Grammars.IGrammarSource>
 static Tint.Grammars.TintGrammars.Batch.get -> Tint.Grammars.BatchGrammar
 static Tint.Grammars.TintGrammars.Bibtex.get -> Tint.Grammars.BibtexGrammar
@@ -651,25 +494,14 @@ static Tint.Grammars.TintGrammars.Yaml12.get -> Tint.Grammars.Yaml12Grammar
 static Tint.Grammars.TintGrammars.Yaml13.get -> Tint.Grammars.Yaml13Grammar
 static Tint.Grammars.TintGrammars.YamlEmbedded.get -> Tint.Grammars.YamlEmbeddedGrammar
 static Tint.Grammars.TypeScriptGrammar.Instance.get -> Tint.Grammars.TypeScriptGrammar
-static Tint.Grammars.TypeScriptGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.TypeScriptReactGrammar.Instance.get -> Tint.Grammars.TypeScriptReactGrammar
-static Tint.Grammars.TypeScriptReactGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.VisualBasicGrammar.Instance.get -> Tint.Grammars.VisualBasicGrammar
-static Tint.Grammars.VisualBasicGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.XmlGrammar.Instance.get -> Tint.Grammars.XmlGrammar
-static Tint.Grammars.XmlGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.XslGrammar.Instance.get -> Tint.Grammars.XslGrammar
-static Tint.Grammars.XslGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.Yaml10Grammar.Instance.get -> Tint.Grammars.Yaml10Grammar
-static Tint.Grammars.Yaml10Grammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.Yaml11Grammar.Instance.get -> Tint.Grammars.Yaml11Grammar
-static Tint.Grammars.Yaml11Grammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.Yaml12Grammar.Instance.get -> Tint.Grammars.Yaml12Grammar
-static Tint.Grammars.Yaml12Grammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.Yaml13Grammar.Instance.get -> Tint.Grammars.Yaml13Grammar
-static Tint.Grammars.Yaml13Grammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.YamlEmbeddedGrammar.Instance.get -> Tint.Grammars.YamlEmbeddedGrammar
-static Tint.Grammars.YamlEmbeddedGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static Tint.Grammars.YamlGrammar.Instance.get -> Tint.Grammars.YamlGrammar
-static Tint.Grammars.YamlGrammar.PatternIndex.get -> System.Collections.Frozen.FrozenDictionary<System.String, System.Int32>
 static class Tint.Grammars.TintGrammars

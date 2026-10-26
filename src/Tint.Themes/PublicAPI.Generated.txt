@@ -1,79 +1,60 @@
-Tint.Themes.AbyssTheme.AbyssTheme()
 Tint.Themes.AbyssTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.AbyssTheme.Name.get -> System.String
-Tint.Themes.Dark2026Theme.Dark2026Theme()
 Tint.Themes.Dark2026Theme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.Dark2026Theme.Name.get -> System.String
-Tint.Themes.DarkHighContrastTheme.DarkHighContrastTheme()
 Tint.Themes.DarkHighContrastTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.DarkHighContrastTheme.Name.get -> System.String
-Tint.Themes.DarkModernTheme.DarkModernTheme()
 Tint.Themes.DarkModernTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.DarkModernTheme.Name.get -> System.String
-Tint.Themes.DarkPlusTheme.DarkPlusTheme()
 Tint.Themes.DarkPlusTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.DarkPlusTheme.Name.get -> System.String
-Tint.Themes.DarkVisualStudioTheme.DarkVisualStudioTheme()
 Tint.Themes.DarkVisualStudioTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.DarkVisualStudioTheme.Name.get -> System.String
 Tint.Themes.KimbieDarkTheme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.KimbieDarkTheme.KimbieDarkTheme()
 Tint.Themes.KimbieDarkTheme.Name.get -> System.String
 Tint.Themes.Light2026Theme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.Light2026Theme.Light2026Theme()
 Tint.Themes.Light2026Theme.Name.get -> System.String
 Tint.Themes.LightHighContrastTheme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.LightHighContrastTheme.LightHighContrastTheme()
 Tint.Themes.LightHighContrastTheme.Name.get -> System.String
 Tint.Themes.LightModernTheme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.LightModernTheme.LightModernTheme()
 Tint.Themes.LightModernTheme.Name.get -> System.String
 Tint.Themes.LightPlusTheme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.LightPlusTheme.LightPlusTheme()
 Tint.Themes.LightPlusTheme.Name.get -> System.String
 Tint.Themes.LightVisualStudioTheme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.LightVisualStudioTheme.LightVisualStudioTheme()
 Tint.Themes.LightVisualStudioTheme.Name.get -> System.String
 Tint.Themes.MonokaiDimmedTheme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.MonokaiDimmedTheme.MonokaiDimmedTheme()
 Tint.Themes.MonokaiDimmedTheme.Name.get -> System.String
 Tint.Themes.MonokaiTheme.GetTheme() -> Tint.Themes.RawTheme
-Tint.Themes.MonokaiTheme.MonokaiTheme()
 Tint.Themes.MonokaiTheme.Name.get -> System.String
 Tint.Themes.QuietLightTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.QuietLightTheme.Name.get -> System.String
-Tint.Themes.QuietLightTheme.QuietLightTheme()
 Tint.Themes.RedTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.RedTheme.Name.get -> System.String
-Tint.Themes.RedTheme.RedTheme()
 Tint.Themes.SolarizedDarkTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.SolarizedDarkTheme.Name.get -> System.String
-Tint.Themes.SolarizedDarkTheme.SolarizedDarkTheme()
 Tint.Themes.SolarizedLightTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.SolarizedLightTheme.Name.get -> System.String
-Tint.Themes.SolarizedLightTheme.SolarizedLightTheme()
 Tint.Themes.TomorrowNightBlueTheme.GetTheme() -> Tint.Themes.RawTheme
 Tint.Themes.TomorrowNightBlueTheme.Name.get -> System.String
-Tint.Themes.TomorrowNightBlueTheme.TomorrowNightBlueTheme()
-class Tint.Themes.AbyssTheme : Tint.Themes.IThemeSource
-class Tint.Themes.Dark2026Theme : Tint.Themes.IThemeSource
-class Tint.Themes.DarkHighContrastTheme : Tint.Themes.IThemeSource
-class Tint.Themes.DarkModernTheme : Tint.Themes.IThemeSource
-class Tint.Themes.DarkPlusTheme : Tint.Themes.IThemeSource
-class Tint.Themes.DarkVisualStudioTheme : Tint.Themes.IThemeSource
-class Tint.Themes.KimbieDarkTheme : Tint.Themes.IThemeSource
-class Tint.Themes.Light2026Theme : Tint.Themes.IThemeSource
-class Tint.Themes.LightHighContrastTheme : Tint.Themes.IThemeSource
-class Tint.Themes.LightModernTheme : Tint.Themes.IThemeSource
-class Tint.Themes.LightPlusTheme : Tint.Themes.IThemeSource
-class Tint.Themes.LightVisualStudioTheme : Tint.Themes.IThemeSource
-class Tint.Themes.MonokaiDimmedTheme : Tint.Themes.IThemeSource
-class Tint.Themes.MonokaiTheme : Tint.Themes.IThemeSource
-class Tint.Themes.QuietLightTheme : Tint.Themes.IThemeSource
-class Tint.Themes.RedTheme : Tint.Themes.IThemeSource
-class Tint.Themes.SolarizedDarkTheme : Tint.Themes.IThemeSource
-class Tint.Themes.SolarizedLightTheme : Tint.Themes.IThemeSource
-class Tint.Themes.TomorrowNightBlueTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.AbyssTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.Dark2026Theme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.DarkHighContrastTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.DarkModernTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.DarkPlusTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.DarkVisualStudioTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.KimbieDarkTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.Light2026Theme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.LightHighContrastTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.LightModernTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.LightPlusTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.LightVisualStudioTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.MonokaiDimmedTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.MonokaiTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.QuietLightTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.RedTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.SolarizedDarkTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.SolarizedLightTheme : Tint.Themes.IThemeSource
+sealed class Tint.Themes.TomorrowNightBlueTheme : Tint.Themes.IThemeSource
 static Tint.Themes.AbyssTheme.Instance.get -> Tint.Themes.AbyssTheme
 static Tint.Themes.Dark2026Theme.Instance.get -> Tint.Themes.Dark2026Theme
 static Tint.Themes.DarkHighContrastTheme.Instance.get -> Tint.Themes.DarkHighContrastTheme

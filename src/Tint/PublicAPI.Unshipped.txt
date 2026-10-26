@@ -1,6 +1,4 @@
 #nullable enable
-const Tint.TintInfo.VSCodeCommit = "3ac0f056" -> string!
-const Tint.TokenizerOptions.DefaultHotPatternThreshold = 256 -> int
 override Tint.AttributedScopeStack.Equals(object? obj) -> bool
 override Tint.AttributedScopeStack.GetHashCode() -> int
 override Tint.AttributedScopeStack.ToString() -> string!
@@ -33,7 +31,6 @@ static Tint.Grammars.IncludeReference.Relative(string! ruleName) -> Tint.Grammar
 static Tint.Grammars.IncludeReference.Self.get -> Tint.Grammars.IncludeReference
 static Tint.Grammars.IncludeReference.TopLevel(string! scopeName) -> Tint.Grammars.IncludeReference
 static Tint.Grammars.IncludeReference.TopLevelRepository(string! scopeName, string! ruleName) -> Tint.Grammars.IncludeReference
-static Tint.Grammars.RegexSource.Empty.get -> Tint.Grammars.RegexSource!
 static Tint.Grammars.RegexSource.FromRewritten(string! text, bool hasAnchorA, bool hasAnchorG, bool hasBackReferences, Tint.Grammars.RegexPatternFactory? patternFactory = null) -> Tint.Grammars.RegexSource!
 static Tint.HighlightedToken.operator !=(Tint.HighlightedToken left, Tint.HighlightedToken right) -> bool
 static Tint.HighlightedToken.operator ==(Tint.HighlightedToken left, Tint.HighlightedToken right) -> bool
@@ -54,6 +51,7 @@ static Tint.Themes.StyleAttributes.operator ==(Tint.Themes.StyleAttributes left,
 static Tint.Token.operator !=(Tint.Token left, Tint.Token right) -> bool
 static Tint.Token.operator ==(Tint.Token left, Tint.Token right) -> bool
 static Tint.TokenizerOptions.Default.get -> Tint.TokenizerOptions!
+static Tint.TokenizerOptions.DefaultHotPatternThreshold.get -> int
 Tint.AttributedScopeStack
 Tint.AttributedScopeStack.Depth.get -> int
 Tint.AttributedScopeStack.Equals(Tint.AttributedScopeStack? other) -> bool
@@ -348,7 +346,6 @@ Tint.Themes.StyleAttributes.StyleAttributes(Tint.FontStyle FontStyle, int Foregr
 Tint.TintGrammarException
 Tint.TintGrammarException.TintGrammarException(string! message) -> void
 Tint.TintGrammarException.TintGrammarException(string! message, System.Exception! innerException) -> void
-Tint.TintInfo
 Tint.Token
 Tint.Token.Background.get -> int
 Tint.Token.Deconstruct(out int Start, out int Length, out Tint.AttributedScopeStack! Scopes) -> void

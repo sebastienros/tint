@@ -387,8 +387,9 @@ internal static class GrammarEmitter
         w.Line("/// <summary>The shared instance.</summary>");
         w.Line("public static " + c + " Instance { get; } = new " + c + "();");
         w.Line();
-        w.Line("/// <summary>Distinct pattern texts (anchor variants resolved) to their index in the pattern table.</summary>");
-        w.Line("public static global::System.Collections.Frozen.FrozenDictionary<string, int> PatternIndex => __TintIndex.Value;");
+        PrivateConstructor(w, unit);
+        w.Line("// Distinct pattern texts (anchor variants resolved) to their index in the pattern table.");
+        w.Line("internal static global::System.Collections.Frozen.FrozenDictionary<string, int> PatternIndex => __TintIndex.Value;");
         w.Line();
         w.Line("/// <inheritdoc/>");
         w.Line("public string ScopeName => " + CodeWriter.Literal(grammar.ScopeName) + ";");
@@ -905,8 +906,22 @@ internal static class GrammarEmitter
             w.Line("[global::System.CodeDom.Compiler.GeneratedCode(\"Tint.Generator\", \"" + typeof(GrammarEmitter).Assembly.GetName().Version + "\")]");
         }
 
-        w.Open((unit.Accessibility is null ? string.Empty : unit.Accessibility + " ") + "partial class " + unit.ClassName + baseList);
+        // A class generated from an item alone is the generator's: sealed. An attribute-bound class keeps the user's
+        // modifiers.
+        w.Open((unit.Accessibility is null ? string.Empty : unit.Accessibility + " ") + (unit.OwnsClass ? "sealed " : string.Empty) + "partial class " + unit.ClassName + baseList);
         return open + 1;
+    }
+
+    // Only Instance creates the class, unless the user declared constructors of their own.
+    internal static void PrivateConstructor(CodeWriter w, GenerationUnit unit)
+    {
+        if (!unit.DeclaresConstructor)
+        {
+            w.Line("private " + unit.ClassName + "()");
+            w.Line("{");
+            w.Line("}");
+            w.Line();
+        }
     }
 
     internal static void Footer(CodeWriter w, int open)

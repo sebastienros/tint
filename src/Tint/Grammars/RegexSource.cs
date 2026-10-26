@@ -74,8 +74,8 @@ public sealed class RegexSource
     }
 #endif
 
-    /// <summary>The empty pattern, which matches immediately (the <c>end</c> of a rule that has none).</summary>
-    public static RegexSource Empty { get; } = new(string.Empty);
+    // The empty pattern, which matches immediately: the end of a rule that has none, as in vscode-textmate (#252).
+    internal static RegexSource Empty { get; } = new(string.Empty);
 
 #if !TINT_GENERATOR
     /// <summary>

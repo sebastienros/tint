@@ -1,6 +1,7 @@
 # Releasing Tint
 
-The five packages ship together, with the same version: `Tint`, `Tint.Grammars`, `Tint.Themes`, and the file-only
+The five packages are always released together, with the same version (the bundles depend on `Tint` at that
+version or later, and package validation guards each surface): `Tint`, `Tint.Grammars`, `Tint.Themes`, and the file-only
 development dependencies `Tint.Grammars.Sources` and `Tint.Themes.Sources`. A release is a `vX.Y.Z` tag on a
 commit of `main`; CI does the rest. Nobody packs or pushes packages by hand.
 

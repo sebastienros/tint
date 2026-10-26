@@ -119,7 +119,8 @@ Three implementations:
 1. **Generated** (`Tint.Generator`): a `partial class` per grammar. Rule tree built from static
    data on first access; patterns compiled by GregsEx at build time; a
    `FrozenDictionary<string, int>` maps distinct pattern source text to the pattern table index
-   (used for de-duplication at generation time, and exposed for diagnostics and the playground).
+   (used for de-duplication at generation time; internal to the generated class, since
+   `TintGrammars.Find` and the registry are the lookup surface consumers need).
 2. **Loaded** (`Tint.Loading.GrammarLoader`): JSON (System.Text.Json with a source-generated
    context, so it is AOT-safe) and plist. Regexes are parsed on first use with
    `OnigurumaPattern.TryParse`. Same tokens, slower first use, bigger working set.
@@ -128,6 +129,10 @@ Three implementations:
 The rule compiler (`RuleFactory`, a port of vscode-textmate's) works on `RawGrammar` only, so all
 three paths share one implementation and one test suite. Cross-grammar includes (`source.js`
 inside HTML) are resolved at runtime through the `GrammarRegistry`, never baked into generated code.
+
+GregsEx is part of Tint's public contract: `RegexPatternFactory` returns a GregsEx
+`OnigurumaPattern` and generated code binds GregsEx kernels, so a Tint version depends on a GregsEx
+version, and the two are versioned together (a breaking GregsEx change is a breaking Tint change).
 
 ## 5. Regex layer
 
@@ -341,9 +346,10 @@ documented in [generator.md](generator.md).
 ### 8.2 Generated code shape
 
 ```csharp
-partial class CSharpGrammar : IGrammarSource
+sealed partial class CSharpGrammar : IGrammarSource // sealed when generated from an item alone
 {
     public static CSharpGrammar Instance { get; } = new();
+    private CSharpGrammar() { }   // unless the user's attribute-bound class declares a constructor
     public string ScopeName => "source.cs";
     public GrammarInfo Info => s_info;                       // static readonly literals
     public RawGrammar GetGrammar() => s_grammar ??= Build(); // object initializers, lazily
@@ -354,7 +360,7 @@ partial class CSharpGrammar : IGrammarSource
     // classes (tier 3). Each RegexSource gets a factory mapping its anchor variants to entries.
     private static OnigurumaPattern __TintPattern(int index) => …; // Parse(Text(index), …) once
     …
-    public static FrozenDictionary<string, int> PatternIndex => …; // pattern text → index
+    internal static FrozenDictionary<string, int> PatternIndex => …; // pattern text → index
 }
 ```
 
@@ -362,8 +368,8 @@ Design choices: no reflection; every pattern is validated at build time (an inva
 build error with its position in the grammar file) but parsed at first use, so a grammar whose heavy
 rules are never reached never pays for them; de-duplication by pattern text within an assembly (the
 C/C++ family shares most of its 1,000+ patterns across four grammars). The `PatternIndex`
-dictionary is the lookup surface the design calls for; the hot path binds rules to patterns by index
-at generation time and never hashes strings.
+dictionary is internal (tests and diagnostics); the hot path binds rules to patterns by index at
+generation time and never hashes strings.
 
 ### 8.3 Chaining with GregsEx (the one hard dependency)
 

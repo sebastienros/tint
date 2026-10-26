@@ -120,6 +120,7 @@ internal sealed record AttributeTarget(
     string TypeDisplay,
     bool IsValidTarget,
     bool IsPublic,
+    bool DeclaresConstructor,
     LocationInfo? Location);
 
 // One class to generate.
@@ -136,7 +137,9 @@ internal sealed record GenerationUnit(
     bool Kernels,
     SourceSettings Settings,
     string HintName,
-    bool IsPublic);
+    bool IsPublic,
+    bool OwnsClass,
+    bool DeclaresConstructor);
 
 internal sealed record GenerationResult(string HintName, string? Source, string? KernelSource, EquatableArray<DiagnosticInfo> Diagnostics, AggregateEntry? Entry = null);
 
