@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Tint.Spike.TypeScript</AssemblyName>
+    <RootNamespace>Tint.Spike</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="GregsEx" />
+    <None Remove="*.tsv" />
+  </ItemGroup>
+</Project>

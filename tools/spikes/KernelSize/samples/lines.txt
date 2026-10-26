@@ -1,0 +1,20 @@
+using System;
+namespace Avalonia.Controls
+    public class Grid : Panel
+    /// <summary>
+        /// <param name="element">Control to set Column property on.</param>
+        public static void SetColumn(Control element, int value)
+        [System.Flags]
+                            if (def.SizeType == LayoutTimeSizeType.Star && def.MeasureSize > 0.0)
+                    for (int i = 0, count = children.Count; i < count; ++i)
+                foreach (DictionaryEntry e in spanStore)
+                return (Double.IsPositiveInfinity(def.UserSize.Value)) ? 1.0 : 0.0;
+        private static readonly LocalDataStoreSlot s_tempDefinitionsDataSlot = Thread.AllocateDataSlot();
+            internal int Start { get { return (_start); } }
+            get => ColumnDefinitions?.IsDirty ?? false;
+            ValidDefinitionsUStructure = 0x00000001,
+                            columnIndex == 0 ? 0.0 : DefinitionsU[columnIndex].FinalOffset,
+                    case (GridUnitType.Pixel):
+                var dashArray = new List<double>() { _dashLength, _dashLength };
+            AvaloniaProperty.Register<Grid, bool>(nameof(ShowGridLines));
+                    Debug.Assert(DefinitionsU.Count > 0 && DefinitionsV.Count > 0);

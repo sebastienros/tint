@@ -1,0 +1,29 @@
+{
+ "project": "Spike.CSharpLazy",
+ "assembly": "Tint.Spike.CSharpLazy.dll",
+ "methods": 338,
+ "pattern_chars": 29292,
+ "source_bytes": 99531,
+ "generated_bytes": 1795,
+ "dll_bytes": 94720,
+ "build_clean_cold_s": 1.43,
+ "build_clean_warm_s": [
+  0.76,
+  0.73,
+  0.72
+ ],
+ "build_clean_warm_median_s": 0.73,
+ "build_noop_s": [
+  0.53,
+  0.56,
+  0.53
+ ],
+ "build_noop_median_s": 0.53,
+ "build_emit_generated_s": 0.65,
+ "diagnostics": {},
+ "declined": 0,
+ "declined_reasons": {},
+ "declined_methods": [],
+ "errors": [],
+ "per_method": []
+}
