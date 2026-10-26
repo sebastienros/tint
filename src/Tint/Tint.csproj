@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Directory.Build.props sets TargetFramework for single-target projects; clear it so TargetFrameworks applies. -->
+    <TargetFramework></TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+    <Description>TextMate syntax colorization for .NET: VS Code grammars and themes compiled by a source generator, regexes by GregsEx, NativeAOT and trimming safe.</Description>
+    <PackageTags>textmate;syntax-highlighting;tokenizer;colorizer;grammar;vscode</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="GregsEx" />
+  </ItemGroup>
+  <Target Name="BuildGeneratorForPack"
+          BeforeTargets="GenerateNuspec"
+          Condition="'$(NoBuild)' != 'true' or !Exists('../Tint.Generator/bin/$(Configuration)/netstandard2.0/Tint.Generator.dll')">
+    <MSBuild Projects="../Tint.Generator/Tint.Generator.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration)"
+             RemoveProperties="NoBuild;PublishAot;PublishTrimmed;PublishSingleFile;SelfContained;RuntimeIdentifier;TargetFramework;OutputPath;OutDir;PublishDir" />
+  </Target>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../assets/icon.png" Pack="true" PackagePath="/" />
+    <None Include="../../THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="licenses/THIRD-PARTY-NOTICES.txt" />
+    <None Include="build/Tint.props" Pack="true" PackagePath="build/Tint.props" />
+    <None Include="build/Tint.props" Pack="true" PackagePath="buildTransitive/Tint.props" />
+    <None Include="../Tint.Generator/bin/$(Configuration)/netstandard2.0/Tint.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <InternalsVisibleTo Include="Tint.Tests" />
+    <InternalsVisibleTo Include="Tint.Benchmarks" />
+  </ItemGroup>
+</Project>

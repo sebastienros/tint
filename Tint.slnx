@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/Tint.Benchmarks/Tint.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Tint/Tint.csproj" />
+    <Project Path="src/Tint.Generator/Tint.Generator.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Tint.Tests/Tint.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Tint.Sync/Tint.Sync.csproj" />
+  </Folder>
+</Solution>

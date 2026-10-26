@@ -324,8 +324,11 @@ binds rules to patterns by index at generation time and never hashes strings.
 
 ### 8.3 Chaining with GregsEx (the one hard dependency)
 
-Roslyn generators cannot see each other's output, so Tint's generator cannot emit
-`[GeneratedPattern]` methods for GregsEx's generator to compile. Two options, both planned:
+A generator's main-pipeline output is never visible to other generators (only post-initialization
+output is, and that step cannot read `AdditionalFiles`; see
+[research/generator-chaining.md](research/generator-chaining.md) for the experiment). A grammar
+class depends on its grammar file, so it is main-pipeline output, and the `[GeneratedPattern]`
+methods it would carry are invisible to GregsEx's generator. Two options, both planned:
 
 1. **Preferred:** GregsEx exposes a public kernel-emission façade in `GregsEx.Generator.dll`. As of
    0.5.0 the consumption side is public (`OnigurumaPattern.WithGeneratedKernels(ulong fingerprint,
@@ -452,8 +455,9 @@ trimmed app keeps only the grammars it references. The playground is the proof: 
 ## 15. Open items and asks on GregsEx
 
 1. Public kernel-emission façade `GregsEx.SourceGeneration.KernelSource` in `GregsEx.Generator.dll`
-   (section 8.3 has the proposed shape). 0.5.0 made the consumption side public; emission is still
-   internal.
+   (section 8.3 has the proposed shape), filed as
+   [sebastienros/gregsex#26](https://github.com/sebastienros/gregsex/issues/26). 0.5.0 made the
+   consumption side public; emission is still internal.
 2. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
    result cache (section 5.5).
 3. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
