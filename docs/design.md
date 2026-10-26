@@ -569,9 +569,17 @@ of shiki's per-language modules.
   `suite1/whileTests.json` (9), the themes suite (72 files × 13 themes via `tokenizeLine2`).
   Grammars loaded through `Tint.Loading`, then the same suites through generated classes to prove
   the two paths agree.
-- Differential testing against TextMateSharp 2.0.4 over a corpus of real files per grammar (the
-  branch's `CorpusCheck` approach: 21,364 files, 8 known divergences, all explained).
-- Fuzzing harness (the branch's `Fuzz` tool pattern) comparing tokens, time and exceptions.
+- Differential testing against TextMateSharp 2.0.4 over a corpus of real files
+  (`tools/Tint.CorpusCheck`), with vscode-textmate 9.3.2 over vscode-oniguruma as the referee for
+  every difference. P7 run: 14 repositories, 10,345 files, 3,343,607 lines, no exception; 1,845
+  files differ from TextMateSharp (older tokenizer, theme include and parent-scope handling, grammar
+  files it cannot read as written) and vscode-textmate agrees with Tint on every one
+  ([research/corpus-check-2026-10-25.md](research/corpus-check-2026-10-25.md)).
+- Differential fuzzing (`tools/Tint.Fuzz`) comparing tokens, styles, time and exceptions, with
+  minimization and the same referee. P7 campaign: 20 minutes, 12,484 inputs, 731,709 lines over
+  the 84 grammars; no Tint exception or hang; one tokenizer bug fixed (`begin` without `end`); one
+  GregsEx work-limit difference and a few long lines several times slower than vscode-textmate,
+  kept as GregsEx inputs (section 15) ([research/fuzz-2026-10-25.md](research/fuzz-2026-10-25.md)).
 - Bundles: every bundled grammar tokenizes its shiki sample (or its own file when shiki has none)
   identically through the generated class and through `GrammarLoader`, and every bundled theme
   colors the C# sample identically to `ThemeLoader` (`BundleTests`).
@@ -606,6 +614,12 @@ and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type na
    level for runtime-compiled patterns too: 5% faster on C# once warm, slower on short documentation
    blocks.
 5. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
+6. From the P7 fuzz campaign: long lines where GregsEx costs far more than Oniguruma (warm, one
+   thread: YAML 217 ms vs 1 ms for vscode-textmate on an 11,134-character line; TSX 5.2 s vs
+   1.5 s; C# 1.5 s vs 0.54 s; LaTeX, JSON Lines and Batch three to five times), and one C search
+   that reaches the work limit where Oniguruma matches. Inputs in
+   [research/fuzz-2026-10-25-inputs.json](research/fuzz-2026-10-25-inputs.json); the patterns
+   responsible are not identified yet.
 
 Decisions deferred to measurements: combined-alternation experiment (5.4). Decided by P5: tier 2
 is opt-in, threshold 256 (5.5). Decided by the spike: bundle scope and partitioning, no
