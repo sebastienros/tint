@@ -219,7 +219,12 @@ treats pattern execution as three tiers:
 3. **Ahead-of-time kernels** (opt-in): the generator emits kernels only when asked (`Kernels = true`
    on the attribute, or `<TintKernels>true</TintKernels>`), through GregsEx's `KernelSource`
    façade (section 8.3). Meant for AOT and WebAssembly deployments of a few hot grammars, and for
-   future opt-in per-family kernel packages, not for the bundles.
+   future opt-in per-family kernel packages, not for the bundles. **Measured at the tokenizer level
+   in P8 (GregsEx 0.5.1, M4 Pro, [benchmarks/README.md](../benchmarks/README.md)):** the
+   kernel-compiled VS Code C# grammar tokenizes `bigfile.cs` 3–4% faster than the interpreted bundle
+   (1.69–1.74 s against 1.77–1.80 s) and the C# docs fences 2–5% faster, with the same allocations,
+   while a fresh process pays about 150 ms more JIT for its first line; that is not a gain worth
+   kernel packages, so the bundles stay interpreted.
 
 ### 5.6 Text identity for the result cache (GregsEx ask)
 

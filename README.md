@@ -204,6 +204,24 @@ var grammar = GrammarLoader.Load("my-language.tmLanguage.json");
 registry.Add(grammar);
 ```
 
+## Performance
+
+Tokenizing TextMateSharp's `bigfile.cs` (133,439 lines, 5.8 MB) with the VS Code C# grammar and
+Dark+, once warm, through each library's encoded-token path:
+
+| Library | Time | MB/s | Allocated |
+|---|---:|---:|---:|
+| Tint (bundled grammar) | 1.77 s | 3.29 | 32.6 MB |
+| Tint (kernel-compiled grammar) | 1.69 s | 3.44 | 32.6 MB |
+| TextMateLib 0.2.1 | 2.81 s | 2.07 | 31.0 MB |
+| TextMateSharp 2.0.4 | 7.87 s | 0.74 | 507.3 MB |
+
+Measured on an Apple M4 Pro with .NET 10.0.10, GregsEx 0.5.1 and BenchmarkDotNet `ShortRun`.
+The bundles run interpreted; ahead-of-time kernels are an opt-in for grammars you import
+(`Kernels="true"`), and here they gain only 3–4% while costing about 150 ms of JIT on first use
+in a fresh process. The full set, with methodology, is in
+[benchmarks/README.md](benchmarks/README.md).
+
 ## Build
 
 ```bash
