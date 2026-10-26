@@ -660,12 +660,12 @@ and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type na
    level for runtime-compiled patterns too: 5% faster on C# once warm, slower on short documentation
    blocks.
 5. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
-6. From the P7 fuzz campaign: long lines where GregsEx costs far more than Oniguruma (warm, one
-   thread: YAML 217 ms vs 1 ms for vscode-textmate on an 11,134-character line; TSX 5.2 s vs
-   1.5 s; C# 1.5 s vs 0.54 s; LaTeX, JSON Lines and Batch three to five times), and one C search
-   that reaches the work limit where Oniguruma matches. Inputs in
-   [research/fuzz-2026-10-25-inputs.json](research/fuzz-2026-10-25-inputs.json); the patterns
-   responsible are not identified yet.
+6. From the P7 fuzz campaign ([research/fuzz-2026-10-25.md](research/fuzz-2026-10-25.md#engine-findings-for-gregsex),
+   inputs in [research/fuzz-2026-10-25-inputs.json](research/fuzz-2026-10-25-inputs.json)): the
+   work limit counts the whole search, where Oniguruma's retry limit is per match attempt, so a
+   quadratic lookahead in the C grammar (`c_function_call`, a run of 7,548 `:`) gives up where
+   Oniguruma matches; and long lines where GregsEx costs far more than Oniguruma (warm: YAML 217 ms
+   vs 1 ms on 11,134 characters; LaTeX, Batch, TSX, JSON Lines and C# three to five times).
 
 Decisions deferred to measurements: combined-alternation experiment (5.4). Decided by P5: tier 2
 is opt-in, threshold 256 (5.5). Decided by the spike: bundle scope and partitioning, no

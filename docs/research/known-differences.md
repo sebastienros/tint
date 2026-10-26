@@ -27,11 +27,12 @@ These do not change tokens as the suites compare them, but differ from vscode-te
 
 ## Against vscode-textmate, found by the corpus check and the fuzzer
 
-- GregsEx's work limit: a search that exhausts it counts as no match (design section 5.4), where Oniguruma's own retry
-  limit is higher or not reached. One fuzz input hits it: after a 7,548-character line of `:::` in C, a function
-  pattern gives up and `Py_DECREF(data);` reads as a definition instead of a call
-  ([fuzz-2026-10-25.md](fuzz-2026-10-25.md)). `Tokenizer.LimitExceededCount` counts these searches. No corpus file
-  reaches the limit.
+- GregsEx's work limit: a search that exhausts it counts as no match (design section 5.4). GregsEx counts the whole
+  search (10,000,000 units by default), Oniguruma's retry limit applies per match attempt. One fuzz input hits it:
+  after a 7,548-character run of `:` in C, `c_function_call`'s quadratic `(?:…|::)++\s*\(` lookahead gives up and
+  `Py_DECREF(data);` reads as a definition instead of a call. Pattern, input and effect are in
+  [fuzz-2026-10-25.md](fuzz-2026-10-25.md#work-limit-c-work-limit-c). `Tokenizer.LimitExceededCount` counts these
+  searches. No corpus file reaches the limit.
 - Registry contents, not a tokenizer difference: vscode-textmate loads the grammars a grammar depends on from its
   patterns and includes, not from its captures, so a grammar referenced only in a capture (`source.js` in
   CoffeeScript's backticks) is missing unless something else loaded it. Tint resolves every registered grammar.
