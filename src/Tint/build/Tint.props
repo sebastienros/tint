@@ -6,14 +6,48 @@
   </ItemGroup>
   <ItemGroup>
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="TintKind" />
+    <!-- Item-only classes: name, namespace and accessibility (public or internal, the default). -->
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Name" />
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Namespace" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Accessibility" />
+    <!-- Ahead-of-time GregsEx kernels for one grammar (true/false); TintKernels sets the project default. -->
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Kernels" />
+    <!-- GrammarInfo: lists are semicolon- or comma-separated; EmbeddedLanguages are scope=languageId and TokenTypes
+         selector=comment|string|regex|other pairs. -->
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="LanguageId" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="Aliases" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="FileExtensions" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="EmbeddedLanguages" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="InjectTo" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="InjectionSelector" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="TokenTypes" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="BalancedBracketScopes" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="UnbalancedBracketScopes" />
+    <!-- Themes: VSCode (default) or Raw. -->
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="ThemeMode" />
     <CompilerVisibleProperty Include="RootNamespace" />
+    <CompilerVisibleProperty Include="ProjectDir" />
+    <CompilerVisibleProperty Include="TintKernels" />
+    <!-- The GregsEx package directory (the one holding lib/ and analyzers/), when it cannot be found from the GregsEx.dll
+         reference. -->
+    <CompilerVisibleProperty Include="TintGregsExPackagePath" />
   </ItemGroup>
   <Target Name="TintAddAdditionalFiles" BeforeTargets="GenerateMSBuildEditorConfigFileShouldRun;CoreCompile">
     <ItemGroup>
       <AdditionalFiles Include="@(TintGrammar)" TintKind="Grammar" />
       <AdditionalFiles Include="@(TintTheme)" TintKind="Theme" />
+    </ItemGroup>
+    <!-- The analyzer config file cuts values at ';', so the generator receives MSBuild lists comma-separated. -->
+    <ItemGroup>
+      <AdditionalFiles Condition="'%(AdditionalFiles.TintKind)' != ''">
+        <Aliases>$([System.String]::Copy('%(AdditionalFiles.Aliases)').Replace(';', ','))</Aliases>
+        <FileExtensions>$([System.String]::Copy('%(AdditionalFiles.FileExtensions)').Replace(';', ','))</FileExtensions>
+        <EmbeddedLanguages>$([System.String]::Copy('%(AdditionalFiles.EmbeddedLanguages)').Replace(';', ','))</EmbeddedLanguages>
+        <InjectTo>$([System.String]::Copy('%(AdditionalFiles.InjectTo)').Replace(';', ','))</InjectTo>
+        <TokenTypes>$([System.String]::Copy('%(AdditionalFiles.TokenTypes)').Replace(';', ','))</TokenTypes>
+        <BalancedBracketScopes>$([System.String]::Copy('%(AdditionalFiles.BalancedBracketScopes)').Replace(';', ','))</BalancedBracketScopes>
+        <UnbalancedBracketScopes>$([System.String]::Copy('%(AdditionalFiles.UnbalancedBracketScopes)').Replace(';', ','))</UnbalancedBracketScopes>
+      </AdditionalFiles>
     </ItemGroup>
   </Target>
 </Project>

@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Build-time C# source generator for TintGrammar and TintTheme items. It targets netstandard2.0 so any Roslyn host
        loads it (dotnet build, msbuild, and .NET Framework-hosted IDE analyzer hosts). It is packed inside the Tint
-       package under analyzers/dotnet/cs, not as a package of its own. -->
+       package under analyzers/dotnet/cs, not as a package of its own. It must not depend on System.Text.Json, on
+       Tint.dll or on GregsEx at run time: the grammar and theme readers are compiled in from src/Tint, and GregsEx is
+       reached through the consumer's own package by reflection (GregsExShim). -->
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -13,11 +15,40 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <IncludeSymbols>false</IncludeSymbols>
-    <!-- Only the polyfills the generator uses; extend the allowlist as code needs them. -->
-    <MeziantouPolyfill_IncludedPolyfills>T:System.Runtime.CompilerServices.IsExternalInit|T:System.Diagnostics.CodeAnalysis.</MeziantouPolyfill_IncludedPolyfills>
+    <DefineConstants>$(DefineConstants);TINT_GENERATOR</DefineConstants>
+    <!-- Only the polyfills the generator and the shared sources use; extend the allowlist as code needs them. -->
+    <MeziantouPolyfill_IncludedPolyfills>T:System.Runtime.CompilerServices.IsExternalInit|T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute|T:System.Diagnostics.CodeAnalysis.|T:System.HashCode|T:System.Collections.Generic.ReferenceEqualityComparer|M:System.ArgumentNullException.ThrowIfNull|M:System.Char.IsAscii|M:System.Collections.Generic.CollectionExtensions.GetValueOrDefault|M:System.String.Contains(System.String,System.StringComparison)|M:System.String.Replace(System.String,System.String,System.StringComparison)|M:System.Int32.TryParse(System.ReadOnlySpan{System.Char},System.Globalization.NumberStyles,System.IFormatProvider,System.Int32@)</MeziantouPolyfill_IncludedPolyfills>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
     <PackageReference Include="Meziantou.Polyfill" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The implicit usings the shared runtime sources are written against. -->
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.IO" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Threading" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Shared with the runtime so that generated and loaded grammars and themes come from one reading of the files. -->
+    <Compile Include="../Tint/Grammars/IncludeReference.cs" Link="Shared/Grammars/IncludeReference.cs" />
+    <Compile Include="../Tint/Grammars/RawGrammar.cs" Link="Shared/Grammars/RawGrammar.cs" />
+    <Compile Include="../Tint/Grammars/RawRule.cs" Link="Shared/Grammars/RawRule.cs" />
+    <Compile Include="../Tint/Grammars/RegexSource.cs" Link="Shared/Grammars/RegexSource.cs" />
+    <Compile Include="../Tint/Internal/Regex/PatternRewriter.cs" Link="Shared/Internal/Regex/PatternRewriter.cs" />
+    <Compile Include="../Tint/Themes/IThemeSource.cs" Link="Shared/Themes/IThemeSource.cs" />
+    <Compile Include="../Tint/Themes/RawTheme.cs" Link="Shared/Themes/RawTheme.cs" />
+    <Compile Include="../Tint/Themes/RawThemeRule.cs" Link="Shared/Themes/RawThemeRule.cs" />
+    <Compile Include="../Tint/Loading/DocumentFormat.cs" Link="Shared/Loading/DocumentFormat.cs" />
+    <Compile Include="../Tint/Loading/DocumentTree.cs" Link="Shared/Loading/DocumentTree.cs" />
+    <Compile Include="../Tint/Loading/GrammarLoader.Read.cs" Link="Shared/Loading/GrammarLoader.Read.cs" />
+    <Compile Include="../Tint/Loading/JsonTreeReader.cs" Link="Shared/Loading/JsonTreeReader.cs" />
+    <Compile Include="../Tint/Loading/ThemeLoader.Read.cs" Link="Shared/Loading/ThemeLoader.Read.cs" />
   </ItemGroup>
 </Project>
