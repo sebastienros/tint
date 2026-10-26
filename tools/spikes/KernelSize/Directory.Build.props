@@ -1,0 +1,7 @@
+<Project>
+  <!-- Standalone spike: inherits the repository settings, never part of Tint.slnx. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+</Project>

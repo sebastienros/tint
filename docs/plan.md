@@ -56,6 +56,8 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
 - Also test the fallback shape (lazy `Parse`) for size and first-use cost.
 - Done when: a short report in `docs/research/kernel-spike.md` with the numbers and a
   recommendation for bundle partitioning and the kernel length threshold.
+- Outcome (2026-10-25): one lazy-pattern bundle, no length threshold, kernels opt-in; see design
+  5.5 and 8.4.
 
 ## P3 — Source generator
 
@@ -66,8 +68,12 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   (static info, lazy `RawGrammar` builder, de-duplicated pattern table, anchor variants,
   `PatternIndex`), emitter for theme classes; diagnostics (invalid regex with position, missing
   dependency scope, unmatched attribute path, duplicate class name).
-- Kernel emission through GregsEx's public API when present, lazy `Parse` otherwise. No
-  command-line tool anywhere in the product; the bundles use the same generator.
+- Patterns parsed lazily with the TextMate compile limits by default (design 5.5 tier 1). Kernels
+  opt-in (`Kernels = true` / `<TintKernels>`) through GregsEx's `KernelSource` façade (gregsex#27),
+  reached by loading the consumer's `GregsEx.Generator.dll` from `$(PkgGregsEx)` via a
+  `CompilerVisibleProperty` and a reflection shim; informational diagnostic and interpreted fallback
+  when the façade is absent. No command-line tool anywhere in the product; the bundles use the same
+  generator.
 - Generator tests in the GregsEx style (`CSharpGeneratorDriver`, assert diagnostics and output),
   plus the vscode-textmate suites run through generated grammars.
 - Packed inside the `Tint` nupkg under `analyzers/dotnet/cs`.
@@ -76,9 +82,10 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
 
 ## P4 — Bundles
 
-- `src/Tint.Grammars` and `src/Tint.Themes` generated from `grammars/` and `themes/` per the P2
-  decision (single assembly or per-family split), `TintGrammars.All` / `TintThemes.All`
-  registration helpers, generated `THIRD-PARTY-NOTICES.txt` packed under `licenses/`.
+- `src/Tint.Grammars` (one assembly, all 84 grammars, lazily parsed patterns, per the P2 decision)
+  and `src/Tint.Themes` generated from `grammars/` and `themes/`, `TintGrammars.All` /
+  `TintThemes.All` registration helpers, generated `THIRD-PARTY-NOTICES.txt` packed under
+  `licenses/`.
 - Done when: every bundled grammar tokenizes its sample file, package sizes recorded, trim and AOT
   smoke apps that reference one grammar show only that grammar in the trimmed output.
 
@@ -88,6 +95,8 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   `Highlighter` facade, README usage section.
 - `benchmarks/Tint.Benchmarks` with TextMateSharp 2.0.4 and TextMateLib 0.2.1 baselines, the
   `bigfile.cs` and docs-heavy workloads, `benchmarks/README.md` with results.
+- Tier-2 runtime compilation (design 5.5): `Compile()` hot patterns after N searches on JIT
+  runtimes; measure N and the gain on `bigfile.cs`; off under AOT.
 - Done when: benchmarks run on macOS arm64 and linux x64 and the numbers are in the README table.
 
 ## P6 — Playground

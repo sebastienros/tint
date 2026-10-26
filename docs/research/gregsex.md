@@ -103,7 +103,7 @@ retry-limit errors.
 
 1. Public kernel-emission façade in `GregsEx.Generator.dll` wrapping the internal
    `SourcePlanner.TryPlan` + `KernelEmitter.EmitClass` + `CoreKernelPlan.Fingerprint()`; proposed
-   shape in `docs/design.md` section 8.3. 0.5.0 (= commit 0510cf29) made the consumption side public
+   shape in `docs/design.md` section 8.3, filed as sebastienros/gregsex#26. 0.5.0 (= commit 0510cf29) made the consumption side public
    (`OnigurumaPattern.WithGeneratedKernels`, `CoreKernel`, `KernelGuard`) but not emission.
 2. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
    result cache.

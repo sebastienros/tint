@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Interpreted means interpreted: no runtime code generation behind Parse (as under trimming and AOT). -->
+    <GregsExEnableAutoCompilation>false</GregsExEnableAutoCompilation>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="GregsEx" />
+    <ProjectReference Include="../Spike.CSharp/Spike.CSharp.csproj" />
+    <ProjectReference Include="../Spike.CSharpLazy/Spike.CSharpLazy.csproj" />
+    <None Include="../samples/lines.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
