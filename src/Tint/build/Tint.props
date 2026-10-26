@@ -23,8 +23,9 @@
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="TokenTypes" />
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="BalancedBracketScopes" />
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="UnbalancedBracketScopes" />
-    <!-- Themes: VSCode (default) or Raw. -->
+    <!-- Themes: VSCode (default) or Raw, and the display name used when the theme file has no "name". -->
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="ThemeMode" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="DisplayName" />
     <CompilerVisibleProperty Include="RootNamespace" />
     <CompilerVisibleProperty Include="ProjectDir" />
     <CompilerVisibleProperty Include="TintKernels" />

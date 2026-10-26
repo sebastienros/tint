@@ -140,7 +140,10 @@ public sealed class BundleTests
         var generatedSource = TintThemes.All.Single(t => t.GetType().Name == className);
         var path = s_themeItems.Value.Single(t => t.ClassName == className).Path;
         var loadedSource = ThemeLoader.Load(path);
-        Assert.Equal(loadedSource.Name, generatedSource.Name);
+
+        // A theme file without a "name" (Monokai, Monokai Dimmed, Tomorrow Night Blue) gets the VS Code label from the
+        // item's DisplayName; the loader path has no such source.
+        Assert.Equal(loadedSource.Name ?? ThemeDisplayName(className), generatedSource.Name);
 
         var lines = File.ReadAllLines(Path.Combine(Fixtures.Samples, "csharp.sample"));
         Assert.Equal(Colors(Theme.FromSource(loadedSource), lines), Colors(Theme.FromSource(generatedSource), lines));
@@ -341,6 +344,10 @@ public sealed class BundleTests
 
     private static string GrammarPath(IGrammarSource grammar)
         => s_grammarItems.Value.Single(i => i.ClassName == grammar.GetType().Name).Path;
+
+    private static string ThemeDisplayName(string className)
+        => (string)XDocument.Load(Path.Combine(Fixtures.RepositoryRoot, "src/Tint.Themes/VSCodeThemes.props")).Descendants("TintTheme")
+            .Single(item => (string)item.Attribute("Name")! == className).Attribute("DisplayName")!;
 
     private static IReadOnlyList<(string ClassName, string Path)> ReadItems(string props, string itemName)
     {

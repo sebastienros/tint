@@ -250,6 +250,31 @@ public sealed class GeneratorTests
     }
 
     [Fact]
+    public void DisplayNameNamesAThemeWhoseFileHasNoName()
+    {
+        const string Unnamed = """{ "type": "dark", "tokenColors": [ { "scope": "a", "settings": { "foreground": "#111111" } } ] }""";
+        var run = GeneratorHarness.Run(
+        [
+            TestFile.Theme("themes/monokai.json", Unnamed, ("DisplayName", "Monokai")),
+            TestFile.Theme("themes/plain.json", Unnamed),
+            TestFile.Theme("themes/named.json", SimpleTheme, ("DisplayName", "Ignored")),
+            TestFile.Theme("themes/attributed.json", Unnamed),
+        ],
+        """
+            [Tint.TextMateTheme("themes/attributed.json", DisplayName = "Tomorrow Night Blue")]
+            public partial class Attributed;
+            """);
+
+        Assert.Empty(run.CompilationProblems);
+        var assembly = run.Load();
+        Assert.Equal("Monokai", Theme(assembly, "Test.Root.MonokaiTheme").Name);
+        Assert.Equal("Monokai", Theme(assembly, "Test.Root.MonokaiTheme").GetTheme().Name);
+        Assert.Null(Theme(assembly, "Test.Root.PlainTheme").Name);
+        Assert.Equal("Simple Dark", Theme(assembly, "Test.Root.NamedTheme").Name);
+        Assert.Equal("Tomorrow Night Blue", Theme(assembly, "Attributed").Name);
+    }
+
+    [Fact]
     public void ThemeIncludesResolveAmongAdditionalFiles()
     {
         var run = GeneratorHarness.Run(

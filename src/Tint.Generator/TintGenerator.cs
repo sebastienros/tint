@@ -98,6 +98,9 @@ public sealed class TintGenerator : IIncrementalGenerator
                 /// the rules as written.
                 /// </summary>
                 public string? ThemeMode { get; set; }
+
+                /// <summary>The display name, used when the theme file has no <c>name</c> (VS Code takes it from the extension's <c>package.json</c>).</summary>
+                public string? DisplayName { get; set; }
             }
         }
         """;
@@ -336,7 +339,8 @@ public sealed class TintGenerator : IIncrementalGenerator
             Array("TokenTypes"),
             named.ContainsKey("BalancedBracketScopes") ? Array("BalancedBracketScopes") : null,
             Array("UnbalancedBracketScopes"),
-            String("ThemeMode"));
+            String("ThemeMode"),
+            String("DisplayName"));
 
         var isPartial = context.TargetNode is ClassDeclarationSyntax declaration
             && declaration.Modifiers.Any(m => m.Text == "partial");
@@ -540,7 +544,8 @@ public sealed class TintGenerator : IIncrementalGenerator
             attribute.TokenTypes.Count > 0 ? attribute.TokenTypes : item.TokenTypes,
             attribute.BalancedBracketScopes ?? item.BalancedBracketScopes,
             attribute.UnbalancedBracketScopes.Count > 0 ? attribute.UnbalancedBracketScopes : item.UnbalancedBracketScopes,
-            attribute.ThemeMode ?? item.ThemeMode);
+            attribute.ThemeMode ?? item.ThemeMode,
+            attribute.DisplayName ?? item.DisplayName);
 
         private static string HintName(string? ns, EquatableArray<string> containingTypes, string className)
         {
