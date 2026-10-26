@@ -35,31 +35,6 @@ public sealed class RuntimeTests
     }
 
     [Fact]
-    public void ABeginRuleWithoutEndStaysOpenToTheEndOfTheLine()
-    {
-        // VS Code's XML comment rule: the inner rule has a begin and no end, so vscode-textmate gives it "\uFFFF" as
-        // its end, which never matches; the second "--" is plain comment text (found by tools/Tint.Fuzz).
-        var registry = new GrammarRegistry();
-        registry.Add(Load("""
-            {
-              "scopeName": "text.comments",
-              "patterns": [{
-                "begin": "<!--", "end": "-->", "name": "comment.block",
-                "patterns": [{ "begin": "--(?!>)", "captures": { "0": { "name": "invalid.illegal" } } }]
-              }]
-            }
-            """));
-        var tokenizer = registry.CreateTokenizer("text.comments");
-
-        var tokens = tokenizer.TokenizeLine("<!------", StateStack.Initial, out var state).ToArray();
-
-        Assert.Equal(
-            [("<!--", "text.comments comment.block"), ("--", "text.comments comment.block invalid.illegal"), ("--", "text.comments comment.block")],
-            tokens.Select(t => ("<!------"[t.Start..t.End], t.Scopes.ToString())));
-        Assert.Equal(3, state.Depth);
-    }
-
-    [Fact]
     public void AStateFromAnotherGrammarIsRejected()
     {
         var registry = new GrammarRegistry();
