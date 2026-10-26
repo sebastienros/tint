@@ -363,15 +363,13 @@ internal static class CaptureNames
 
                 var start = buffer.Length;
                 buffer.Append(value);
-                if (command == 1)
+                if (command != 0)
                 {
                     var written = buffer.AsWritableSpan(start);
-                    written.ToLowerInvariant(written);
-                }
-                else if (command == 2)
-                {
-                    var written = buffer.AsWritableSpan(start);
-                    written.ToUpperInvariant(written);
+                    for (var c = 0; c < written.Length; c++)
+                    {
+                        written[c] = command == 1 ? char.ToLowerInvariant(written[c]) : char.ToUpperInvariant(written[c]);
+                    }
                 }
             }
             else
