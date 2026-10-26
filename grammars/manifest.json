@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/microsoft/vscode/tree/3ac0f0563e382d8e3480c787d04a2d05afca6746/extensions",
-  "commit": "3ac0f0563e382d8e3480c787d04a2d05afca6746",
+  "source": "https://github.com/microsoft/vscode/tree/af3b54ddd0c4f81765fc218856e2e73491051092/extensions",
+  "commit": "af3b54ddd0c4f81765fc218856e2e73491051092",
   "grammars": [
     {
       "scopeName": "documentation.injection.js.jsx",

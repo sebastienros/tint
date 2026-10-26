@@ -2,7 +2,7 @@ Tint third-party notices
 ========================
 
 Tint bundles TextMate grammars and color themes taken from the extensions of Visual Studio Code
-(https://github.com/microsoft/vscode, commit 3ac0f0563e382d8e3480c787d04a2d05afca6746), which is licensed under the MIT License.
+(https://github.com/microsoft/vscode, commit af3b54ddd0c4f81765fc218856e2e73491051092), which is licensed under the MIT License.
 Each grammar or theme keeps the license of the project it was converted from, listed below from the
 extensions' cgmanifest.json files. Grammars and themes without an entry below are authored in the
 Visual Studio Code repository and are covered by its MIT License.
