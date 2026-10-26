@@ -1,0 +1,7 @@
+* text=auto
+*.sh text eol=lf
+*.yml text eol=lf
+
+# Grammar and theme fixtures are hashed for provenance.
+/grammars/** text=auto eol=lf
+/themes/** text=auto eol=lf
