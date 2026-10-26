@@ -48,4 +48,6 @@ slowest line of each engine once warm:
 dotnet run -c Release --project tools/Tint.Fuzz -- repro artifacts/fuzz/findings.json --signature "tokens source.yaml …"
 ```
 
+After a referee change, `judge artifacts/fuzz/findings.json` judges the findings again and rewrites the report.
+
 The latest campaign is [docs/research/fuzz-2026-10-25.md](../../docs/research/fuzz-2026-10-25.md).

@@ -72,7 +72,7 @@ root.SetAction(result =>
     Directory.CreateDirectory(outDirectory);
     void Save()
     {
-        File.WriteAllText(Path.Combine(outDirectory, "findings.json"), JsonSerializer.Serialize(new { options.Seed, Duration = stopwatch.Elapsed.ToString(), campaign.LeftBehind, Stats = campaign.Stats, Findings = findings }, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true }), encoding);
+        File.WriteAllText(Path.Combine(outDirectory, "findings.json"), JsonSerializer.Serialize(new SavedCampaign { Seed = options.Seed, Duration = stopwatch.Elapsed.ToString(), Workers = options.Workers, HangLimit = options.HangLimit, SlowLine = options.SlowLine, LineTimeLimit = options.LineTimeLimit, LeftBehind = campaign.LeftBehind, Stats = new(campaign.Stats), Findings = findings }, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true }), encoding);
         File.WriteAllText(Path.Combine(outDirectory, "findings.md"), Report.Write(options, tint.Version, reference.Version, stopwatch.Elapsed, campaign.Stats, findings, campaign.LeftBehind), encoding);
     }
 
@@ -147,4 +147,63 @@ repro.SetAction(result =>
 });
 root.Add(repro);
 
+var judgeArgument = new Argument<FileInfo>("findings") { Description = "A findings.json file, rewritten with the new verdicts along with findings.md." };
+var judge = new Command("judge", "Judges the findings of a campaign again with vscode-textmate (after a referee change) and rewrites the report.")
+{
+    repoOption, judgeArgument,
+};
+judge.SetAction(result =>
+{
+    var repository = RepositoryData.Load(result.GetValue(repoOption)?.FullName);
+    var path = result.GetValue(judgeArgument)!.FullName;
+    var jsonOptions = new JsonSerializerOptions { WriteIndented = true, IncludeFields = true };
+    var campaign = JsonSerializer.Deserialize<SavedCampaign>(File.ReadAllText(path), jsonOptions)!;
+    var tint = new TintEngine(repository);
+    var reference = new TextMateSharpEngine(ReferenceGrammars.Same, repository);
+    var referee = new Referee(repository, tint, reference);
+    if (!referee.IsAvailable)
+    {
+        Console.Error.WriteLine("The referee is not installed: npm ci in tools/Tint.CorpusCheck/referee.");
+        return 2;
+    }
+
+    foreach (var finding in campaign.Findings)
+    {
+        finding.Verdict = null;
+        finding.TintAgreesWithVSCode = null;
+    }
+
+    var directory = Path.GetDirectoryName(path)!;
+    Report.Judge(referee, campaign.Findings, Path.Combine(directory, "inputs"));
+    var options = new FuzzOptions(campaign.Seed, TimeSpan.Zero, campaign.Workers, campaign.HangLimit, campaign.SlowLine, campaign.LineTimeLimit, 0, TimeSpan.Zero);
+    var encoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: false);
+    File.WriteAllText(path, JsonSerializer.Serialize(campaign, jsonOptions), encoding);
+    File.WriteAllText(Path.Combine(directory, "findings.md"), Report.Write(options, tint.Version, reference.Version, TimeSpan.Parse(campaign.Duration, System.Globalization.CultureInfo.InvariantCulture), campaign.Stats, campaign.Findings, campaign.LeftBehind), encoding);
+    Console.WriteLine($"{campaign.Findings.Count(f => f.TintAgreesWithVSCode == false)} findings where vscode-textmate differs from Tint");
+    return 0;
+});
+root.Add(judge);
+
 return await root.Parse(args).InvokeAsync();
+
+/// <summary>What findings.json holds: enough to rewrite the report.</summary>
+internal sealed class SavedCampaign
+{
+    public int Seed { get; set; }
+
+    public string Duration { get; set; } = "";
+
+    public int Workers { get; set; }
+
+    public TimeSpan HangLimit { get; set; }
+
+    public TimeSpan SlowLine { get; set; }
+
+    public TimeSpan LineTimeLimit { get; set; }
+
+    public int LeftBehind { get; set; }
+
+    public Dictionary<string, GrammarStats> Stats { get; set; } = [];
+
+    public List<Finding> Findings { get; set; } = [];
+}
