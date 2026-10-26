@@ -671,6 +671,11 @@ and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type na
    quadratic lookahead in the C grammar (`c_function_call`, a run of 7,548 `:`) gives up where
    Oniguruma matches; and long lines where GregsEx costs far more than Oniguruma (warm: YAML 217 ms
    vs 1 ms on 11,134 characters; LaTeX, Batch, TSX, JSON Lines and C# three to five times).
+7. From the P8 benchmarks: kernels gain only 0–4% at the tokenizer level on C# because about 83%
+   of matching time goes to the type-name patterns built on `\g'name'` subexpression calls, which
+   the planner declines, so they run interpreted with or without kernels. Lowering subexpression
+   calls, or a faster interpreter path for them, is where kernel-level gains for C#, Razor, Swift,
+   Markdown and Go would come from.
 
 Decisions deferred to measurements: combined-alternation experiment (5.4). Decided by P5: tier 2
 is opt-in, threshold 256 (5.5). Decided by the spike: bundle scope and partitioning, no
