@@ -19,5 +19,7 @@
 
 - `grammars/` and `themes/` are synced from `microsoft/vscode` by `tools/Tint.Sync` (never
   hand-edit them); `grammars/manifest.json` and `themes/manifest.json` describe each file and its
-  upstream, and `THIRD-PARTY-NOTICES.txt` lists the licenses.
+  upstream, and `THIRD-PARTY-NOTICES.txt` lists the licenses. The scheduled
+  `.github/workflows/sync-vscode.yml` workflow re-runs the sync weekly and opens a pull request
+  from the `sync/vscode` branch when VS Code moved.
 - `test/Tint.Tests/Fixtures/vscode-textmate/` holds the vscode-textmate test suites.

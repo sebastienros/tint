@@ -14,7 +14,9 @@
   variants described in the design. Never forward matching to `System.Text.RegularExpressions`.
 - Layout: `src/` (shipped), `test/` (xunit.v3 on Microsoft.Testing.Platform, sentence-style test
   names, plain `Assert`), `benchmarks/`, `samples/`, `tools/`, `grammars/` and `themes/` (synced
-  from VS Code with provenance; never hand-edit), `docs/`.
+  from VS Code with provenance by `tools/Tint.Sync`; never hand-edit), `docs/`. The scheduled
+  `sync-vscode.yml` workflow re-runs the sync weekly and opens a pull request from the long-lived
+  `sync/vscode` branch; review and merge that pull request instead of syncing by hand.
 - Code style is `.editorconfig`: 4-space C#, `var` everywhere, braces always, file-scoped
   namespaces, `_camelCase` fields. Run `dotnet format Tint.slnx --severity warn --verify-no-changes`
   before opening a pull request.

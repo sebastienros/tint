@@ -122,6 +122,10 @@ also regenerates `THIRD-PARTY-NOTICES.txt`:
 dotnet run --project tools/Tint.Sync -- sync --commit 3ac0f056
 ```
 
+The [Sync VS Code grammars and themes](.github/workflows/sync-vscode.yml) workflow runs this
+every Monday against VS Code `main` and opens a pull request from the `sync/vscode` branch when
+anything changed.
+
 Design notes, the plan and research are indexed in [docs/README.md](docs/README.md).
 
 ## License
