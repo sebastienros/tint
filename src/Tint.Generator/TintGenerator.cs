@@ -197,7 +197,8 @@ public sealed class TintGenerator : IIncrementalGenerator
         return new CompilationFacts(gregsEx, supportsKernels);
     }
 
-    private static readonly string[] s_includeExtensions = [".json", ".tmTheme", ".plist", ".xml"];
+    // Plain AdditionalFiles a theme may include or an attribute may bind.
+    private static readonly string[] s_textExtensions = [".json", ".tmLanguage", ".tmTheme", ".plist", ".xml"];
 
     private static ProjectFile? ReadFile(AdditionalText text, AnalyzerConfigOptions options, GlobalOptions globals, CancellationToken cancellationToken)
     {
@@ -212,7 +213,7 @@ public sealed class TintGenerator : IIncrementalGenerator
 
         // Files without a kind matter only as theme includes or as the target of an attribute.
         var fullPath = PathUtilities.Normalize(text.Path, globals.ProjectDirectory);
-        if (kind is null && !s_includeExtensions.Any(e => fullPath.EndsWith(e, StringComparison.OrdinalIgnoreCase)))
+        if (kind is null && !s_textExtensions.Any(e => fullPath.EndsWith(e, StringComparison.OrdinalIgnoreCase)))
         {
             return null;
         }

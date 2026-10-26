@@ -78,6 +78,13 @@ internal sealed class GregsExShim
 
         var entry = s_cache.GetOrAdd(packageRoot, root => new Lazy<(GregsExShim?, string?)>(() => Load(root)));
         (var shim, failure) = entry.Value;
+
+        // A package that is not there yet (an IDE build before restore) is looked for again next time.
+        if (shim is null && !File.Exists(GeneratorPath(packageRoot)))
+        {
+            s_cache.TryRemove(packageRoot, out _);
+        }
+
         return shim;
     }
 
