@@ -88,6 +88,9 @@ foreach (var line in document.Lines)
 `TokenizeLineEncoded` returns `(start, metadata)` pairs in the VS Code binary layout for hosts that
 already consume Monaco-style tokens.
 
+A `Tokenizer` is not thread-safe and builds its regex scanners as it reaches rules, so create one per
+thread or per open document and keep it alive; the compiled grammar behind it is shared.
+
 ### HTML with light and dark themes
 
 ```csharp
@@ -103,7 +106,7 @@ When grammars are only known at runtime, load them instead of generating them. S
 regexes compiled on first use.
 
 ```csharp
-var grammar = GrammarLoader.FromFile("my-language.tmLanguage.json");
+var grammar = GrammarLoader.Load("my-language.tmLanguage.json");
 registry.Add(grammar);
 ```
 
