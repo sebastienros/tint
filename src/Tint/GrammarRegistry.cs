@@ -14,14 +14,32 @@ public sealed class GrammarRegistry
     private readonly Dictionary<string, List<string>> _injections = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _languageIds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, CompiledGrammar> _compiled = new(StringComparer.Ordinal);
+    private const int MaxLanguageId = 255;
+
     private readonly object _lock = new();
 
-    /// <summary>Registers a grammar, its language and the grammars it injects into. A grammar with the same scope name is replaced.</summary>
+    /// <summary>
+    /// Registers a grammar, its language and the grammars it injects into. A grammar with the same scope name is
+    /// replaced, along with the injections it declared; tokenizers created before keep the grammar they compiled.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The grammar's language would need an id above 255.</exception>
     public void Add(IGrammarSource source)
     {
         ArgumentNullException.ThrowIfNull(source);
         lock (_lock)
         {
+            // A replaced grammar no longer injects where it used to.
+            if (_sources.TryGetValue(source.ScopeName, out var previous))
+            {
+                foreach (var target in previous.Info.InjectTo)
+                {
+                    if (_injections.TryGetValue(target, out var list))
+                    {
+                        list.Remove(previous.ScopeName);
+                    }
+                }
+            }
+
             _sources[source.ScopeName] = source;
             if (source.Info.LanguageId is { } languageId)
             {
@@ -86,6 +104,7 @@ public sealed class GrammarRegistry
     /// The numeric id of a language, as stored in <see cref="EncodedTokenAttributes"/>: 1-based, assigned in the order
     /// languages are first seen (registered grammars' languages, then calls to this method, then embedded languages).
     /// </summary>
+    /// <exception cref="InvalidOperationException">The language would need an id above 255, the largest the 8-bit field holds.</exception>
     public int GetLanguageId(string languageId)
     {
         ArgumentNullException.ThrowIfNull(languageId);
@@ -95,7 +114,13 @@ public sealed class GrammarRegistry
         }
     }
 
-    /// <summary>Creates a tokenizer for a registered grammar.</summary>
+    /// <summary>
+    /// Creates a tokenizer for a registered grammar. The grammar is compiled once per registry and shared; the
+    /// tokenizer builds its own scanners as it reaches rules, so keep it alive (one per thread or document) rather
+    /// than creating one per call.
+    /// </summary>
+    /// <exception cref="KeyNotFoundException">No grammar is registered for the scope.</exception>
+    /// <exception cref="InvalidOperationException">An embedded language would need an id above 255.</exception>
     /// <param name="scopeName">The root scope name of the grammar.</param>
     /// <param name="theme">The theme to resolve token colors with, or null for <see cref="Theme.Empty"/>.</param>
     public Tokenizer CreateTokenizer(string scopeName, Theme? theme = null)
@@ -142,6 +167,11 @@ public sealed class GrammarRegistry
         if (!_languageIds.TryGetValue(languageId, out var id))
         {
             id = _languageIds.Count + 1;
+            if (id > MaxLanguageId)
+            {
+                throw new InvalidOperationException($"Cannot assign an id to the language '{languageId}': encoded token attributes hold at most {MaxLanguageId} languages.");
+            }
+
             _languageIds[languageId] = id;
         }
 

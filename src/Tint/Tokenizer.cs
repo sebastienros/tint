@@ -8,8 +8,10 @@ namespace Tint;
 
 /// <summary>
 /// Tokenizes lines with one grammar and one theme, a port of vscode-textmate's <c>tokenizeString</c>. Not
-/// thread-safe: a tokenizer owns its scratch buffers and scanners. Create one per thread; compiled rules and scope
-/// stacks are shared.
+/// thread-safe: a tokenizer owns its scratch buffers and scanners. Compiled rules, parsed patterns and scope stacks
+/// are shared by the tokenizers of a registry, but each tokenizer builds its own regex scanners as rules are reached
+/// and holds slot arrays sized by the grammar's rule count, so creating one per request is not free for large
+/// grammars: keep one per thread or per open document and reuse it.
 /// </summary>
 public sealed class Tokenizer
 {
@@ -99,9 +101,11 @@ public sealed class Tokenizer
     /// Tokenizes one line (without its line terminator) starting from the state the previous line ended in.
     /// </summary>
     /// <param name="line">The line text.</param>
-    /// <param name="state">The state after the previous line, or <see cref="StateStack.Initial"/> for the first line.</param>
+    /// <param name="state">The state after the previous line, or <see cref="StateStack.Initial"/> for the first line. It must come from a tokenizer of the same compiled grammar (the same registry, scope and registration).</param>
     /// <param name="next">The state after this line.</param>
     /// <returns>The tokens, valid until the next call on this tokenizer.</returns>
+    /// <exception cref="ArgumentException"><paramref name="state"/> comes from another compiled grammar.</exception>
+    /// <exception cref="TintGrammarException">A search reached a pattern of the grammar that does not parse.</exception>
     public ReadOnlySpan<Token> TokenizeLine(ReadOnlySpan<char> line, StateStack state, out StateStack next)
     {
         Tokenize(line, state, encoded: false, out next);
@@ -113,9 +117,11 @@ public sealed class Tokenizer
     /// metadata are merged, token types and bracket scopes from <see cref="GrammarInfo"/> are applied.
     /// </summary>
     /// <param name="line">The line text.</param>
-    /// <param name="state">The state after the previous line, or <see cref="StateStack.Initial"/> for the first line.</param>
+    /// <param name="state">The state after the previous line, or <see cref="StateStack.Initial"/> for the first line. It must come from a tokenizer of the same compiled grammar (the same registry, scope and registration).</param>
     /// <param name="next">The state after this line.</param>
     /// <returns>The tokens, valid until the next call on this tokenizer.</returns>
+    /// <exception cref="ArgumentException"><paramref name="state"/> comes from another compiled grammar.</exception>
+    /// <exception cref="TintGrammarException">A search reached a pattern of the grammar that does not parse.</exception>
     public ReadOnlySpan<EncodedToken> TokenizeLineEncoded(ReadOnlySpan<char> line, StateStack state, out StateStack next)
     {
         Tokenize(line, state, encoded: true, out next);
@@ -135,6 +141,13 @@ public sealed class Tokenizer
         }
         else
         {
+            // Rule ids index this grammar's rule table: a state from another grammar (or from this scope before it
+            // was registered again) cannot continue here.
+            if (!ReferenceEquals(state.ContentNameScopes.Context.Grammar, _grammar))
+            {
+                throw new ArgumentException($"The state was produced by a tokenizer of '{state.ContentNameScopes.Context.Grammar.ScopeName}', not of this compiled '{_grammar.ScopeName}' grammar.", nameof(state));
+            }
+
             isFirstLine = false;
             state.Reset();
         }

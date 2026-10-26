@@ -13,6 +13,7 @@ public sealed class PatternRewriterTests
     [InlineData(@"\A(?:\xEF\xBB\xBF)", @"\A(?:\x{EF}\x{BB}\x{BF})")]
     [InlineData(@"[a-z_\x7f-\x7fffffff]", @"[a-z_\x{7f}-\x{7ffff}]")]
     [InlineData(@"[a-z_\x{7f}-\x{7ffffff}]", @"[a-z_\x{7f}-\x{7ffffff}]")]
+    [InlineData(@"[a-z_\x{7f}-\x{7fffffff}]", @"[a-z_\x{7f}-\x{7ffff}]")]
     [InlineData(@"\x4", @"\x4")]
     [InlineData(@"plain", @"plain")]
     public void HexEscapesGetBracesAsOnigwrapAddsThem(string pattern, string expected)

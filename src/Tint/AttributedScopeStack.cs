@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Tint.Internal.Rules;
 
 namespace Tint;
@@ -9,11 +10,15 @@ namespace Tint;
 /// </summary>
 public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 {
-    private const int MapThreshold = 8;
+    // Children kept in a small array before the dictionary, and the most a node caches.
+    internal const int SmallChildren = 8;
+    internal const int MaxCachedChildren = 64;
 
     private readonly ScopeContext _context;
     private readonly int _hashCode;
-    private volatile ChildSet? _children;
+    private volatile AttributedScopeStack[]? _smallChildren;
+    private volatile ConcurrentDictionary<string, AttributedScopeStack>? _childMap;
+    private int _childMapCount;
 
     // Per-node caches filled by the tokenizer: the injections whose selector matches, and the binary metadata after
     // token type and bracket overrides.
@@ -142,24 +147,69 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 
     private AttributedScopeStack Push(string scopeName)
     {
-        var children = _children;
-        if (children is not null && children.TryFind(scopeName, out var existing))
+        if (TryFindChild(scopeName, out var existing))
         {
             return existing;
         }
 
-        return Add(CreateChild(scopeName));
+        return AddChild(CreateChild(scopeName));
     }
 
     private AttributedScopeStack Push(ReadOnlySpan<char> scopeName)
     {
-        var children = _children;
-        if (children is not null && children.TryFind(scopeName, out var existing))
+        var small = _smallChildren;
+        if (small is not null)
         {
-            return existing;
+            foreach (var item in small)
+            {
+                if (scopeName.SequenceEqual(item.ScopeName))
+                {
+                    return item;
+                }
+            }
         }
 
-        return Add(CreateChild(scopeName.ToString()));
+        var map = _childMap;
+#if NET9_0_OR_GREATER
+        if (map is not null && map.GetAlternateLookup<ReadOnlySpan<char>>().TryGetValue(scopeName, out var found))
+        {
+            return found;
+        }
+
+        return AddChild(CreateChild(scopeName.ToString()));
+#else
+        var name = scopeName.ToString();
+        if (map is not null && map.TryGetValue(name, out var found))
+        {
+            return found;
+        }
+
+        return AddChild(CreateChild(name));
+#endif
+    }
+
+    private bool TryFindChild(string scopeName, out AttributedScopeStack child)
+    {
+        var small = _smallChildren;
+        if (small is not null)
+        {
+            foreach (var item in small)
+            {
+                if (ReferenceEquals(item.ScopeName, scopeName) || item.ScopeName == scopeName)
+                {
+                    child = item;
+                    return true;
+                }
+            }
+        }
+
+        if (_childMap is { } map && map.TryGetValue(scopeName, out child!))
+        {
+            return true;
+        }
+
+        child = null!;
+        return false;
     }
 
     private AttributedScopeStack CreateChild(string scopeName)
@@ -169,26 +219,71 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         return new AttributedScopeStack(this, scopeName, MergeAttributes(TokenAttributes, basic, style), _context);
     }
 
-    // Publishes a new child without locks; when another thread published the same scope first, its node wins.
-    private AttributedScopeStack Add(AttributedScopeStack child)
+    // Publishes a new child without locks: the first few in a copy-on-write array, then in a concurrent dictionary,
+    // up to MaxCachedChildren. Past the cap the node is returned uncached (names derived from captured text would
+    // otherwise grow the cache forever); equality is structural, so tokens and states are unaffected. When another
+    // thread published the same scope first, its node wins.
+    private AttributedScopeStack AddChild(AttributedScopeStack child)
     {
         while (true)
         {
-            var current = _children;
-            if (current is not null && current.TryFind(child.ScopeName, out var existing))
+            var small = _smallChildren;
+            if (small is not null)
             {
-                return existing;
+                foreach (var item in small)
+                {
+                    if (item.ScopeName == child.ScopeName)
+                    {
+                        return item;
+                    }
+                }
             }
 
-            var updated = ChildSet.With(current, child);
+            if (small is not null && small.Length >= SmallChildren)
+            {
+                break;
+            }
+
+            AttributedScopeStack[] updated = small is null ? [child] : [.. small, child];
 #pragma warning disable CS0420 // A volatile field passed by reference stays volatile for Interlocked.
-            if (Interlocked.CompareExchange(ref _children, updated, current) == current)
+            if (Interlocked.CompareExchange(ref _smallChildren, updated, small) == small)
 #pragma warning restore CS0420
             {
                 return child;
             }
         }
+
+        var map = _childMap;
+        if (map is null)
+        {
+            var created = new ConcurrentDictionary<string, AttributedScopeStack>(StringComparer.Ordinal);
+#pragma warning disable CS0420 // A volatile field passed by reference stays volatile for Interlocked.
+            map = Interlocked.CompareExchange(ref _childMap, created, null) ?? created;
+#pragma warning restore CS0420
+        }
+
+        if (map.TryGetValue(child.ScopeName, out var existing))
+        {
+            return existing;
+        }
+
+        if (Interlocked.Increment(ref _childMapCount) > MaxCachedChildren - SmallChildren)
+        {
+            Interlocked.Decrement(ref _childMapCount);
+            return child;
+        }
+
+        if (map.TryAdd(child.ScopeName, child))
+        {
+            return child;
+        }
+
+        Interlocked.Decrement(ref _childMapCount);
+        return map.TryGetValue(child.ScopeName, out existing) ? existing : child;
     }
+
+    // The number of cached children, for tests.
+    internal int CachedChildCount => (_smallChildren?.Length ?? 0) + Volatile.Read(ref _childMapCount);
 
     private static uint MergeAttributes(uint existing, BasicScopeAttributes basic, Themes.StyleAttributes? style)
     {
@@ -239,79 +334,5 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
     {
         _encodedMetadata = metadata;
         _hasEncodedMetadata = true;
-    }
-
-    // An immutable snapshot of a node's children: an array, plus a dictionary once there are many.
-    private sealed class ChildSet
-    {
-        private readonly AttributedScopeStack[] _items;
-        private readonly Dictionary<string, AttributedScopeStack>? _map;
-
-        private ChildSet(AttributedScopeStack[] items)
-        {
-            _items = items;
-            if (items.Length > MapThreshold)
-            {
-                _map = new Dictionary<string, AttributedScopeStack>(items.Length, StringComparer.Ordinal);
-                foreach (var item in items)
-                {
-                    _map[item.ScopeName] = item;
-                }
-            }
-        }
-
-        public static ChildSet With(ChildSet? current, AttributedScopeStack child)
-        {
-            if (current is null)
-            {
-                return new ChildSet([child]);
-            }
-
-            var items = new AttributedScopeStack[current._items.Length + 1];
-            current._items.CopyTo(items, 0);
-            items[^1] = child;
-            return new ChildSet(items);
-        }
-
-        public bool TryFind(string scopeName, out AttributedScopeStack child)
-        {
-            if (_map is not null)
-            {
-                return _map.TryGetValue(scopeName, out child!);
-            }
-
-            foreach (var item in _items)
-            {
-                if (ReferenceEquals(item.ScopeName, scopeName) || item.ScopeName == scopeName)
-                {
-                    child = item;
-                    return true;
-                }
-            }
-
-            child = null!;
-            return false;
-        }
-
-        public bool TryFind(ReadOnlySpan<char> scopeName, out AttributedScopeStack child)
-        {
-#if NET9_0_OR_GREATER
-            if (_map is not null)
-            {
-                return _map.GetAlternateLookup<ReadOnlySpan<char>>().TryGetValue(scopeName, out child!);
-            }
-#endif
-            foreach (var item in _items)
-            {
-                if (scopeName.SequenceEqual(item.ScopeName))
-                {
-                    child = item;
-                    return true;
-                }
-            }
-
-            child = null!;
-            return false;
-        }
     }
 }

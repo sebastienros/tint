@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using Tint.Internal;
 using Tint.Themes;
 
 namespace Tint;
@@ -12,7 +12,10 @@ public sealed class Theme
     private static readonly string[] s_noParentScopes = [];
     private static readonly string[] s_globalScope = [string.Empty];
     private readonly ThemeTrieElement _root;
-    private readonly ConcurrentDictionary<string, ThemeTrieElementRule[]> _cachedMatches = new(StringComparer.Ordinal);
+    // Scope names derived from captures are unbounded; the cache stops growing at this size.
+    internal const int MatchCacheCapacity = 4096;
+
+    private readonly BoundedCache<ThemeTrieElementRule[]> _cachedMatches = new(MatchCacheCapacity);
 
     private Theme(ColorMap colorMap, StyleAttributes defaults, ThemeTrieElement root, string? name, IReadOnlyDictionary<string, string> uiColors)
     {
@@ -39,6 +42,7 @@ public sealed class Theme
     public IReadOnlyDictionary<string, string> UiColors { get; }
 
     /// <summary>Resolves a theme.</summary>
+    /// <exception cref="InvalidOperationException">The theme uses more colors than encoded token attributes hold (511 foreground ids, 255 background ids).</exception>
     public static Theme FromSource(IThemeSource source)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -66,6 +70,8 @@ public sealed class Theme
     }
 
     internal ThemeTrieElement Root => _root;
+
+    internal int CachedMatchCount => _cachedMatches.Count;
 
     internal StyleAttributes? Match(string scopeName, AttributedScopeStack? parent) => Match(scopeName, new NodeCursor(parent));
 
@@ -228,13 +234,13 @@ public sealed class Theme
         }
 
         var colorMap = new ColorMap();
-        var defaults = new StyleAttributes(defaultFontStyle, colorMap.GetOrAddId(defaultForeground), colorMap.GetOrAddId(defaultBackground));
+        var defaults = new StyleAttributes(defaultFontStyle, colorMap.GetOrAddId(defaultForeground, ColorMap.MaxForegroundId), colorMap.GetOrAddId(defaultBackground, ColorMap.MaxBackgroundId));
 
         var root = new ThemeTrieElement(new ThemeTrieElementRule(0, null, (int)FontStyle.NotSet, 0, 0), []);
         for (var i = first; i < sorted.Length; i++)
         {
             var rule = sorted[i];
-            root.Insert(0, rule.Scope, rule.ParentScopes, (int)rule.FontStyle, colorMap.GetOrAddId(rule.Foreground), colorMap.GetOrAddId(rule.Background));
+            root.Insert(0, rule.Scope, rule.ParentScopes, (int)rule.FontStyle, colorMap.GetOrAddId(rule.Foreground, ColorMap.MaxForegroundId), colorMap.GetOrAddId(rule.Background, ColorMap.MaxBackgroundId));
         }
 
         return new Theme(colorMap, defaults, root, name, uiColors ?? new Dictionary<string, string>());

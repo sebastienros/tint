@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using Tint.Grammars;
 
 namespace Tint.Internal.Rules;
@@ -9,7 +8,7 @@ internal readonly record struct BasicScopeAttributes(int LanguageId, StandardTok
 internal sealed class BasicScopeAttributesProvider
 {
     private readonly KeyValuePair<string, int>[] _embeddedLanguages;
-    private readonly ConcurrentDictionary<string, BasicScopeAttributes> _cache = new(StringComparer.Ordinal);
+    private readonly BoundedCache<BasicScopeAttributes> _cache = new(4096);
 
     public BasicScopeAttributesProvider(int initialLanguageId, IEnumerable<KeyValuePair<string, int>> embeddedLanguages)
     {

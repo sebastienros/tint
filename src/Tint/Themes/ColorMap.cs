@@ -2,10 +2,14 @@ namespace Tint.Themes;
 
 /// <summary>
 /// The colors of a theme, interned: ids start at 1 (0 means "not set"), colors are upper-cased as vscode-textmate
-/// stores them.
+/// stores them. Encoded token attributes hold foreground ids up to 511 and background ids up to 255; a theme that
+/// needs more fails to resolve.
 /// </summary>
 public sealed class ColorMap
 {
+    internal const int MaxForegroundId = 511;
+    internal const int MaxBackgroundId = 255;
+
     private readonly List<string> _colors = [string.Empty];
     private readonly Dictionary<string, int> _ids = new(StringComparer.Ordinal);
 
@@ -33,7 +37,7 @@ public sealed class ColorMap
         return _ids.TryGetValue(color.ToUpperInvariant(), out var id) ? id : 0;
     }
 
-    internal int GetOrAddId(string? color)
+    internal int GetOrAddId(string? color, int maxId)
     {
         if (color is null)
         {
@@ -41,14 +45,19 @@ public sealed class ColorMap
         }
 
         color = color.ToUpperInvariant();
-        if (_ids.TryGetValue(color, out var id))
+        if (!_ids.TryGetValue(color, out var id))
         {
-            return id;
+            id = _colors.Count;
+            _colors.Add(color);
+            _ids[color] = id;
         }
 
-        id = _colors.Count;
-        _colors.Add(color);
-        _ids[color] = id;
+        // A foreground color reused as a background must also fit the narrower field.
+        if (id > maxId)
+        {
+            throw new InvalidOperationException($"The theme uses more colors than encoded token attributes hold: '{color}' has id {id}, above {maxId}.");
+        }
+
         return id;
     }
 }

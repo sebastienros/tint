@@ -52,7 +52,7 @@ internal static class PatternRewriter
     }
 
     // Onigwrap's UnicodeCharEscape: the regex \\x[A-Fa-f0-9]{2,8}, matched left to right whatever precedes the
-    // backslash, becomes \x{...}.
+    // backslash, becomes \x{...}; then \x{7fffffff} is clamped in every pattern, braced or not.
     public static string AddBracesToHexEscapes(string pattern)
     {
         var index = pattern.IndexOf("\\x", StringComparison.Ordinal);
@@ -60,6 +60,13 @@ internal static class PatternRewriter
         {
             return pattern;
         }
+
+        pattern = AddBraces(pattern, index);
+        return pattern.Contains("\\x{7fffffff}", StringComparison.Ordinal) ? pattern.Replace("\\x{7fffffff}", "\\x{7ffff}", StringComparison.Ordinal) : pattern;
+    }
+
+    private static string AddBraces(string pattern, int index)
+    {
 
         StringBuilder? builder = null;
         var lastPushed = 0;
@@ -93,7 +100,7 @@ internal static class PatternRewriter
         }
 
         builder.Append(pattern, lastPushed, pattern.Length - lastPushed);
-        return builder.Replace("\\x{7fffffff}", "\\x{7ffff}").ToString();
+        return builder.ToString();
     }
 
     // vscode-textmate's HAS_BACK_REFERENCES: /\\(\d+)/.

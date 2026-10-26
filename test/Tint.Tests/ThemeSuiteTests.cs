@@ -127,9 +127,10 @@ public sealed class ThemeSuiteTests
                 _grammars.Add((language, loaded.ScopeName));
             }
 
+            // vscode-textmate's tests hand the theme files to the tokenizer as written, without VS Code's defaults.
             foreach (var (name, file) in s_themes)
             {
-                Themes.Add((name, Theme.FromSource(ThemeLoader.Load(Path.Combine(ThemesPath, file)))));
+                Themes.Add((name, Theme.FromSource(ThemeLoader.Load(Path.Combine(ThemesPath, file), ThemeLoadMode.Raw))));
             }
         }
 
