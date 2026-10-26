@@ -1,0 +1,6 @@
+{
+ "note": "AotProbe, dotnet publish -c Release -p:Variant=<v> (NativeAOT, osx-arm64, InvariantGlobalization); three runs each after a clean publish.",
+ "none": {"binary_bytes": 2030792, "construct_ms": [0.443, 0.183, 0.166], "first_search_ms": [0.021, 0.007, 0.006]},
+ "lazy": {"binary_bytes": 2180104, "publish_s": 2.6, "construct_ms": [6.439, 5.588, 5.463], "first_search_ms": [0.580, 0.563, 0.628]},
+ "kernel": {"binary_bytes": 3356296, "publish_s": 2.9, "construct_ms": [27.429, 27.248, 26.403], "first_search_ms": [8.815, 8.622, 8.671]}
+}

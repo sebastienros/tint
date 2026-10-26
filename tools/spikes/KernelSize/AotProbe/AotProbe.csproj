@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- NativeAOT size and first-use probe: dotnet publish -c Release -p:Variant=kernel|lazy|none -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Variant Condition="'$(Variant)' == ''">kernel</Variant>
+    <DefineConstants>$(DefineConstants);VARIANT_$(Variant.ToUpperInvariant())</DefineConstants>
+    <IntermediateOutputPath>obj/$(Variant)/</IntermediateOutputPath>
+    <OutputPath>bin/$(Variant)/</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="GregsEx" />
+    <ProjectReference Include="../Spike.CSharp/Spike.CSharp.csproj" Condition="'$(Variant)' == 'kernel'" />
+    <ProjectReference Include="../Spike.CSharpLazy/Spike.CSharpLazy.csproj" Condition="'$(Variant)' == 'lazy'" />
+  </ItemGroup>
+</Project>
