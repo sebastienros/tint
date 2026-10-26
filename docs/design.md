@@ -259,20 +259,40 @@ common interface, with the same three implementations as grammars.
 
 ### 8.1 User model
 
+Everything is a Roslyn incremental source generator shipped inside the `Tint` package. There is no
+command-line tool, no MSBuild task and no build step outside the compiler. Two ways to drive it:
+
+**Attribute-driven** (the `[GeneratedRegex]` style, preferred):
+
+```csharp
+[TextMateGrammar("grammars/csharp.tmLanguage.json")]
+public partial class CSharpGrammar;
+
+[TextMateTheme("themes/dark_plus.json")]
+public partial class DarkPlusTheme;
+```
+
 ```xml
 <ItemGroup>
   <PackageReference Include="Tint" Version="…" />
   <TintGrammar Include="grammars/csharp.tmLanguage.json" />
-  <TintGrammar Include="grammars/json.tmLanguage.json" Name="JsonGrammar" />
   <TintTheme Include="themes/dark_plus.json" />
 </ItemGroup>
 ```
 
-`Tint.props` (packed under `build/` and `buildTransitive/`) maps these items to `AdditionalFiles`
-with metadata the generator reads (`TintKind`, `Name`, `Namespace`). The generator emits
-`partial class CSharpGrammar : IGrammarSource` with a static `Instance`, in the project's root
-namespace unless overridden. Grammars that include other grammars (`source.js` from HTML) get a
-diagnostic listing the scopes to register alongside, and `GrammarInfo.Dependencies` lists them.
+The item types (defined by `Tint.props`, packed under `build/` and `buildTransitive/`) only make the
+files visible to the compiler as `AdditionalFiles`; the attribute decides the class name, namespace,
+accessibility and which file it binds to (matched by path relative to the project, with a diagnostic
+when no AdditionalFile matches). The attributes are emitted into the consumer as `internal` types
+by the generator, so they add no runtime dependency.
+
+**Item-only**: a `TintGrammar` item without a matching attribute still produces a class, named from
+the grammar (`CSharpGrammar` for `source.cs`, overridable with `Name` and `Namespace` metadata), in
+the project's root namespace. This is the zero-code path for the bundles and quick starts.
+
+Either way the generator emits `partial class CSharpGrammar : IGrammarSource` with a static
+`Instance`. Grammars that include other grammars (`source.js` from HTML) get a diagnostic listing
+the scopes to register alongside, and `GrammarInfo.Dependencies` lists them.
 
 Supported inputs: `.tmLanguage.json` (JSON with comments), `.tmLanguage` / `.plist`, themes as
 `.json` (VS Code, with `include`) and `.tmTheme`. Both the generator and `Tint.Loading` share one
@@ -307,19 +327,55 @@ binds rules to patterns by index at generation time and never hashes strings.
 Roslyn generators cannot see each other's output, so Tint's generator cannot emit
 `[GeneratedPattern]` methods for GregsEx's generator to compile. Two options, both planned:
 
-1. **Preferred:** GregsEx exposes a public kernel-emission API usable from another generator
-   (netstandard2.0), roughly `KernelSource.TryEmit(string pattern, OnigurumaOptions options,
-   string className, out string source, out string declineReason)` plus the fingerprint used by
-   `WithGeneratedKernels`. Tint's generator calls it and inlines the kernels. This is a change in
-   GregsEx (your repository); it is listed in section 15.
+1. **Preferred:** GregsEx exposes a public kernel-emission façade in `GregsEx.Generator.dll`. As of
+   0.5.0 the consumption side is public (`OnigurumaPattern.WithGeneratedKernels(ulong fingerprint,
+   CoreKernel plain, CoreKernel capture)`, `GregsEx.Execution.Compiled.CoreKernel`, `KernelGuard`)
+   but the emission side is internal: `SourcePlanner.TryPlan(string pattern, RegexProfile profile,
+   out CoreKernelPlan? plan, out string reason, out RegexDiagnostic diagnostic)`,
+   `KernelEmitter.EmitClass(string className, CoreKernelPlan plan, bool track)` and
+   `CoreKernelPlan.Fingerprint()`. The façade Tint needs wraps exactly those three calls:
+
+   ```csharp
+   namespace GregsEx.SourceGeneration;
+
+   public static class KernelSource
+   {
+       // Succeeded: emit PlainClass (+ CaptureClass when the pattern has groups) and bind with
+       //   pattern.WithGeneratedKernels(Fingerprint, <plainClass>.Run, <captureClass>.Run).
+       // Declined: the planner left the pattern to the interpreter; DeclineReason says why.
+       // Invalid: Diagnostic carries the parse error (code, offset, length, message).
+       public static KernelSourceResult TryEmit(
+           string pattern, OnigurumaOptions options, string plainClassName, string captureClassName,
+           OnigurumaCompileOptions? compileOptions = null);
+   }
+
+   public sealed class KernelSourceResult
+   {
+       public KernelSourceStatus Status { get; }      // Succeeded | Declined | Invalid
+       public ulong Fingerprint { get; }
+       public string? PlainClass { get; }             // C# source of a static class with Run(...)
+       public string? CaptureClass { get; }           // null when GroupCount == 1
+       public string? DeclineReason { get; }
+       public RegexDiagnostic Diagnostic { get; }
+   }
+   ```
+
+   How Tint's generator reaches it without a compile-time reference: `Tint.targets` marks the
+   consumer's `GregsEx` package reference with `GeneratePathProperty="true"` and passes
+   `$(PkgGregsEx)/analyzers/dotnet/cs/GregsEx.Generator.dll` to the generator as a
+   `CompilerVisibleProperty`; the generator loads that assembly and calls the façade through a
+   small reflection shim bound to the public signature above. Kernels are therefore always emitted
+   by the exact GregsEx version the consumer runs, so the fingerprint always matches and no copy of
+   `GregsEx.Generator.dll` ships inside Tint. If the property is missing or the façade is absent
+   (older GregsEx), Tint reports an informational diagnostic and emits the fallback below.
 2. **Fallback, available today:** generated pattern methods call `OnigurumaPattern.Parse` lazily.
    Still AOT-safe, still no JSON, interpreted matching speed (the speed the TextMateSharp branch
    measured). The Phase 2 spike measures both.
 
-Until option 1 lands, our own bundles can use a two-step build instead: the Tint generator CLI
-(`tools/Tint.Cli`) writes `.g.cs` files with `[GeneratedPattern]` attributes into the bundle
-projects and GregsEx's generator compiles them. That path is for this repository only; users get
-the single-step experience.
+The bundles (`Tint.Grammars`, `Tint.Themes`) are built with the same generator as user projects,
+through `TintGrammar`/`TintTheme` items over `grammars/` and `themes/`. Until option 1 lands they
+run on the interpreter like everyone else; when it lands they pick up kernels with no change to this
+repository beyond a GregsEx version bump. No second code path, no tool.
 
 ### 8.4 Size budget (spike before committing)
 
@@ -331,7 +387,9 @@ whether bundles are split into a few assemblies so Blazor can lazy-load them per
 
 ## 9. Bundles and sourcing
 
-`tools/Tint.Sync` fetches grammars and themes from a pinned `microsoft/vscode` commit into
+`tools/Tint.Sync` is a repository maintenance tool (the equivalent of vscode's `update-grammar`
+scripts and shiki's sync scripts), never part of a package. It fetches grammars and themes from a
+pinned `microsoft/vscode` commit into
 `grammars/<extension>/` and `themes/` with each extension's `cgmanifest.json` (upstream
 repository, commit, license) and generates `THIRD-PARTY-NOTICES.txt` from them (45 MIT, 11
 TextMate Bundle License, 1 BSD, 1 Apache-2.0 among the grammar registrations). The VS Code
@@ -393,11 +451,12 @@ trimmed app keeps only the grammars it references. The playground is the proof: 
 
 ## 15. Open items and asks on GregsEx
 
-1. Public kernel-emission API for third-party generators (section 8.3).
+1. Public kernel-emission façade `GregsEx.SourceGeneration.KernelSource` in `GregsEx.Generator.dll`
+   (section 8.3 has the proposed shape). 0.5.0 made the consumption side public; emission is still
+   internal.
 2. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
    result cache (section 5.5).
-3. Stable preview feed version to pin (`0.1.0-preview.56` at the time of writing) or a `0.5.0`
-   release including the compiled Oniguruma kernels.
+3. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
 
 Decisions deferred to measurements: bundle scope and partitioning (8.4), kernel length threshold
 (8.4), combined-alternation experiment (5.4).

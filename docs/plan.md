@@ -59,13 +59,15 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
 
 ## P3 — Source generator
 
-- `src/Tint.Generator` (netstandard2.0, `IsRoslynComponent`): `TintGrammar` / `TintTheme`
-  AdditionalFiles via `build/Tint.props`; shared parsing library; emitter for grammar classes
+- `src/Tint.Generator` (netstandard2.0, `IsRoslynComponent`): `[TextMateGrammar(path)]` and
+  `[TextMateTheme(path)]` attributes on partial classes (emitted as internal post-initialization
+  sources) bound to `TintGrammar` / `TintTheme` AdditionalFiles via `build/Tint.props`, plus the
+  item-only path with default class names; shared parsing library; emitter for grammar classes
   (static info, lazy `RawGrammar` builder, de-duplicated pattern table, anchor variants,
   `PatternIndex`), emitter for theme classes; diagnostics (invalid regex with position, missing
-  dependency scope, duplicate class name).
-- Kernel emission through GregsEx's public API when present, lazy `Parse` otherwise; the
-  `tools/Tint.Cli` two-step path for the bundles.
+  dependency scope, unmatched attribute path, duplicate class name).
+- Kernel emission through GregsEx's public API when present, lazy `Parse` otherwise. No
+  command-line tool anywhere in the product; the bundles use the same generator.
 - Generator tests in the GregsEx style (`CSharpGeneratorDriver`, assert diagnostics and output),
   plus the vscode-textmate suites run through generated grammars.
 - Packed inside the `Tint` nupkg under `analyzers/dotnet/cs`.

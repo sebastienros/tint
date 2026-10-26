@@ -17,7 +17,8 @@ dotnet add package Tint
 
 ## Quick start
 
-Import the grammars and themes you need. The source generator turns each file into a class.
+Import the grammars and themes you need. The source generator turns each file into a class at
+build time.
 
 ```xml
 <ItemGroup>
@@ -27,6 +28,12 @@ Import the grammars and themes you need. The source generator turns each file in
 ```
 
 ```csharp
+[TextMateGrammar("grammars/csharp.tmLanguage.json")]
+public partial class CSharpGrammar;
+
+[TextMateTheme("themes/dark_plus.json")]
+public partial class DarkPlusTheme;
+
 var registry = new GrammarRegistry();
 registry.Add(CSharpGrammar.Instance);
 
