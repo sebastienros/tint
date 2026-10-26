@@ -45,7 +45,7 @@ internal static class BundleProps
             .ThenBy(item => item.Path, StringComparer.Ordinal)
             .ToList();
 
-        var names = AssignNames(files, item => Naming.GrammarClassName(item.ScopeName), item => Naming.PascalCase(item.ScopeName.Split('.')[0]));
+        var names = AssignNames(files, GrammarClassName, item => Naming.PascalCase(item.ScopeName.Split('.')[0]));
 
         var builder = Header(manifest, "grammars/manifest.json", "Tint.Grammars");
         builder.Append("  <ItemGroup>\n");
@@ -74,6 +74,81 @@ internal static class BundleProps
         count = files.Count;
         return builder.ToString();
     }
+
+    // Bundle class names are public API, so they are chosen here rather than left to the generator's scope-based
+    // default (which stays as it is for user projects): an explicit override for the scope, else the language id in
+    // PascalCase with s_languageNames spelling out the ids PascalCase alone gets wrong, else the generator's rule on
+    // the scope name. BundleTests pins the resulting list, so a sync cannot rename a class silently.
+    private static string GrammarClassName(GrammarItem item)
+    {
+        if (s_scopeNames.TryGetValue(item.ScopeName, out var name))
+        {
+            return name;
+        }
+
+        if (item.LanguageId is { } language)
+        {
+            return (s_languageNames.TryGetValue(language, out var spelled) ? spelled : Naming.PascalCase(language)) + "Grammar";
+        }
+
+        return Naming.GrammarClassName(item.ScopeName);
+    }
+
+    // Grammars without a language (included by others or injected), and the second grammar of a language whose name
+    // the language's main grammar takes: php is text.html.php, as VS Code maps it, and cpp is source.cpp.
+    private static readonly Dictionary<string, string> s_scopeNames = new(StringComparer.Ordinal)
+    {
+        ["documentation.injection.js.jsx"] = "JsDocJavaScriptInjectionGrammar",
+        ["documentation.injection.ts"] = "JsDocTypeScriptInjectionGrammar",
+        ["markdown.math.block"] = "MarkdownMathBlockGrammar",
+        ["markdown.math.codeblock"] = "MarkdownMathCodeBlockGrammar",
+        ["markdown.math.inline"] = "MarkdownMathInlineGrammar",
+        ["source.c.platform"] = "CPlatformGrammar",
+        ["source.cpp.embedded.macro"] = "CppMacroGrammar",
+        ["source.js.regexp"] = "JavaScriptRegexpGrammar",
+        ["source.php"] = "PhpSourceGrammar",
+        ["source.regexp.python"] = "PythonRegexpGrammar",
+        ["source.sassdoc"] = "SassdocGrammar",
+        ["source.yaml.1.0"] = "Yaml10Grammar",
+        ["source.yaml.1.1"] = "Yaml11Grammar",
+        ["source.yaml.1.2"] = "Yaml12Grammar",
+        ["source.yaml.1.3"] = "Yaml13Grammar",
+        ["source.yaml.embedded"] = "YamlEmbeddedGrammar",
+        ["text.html.basic"] = "HtmlBasicGrammar",
+    };
+
+    // Language ids whose PascalCase is not the name: word boundaries inside the id, and ids named after something else.
+    private static readonly Dictionary<string, string> s_languageNames = new(StringComparer.Ordinal)
+    {
+        ["bat"] = "Batch",
+        ["coffeescript"] = "CoffeeScript",
+        ["cpp_embedded_latex"] = "CppEmbeddedLatex",
+        ["csharp"] = "CSharp",
+        ["cuda-cpp"] = "CudaCpp",
+        ["fsharp"] = "FSharp",
+        ["git-commit"] = "GitCommit",
+        ["git-rebase"] = "GitRebase",
+        ["html"] = "Html",
+        ["jade"] = "Pug",
+        ["javascript"] = "JavaScript",
+        ["javascriptreact"] = "JavaScriptReact",
+        ["jsonl"] = "JsonLines",
+        ["latex"] = "Latex",
+        ["markdown-math"] = "MarkdownMath",
+        ["markdown_latex_combined"] = "MarkdownLatexCombined",
+        ["objective-c"] = "ObjectiveC",
+        ["objective-cpp"] = "ObjectiveCpp",
+        ["powershell"] = "PowerShell",
+        ["razor"] = "Razor",
+        ["restructuredtext"] = "RestructuredText",
+        ["search-result"] = "SearchResult",
+        ["shaderlab"] = "ShaderLab",
+        ["shellscript"] = "ShellScript",
+        ["typescript"] = "TypeScript",
+        ["typescriptreact"] = "TypeScriptReact",
+        ["vb"] = "VisualBasic",
+        ["xsl"] = "Xsl",
+    };
 
     internal static string WriteThemes(JsonNode manifest, out int count)
     {

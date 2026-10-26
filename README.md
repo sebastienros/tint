@@ -84,14 +84,17 @@ registry.Add(TintGrammars.CSharp, TintGrammars.Json); // or registry.Add([.. Tin
 
 var tokenizer = registry.CreateTokenizer("source.cs", Theme.FromSource(TintThemes.DarkPlus));
 
-IGrammarSource? markdown = TintGrammars.Find("text.html.markdown"); // by scope name
+IGrammarSource? markdown = TintGrammars.Find("text.html.markdown"); // by scope name: TintGrammars.Markdown
 IThemeSource? monokai = TintThemes.Find("Monokai");                // by theme name or property name
 ```
 
 Each grammar and theme is a class (`CSharpGrammar`, `DarkPlusTheme`, ...) with a shared
 `Instance`; `TintGrammars` and `TintThemes` expose one property per class, named after it without
-the suffix (`TintGrammars.CSharp`, `TintGrammars.HtmlMarkdown`, `TintThemes.DarkPlus`,
-`TintThemes.LightVisualStudio`), `All` and `Find`. Patterns are parsed on first use.
+the suffix (`TintGrammars.CSharp`, `TintGrammars.Markdown`, `TintGrammars.TypeScriptReact`,
+`TintThemes.DarkPlus`, `TintThemes.LightVisualStudio`), `All` and `Find`. Grammar classes are named
+after their language (`ShellScriptGrammar` for `shellscript`, `PugGrammar` for `jade`); grammars
+without one, included by others, after their scope (`HtmlBasicGrammar`, `Yaml12Grammar`,
+`JsDocTypeScriptInjectionGrammar`). Patterns are parsed on first use.
 
 Only the classes you reference stay in a trimmed or NativeAOT build: an app that uses
 `TintGrammars.CSharp`, `TintGrammars.Json` and `TintThemes.DarkPlus` trims `Tint.Grammars.dll`

@@ -46,12 +46,25 @@ public sealed class BundleTests
     }
 
     [Fact]
+    public void TheBundledClassNamesArePinned()
+    {
+        // Public API: tools/Tint.Sync names the classes (BundleProps.GrammarClassName); a sync that renames one fails here.
+        Assert.Equal(s_grammarClassNames, TintGrammars.All.Select(g => g.GetType().Name).Order(StringComparer.Ordinal));
+        Assert.Equal(s_themeClassNames, TintThemes.All.Select(t => t.GetType().Name).Order(StringComparer.Ordinal));
+        Assert.Same(TintGrammars.TypeScriptReact, TintGrammars.Find("source.tsx"));
+        Assert.Same(TintGrammars.Php, TintGrammars.Find("text.html.php"));
+        Assert.Same(TintGrammars.PhpSource, TintGrammars.Find("source.php"));
+        Assert.Same(TintGrammars.Html, TintGrammars.Find("text.html.derivative"));
+        Assert.Same(TintGrammars.Raku, TintGrammars.Find("source.perl.6"));
+    }
+
+    [Fact]
     public void TheGrammarsClassExposesEachGrammarByPropertyAndScope()
     {
         Assert.Same(CSharpGrammar.Instance, TintGrammars.CSharp);
         Assert.Same(TintGrammars.CSharp, TintGrammars.Find("source.cs"));
         Assert.Same(TintGrammars.Json, TintGrammars.Find("source.json"));
-        Assert.Same(TintGrammars.HtmlMarkdown, TintGrammars.Find("text.html.markdown"));
+        Assert.Same(TintGrammars.Markdown, TintGrammars.Find("text.html.markdown"));
         Assert.Null(TintGrammars.Find("source.missing"));
         Assert.All(TintGrammars.All, g => Assert.Same(g, TintGrammars.Find(g.ScopeName)));
     }
@@ -70,11 +83,11 @@ public sealed class BundleTests
         Assert.Equal("yaml", TintGrammars.Yaml.Info.LanguageId);
         Assert.Equal("ini", TintGrammars.Ini.Info.LanguageId);
         Assert.Contains(".properties", TintGrammars.Ini.Info.FileExtensions);
-        Assert.Equal("prompt", TintGrammars.HtmlMarkdownPrompt.Info.LanguageId);
+        Assert.Equal("prompt", TintGrammars.Prompt.Info.LanguageId);
 
-        Assert.Equal(["text.html.markdown"], TintGrammars.MathBlock.Info.InjectTo);
-        Assert.Equal("latex", TintGrammars.MathInline.Info.EmbeddedLanguages["punctuation.definition.math.end.markdown"]);
-        Assert.Equal(["*"], TintGrammars.Shell.Info.BalancedBracketScopes);
+        Assert.Equal(["text.html.markdown"], TintGrammars.MarkdownMathBlock.Info.InjectTo);
+        Assert.Equal("latex", TintGrammars.MarkdownMathInline.Info.EmbeddedLanguages["punctuation.definition.math.end.markdown"]);
+        Assert.Equal(["*"], TintGrammars.ShellScript.Info.BalancedBracketScopes);
         Assert.Null(TintGrammars.CSharp.Info.BalancedBracketScopes);
     }
 
@@ -132,6 +145,117 @@ public sealed class BundleTests
         var lines = File.ReadAllLines(Path.Combine(Fixtures.Samples, "csharp.sample"));
         Assert.Equal(Colors(Theme.FromSource(loadedSource), lines), Colors(Theme.FromSource(generatedSource), lines));
     }
+
+    private static readonly string[] s_grammarClassNames =
+    [
+        "BatchGrammar",
+        "BibtexGrammar",
+        "CGrammar",
+        "CPlatformGrammar",
+        "CSharpGrammar",
+        "ClojureGrammar",
+        "CoffeeScriptGrammar",
+        "CppEmbeddedLatexGrammar",
+        "CppGrammar",
+        "CppMacroGrammar",
+        "CssGrammar",
+        "CudaCppGrammar",
+        "DartGrammar",
+        "DiffGrammar",
+        "DockerfileGrammar",
+        "DotenvGrammar",
+        "FSharpGrammar",
+        "GitCommitGrammar",
+        "GitRebaseGrammar",
+        "GoGrammar",
+        "GroovyGrammar",
+        "HandlebarsGrammar",
+        "HlslGrammar",
+        "HtmlBasicGrammar",
+        "HtmlGrammar",
+        "IgnoreGrammar",
+        "IniGrammar",
+        "JavaGrammar",
+        "JavaScriptGrammar",
+        "JavaScriptReactGrammar",
+        "JavaScriptRegexpGrammar",
+        "JsDocJavaScriptInjectionGrammar",
+        "JsDocTypeScriptInjectionGrammar",
+        "JsonGrammar",
+        "JsonLinesGrammar",
+        "JsoncGrammar",
+        "JuliaGrammar",
+        "LatexGrammar",
+        "LessGrammar",
+        "LogGrammar",
+        "LuaGrammar",
+        "MakefileGrammar",
+        "MarkdownGrammar",
+        "MarkdownLatexCombinedGrammar",
+        "MarkdownMathBlockGrammar",
+        "MarkdownMathCodeBlockGrammar",
+        "MarkdownMathGrammar",
+        "MarkdownMathInlineGrammar",
+        "ObjectiveCGrammar",
+        "ObjectiveCppGrammar",
+        "PerlGrammar",
+        "PhpGrammar",
+        "PhpSourceGrammar",
+        "PowerShellGrammar",
+        "PromptGrammar",
+        "PugGrammar",
+        "PythonGrammar",
+        "PythonRegexpGrammar",
+        "RGrammar",
+        "RakuGrammar",
+        "RazorGrammar",
+        "RestructuredTextGrammar",
+        "RubyGrammar",
+        "RustGrammar",
+        "SassdocGrammar",
+        "ScssGrammar",
+        "SearchResultGrammar",
+        "ShaderLabGrammar",
+        "ShellScriptGrammar",
+        "SnippetsGrammar",
+        "SqlGrammar",
+        "SwiftGrammar",
+        "TexGrammar",
+        "TypeScriptGrammar",
+        "TypeScriptReactGrammar",
+        "VisualBasicGrammar",
+        "XmlGrammar",
+        "XslGrammar",
+        "Yaml10Grammar",
+        "Yaml11Grammar",
+        "Yaml12Grammar",
+        "Yaml13Grammar",
+        "YamlEmbeddedGrammar",
+        "YamlGrammar",
+    ];
+
+    private static readonly string[] s_themeClassNames =
+    [
+        "AbyssTheme",
+        "Dark2026Theme",
+        "DarkHighContrastTheme",
+        "DarkModernTheme",
+        "DarkPlusTheme",
+        "DarkVisualStudioTheme",
+        "KimbieDarkTheme",
+        "Light2026Theme",
+        "LightHighContrastTheme",
+        "LightModernTheme",
+        "LightPlusTheme",
+        "LightVisualStudioTheme",
+        "MonokaiDimmedTheme",
+        "MonokaiTheme",
+        "QuietLightTheme",
+        "RedTheme",
+        "SolarizedDarkTheme",
+        "SolarizedLightTheme",
+        "TomorrowNightBlueTheme",
+    ];
 
     // Scope names some bundled grammar includes that no VS Code extension contributes a grammar for. They are skipped,
     // as in VS Code without the extension that would provide them.

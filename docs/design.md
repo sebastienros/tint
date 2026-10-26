@@ -483,9 +483,14 @@ shiki's `textmate-grammars-themes` for languages VS Code does not ship.
 The same tool writes the bundles' item lists from the manifests, `src/Tint.Grammars/VSCodeGrammars.props`
 and `src/Tint.Themes/VSCodeThemes.props` (`dotnet run --project tools/Tint.Sync -- props` regenerates
 them offline): one public `TintGrammar` item per grammar file with every `GrammarInfo` field the
-manifest has, and one public `TintTheme` item per theme. Class names are written explicitly, derived
-with the generator's own rules (the tool compiles `src/Tint.Generator/Naming.cs`), so a sync never
-renames a public class silently; collisions get the scope's first segment, then a number. A file
+manifest has, and one public `TintTheme` item per theme. Class names are public API, so the tool
+writes them explicitly instead of leaving them to the generator's scope-based default (which user
+projects keep): an override keyed by scope name for the grammars without a language and the
+collisions (`source.php` → `PhpSourceGrammar`, `text.html.basic` → `HtmlBasicGrammar`,
+`source.yaml.1.2` → `Yaml12Grammar`, ...), else the language id in PascalCase with a small map for
+ids PascalCase gets wrong (`shellscript` → `ShellScriptGrammar`, `jade` → `PugGrammar`, `bat` →
+`BatchGrammar`), else the generator's rule (the tool compiles `src/Tint.Generator/Naming.cs`).
+`BundleTests` pins the 84 names, so a sync never renames a public class silently. A file
 registered for several languages (`source.ini` for `ini` and `properties`, `source.yaml` for
 `yaml` and `dockercompose`) keeps the language named like the scope's last segment, else the
 first, and merges the others' aliases and extensions. The projects set
