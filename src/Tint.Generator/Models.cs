@@ -9,7 +9,7 @@ internal enum SourceKind
 }
 
 // Project-wide options (build_property.*).
-internal sealed record GlobalOptions(string? ProjectDirectory, string? RootNamespace, bool Kernels, string? GregsExPackagePath)
+internal sealed record GlobalOptions(string? ProjectDirectory, string? RootNamespace, bool Kernels, string? GregsExPackagePath, string? GrammarsClass, string? ThemesClass)
 {
     public static GlobalOptions From(AnalyzerConfigOptions options)
     {
@@ -17,11 +17,15 @@ internal sealed record GlobalOptions(string? ProjectDirectory, string? RootNames
         options.TryGetValue("build_property.rootnamespace", out var rootNamespace);
         options.TryGetValue("build_property.tintkernels", out var kernels);
         options.TryGetValue("build_property.tintgregsexpackagepath", out var gregsEx);
+        options.TryGetValue("build_property.tintgrammarsclass", out var grammarsClass);
+        options.TryGetValue("build_property.tintthemesclass", out var themesClass);
         return new GlobalOptions(
             string.IsNullOrWhiteSpace(projectDir) ? null : PathUtilities.Normalize(projectDir!, null),
             string.IsNullOrWhiteSpace(rootNamespace) ? null : rootNamespace!.Trim(),
             IsTrue(kernels),
-            string.IsNullOrWhiteSpace(gregsEx) ? null : gregsEx!.Trim());
+            string.IsNullOrWhiteSpace(gregsEx) ? null : gregsEx!.Trim(),
+            SourceSettings.NullIfEmpty(grammarsClass),
+            SourceSettings.NullIfEmpty(themesClass));
     }
 
     public static bool IsTrue(string? value) => string.Equals(value?.Trim(), "true", StringComparison.OrdinalIgnoreCase);
@@ -90,6 +94,7 @@ internal sealed record AttributeTarget(
     EquatableArray<string> ContainingTypes,
     string TypeDisplay,
     bool IsValidTarget,
+    bool IsPublic,
     LocationInfo? Location);
 
 // One class to generate.
@@ -105,9 +110,18 @@ internal sealed record GenerationUnit(
     string Text,
     bool Kernels,
     SourceSettings Settings,
-    string HintName);
+    string HintName,
+    bool IsPublic);
 
-internal sealed record GenerationResult(string HintName, string? Source, string? KernelSource, EquatableArray<DiagnosticInfo> Diagnostics);
+internal sealed record GenerationResult(string HintName, string? Source, string? KernelSource, EquatableArray<DiagnosticInfo> Diagnostics, AggregateEntry? Entry = null);
+
+// A generated class as an aggregate class (TintGrammarsClass, TintThemesClass) lists it. Key is the scope name of a
+// grammar or the name of a theme.
+internal sealed record AggregateEntry(SourceKind Kind, string TypeName, string ClassName, string? Key, bool IsPublic)
+{
+    public static AggregateEntry For(GenerationUnit unit, string? key)
+        => new(unit.Kind, "global::" + unit.HintName, unit.ClassName, key, unit.IsPublic);
+}
 
 internal static class PathUtilities
 {

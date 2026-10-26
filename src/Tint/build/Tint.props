@@ -28,6 +28,10 @@
     <CompilerVisibleProperty Include="RootNamespace" />
     <CompilerVisibleProperty Include="ProjectDir" />
     <CompilerVisibleProperty Include="TintKernels" />
+    <!-- Opt-in static classes, in the root namespace, listing every generated grammar (or theme): All, Find and one
+         property per class. -->
+    <CompilerVisibleProperty Include="TintGrammarsClass" />
+    <CompilerVisibleProperty Include="TintThemesClass" />
     <!-- The GregsEx package directory (the one holding lib/ and analyzers/), when it cannot be found from the GregsEx.dll
          reference. -->
     <CompilerVisibleProperty Include="TintGregsExPackagePath" />

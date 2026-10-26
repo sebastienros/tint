@@ -323,6 +323,19 @@ public sealed class GeneratorTests
     }
 
     [Fact]
+    public void AnItemWhoseTextCannotBeReadIsTint003()
+    {
+        var run = GeneratorHarness.Run([TestFile.Grammar("grammars/missing.tmLanguage.json", null), TestFile.Theme("themes/missing.json", null)]);
+
+        Assert.Collection(
+            run.Tint("TINT003").OrderBy(d => d.GetMessage(), StringComparer.Ordinal),
+            grammar => Assert.Equal("'grammars/missing.tmLanguage.json' cannot be read as a grammar: the file cannot be read", grammar.GetMessage()),
+            theme => Assert.Equal("'themes/missing.json' cannot be read as a theme: the file cannot be read", theme.GetMessage()));
+        Assert.All(run.Tint("TINT003"), d => Assert.Equal(DiagnosticSeverity.Error, d.Severity));
+        Assert.DoesNotContain(run.Sources.Keys, k => k.Contains("Missing", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void AnInvalidRegexIsTint004WithTheRulePathAndOffset()
     {
         var run = GeneratorHarness.Run([TestFile.Grammar("bad.json", """

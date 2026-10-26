@@ -12,13 +12,14 @@ using Xunit;
 
 namespace Tint.Tests.Generator;
 
-// An AdditionalFiles item as MSBuild hands it to the compiler: a path and the compiler-visible metadata.
-internal sealed record TestFile(string Path, string Text, IReadOnlyDictionary<string, string>? Metadata = null)
+// An AdditionalFiles item as MSBuild hands it to the compiler: a path and the compiler-visible metadata. A null text
+// is a file the compiler cannot read.
+internal sealed record TestFile(string Path, string? Text, IReadOnlyDictionary<string, string>? Metadata = null)
 {
-    public static TestFile Grammar(string path, string text, params (string Key, string Value)[] metadata)
+    public static TestFile Grammar(string path, string? text, params (string Key, string Value)[] metadata)
         => new(path, text, metadata.Append(("TintKind", "Grammar")).ToDictionary(m => m.Item1, m => m.Item2));
 
-    public static TestFile Theme(string path, string text, params (string Key, string Value)[] metadata)
+    public static TestFile Theme(string path, string? text, params (string Key, string Value)[] metadata)
         => new(path, text, metadata.Append(("TintKind", "Theme")).ToDictionary(m => m.Item1, m => m.Item2));
 }
 
@@ -115,13 +116,13 @@ internal static class GeneratorHarness
 
     private static string SourceDirectory([CallerFilePath] string file = "") => Path.GetDirectoryName(file)!;
 
-    private sealed class TestAdditionalText(string path, string text, IReadOnlyDictionary<string, string>? metadata) : AdditionalText
+    private sealed class TestAdditionalText(string path, string? text, IReadOnlyDictionary<string, string>? metadata) : AdditionalText
     {
         public override string Path { get; } = path;
 
         public IReadOnlyDictionary<string, string>? Metadata { get; } = metadata;
 
-        public override SourceText GetText(CancellationToken cancellationToken = default) => SourceText.From(text);
+        public override SourceText? GetText(CancellationToken cancellationToken = default) => text is null ? null : SourceText.From(text);
     }
 
     private sealed class TestOptionsProvider(Dictionary<string, string> globals, List<TestAdditionalText> files) : AnalyzerConfigOptionsProvider
