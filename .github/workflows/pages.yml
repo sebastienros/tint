@@ -1,0 +1,80 @@
+name: Playground
+
+# Publishes samples/Tint.Playground (Blazor WebAssembly, compiled ahead of time) to GitHub Pages at
+# https://sebastienros.github.io/tint/. Pages must be enabled with the "GitHub Actions" source in the repository settings.
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches: [ main ]
+    paths:
+    - 'samples/**'
+    - 'src/**'
+    - 'grammars/**'
+    - 'themes/**'
+    - 'assets/**'
+    - 'test/Tint.Tests/Fixtures/samples/**'
+    - 'Directory.Build.props'
+    - 'Directory.Packages.props'
+    - 'global.json'
+    - '.github/workflows/pages.yml'
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      with:
+        persist-credentials: false
+    - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+      with:
+        dotnet-version: |
+          10.0.x
+        global-json-file: global.json
+        check-latest: false
+    - name: Install the WebAssembly build tools
+      run: dotnet workload install wasm-tools
+    # TintPlaygroundAot=true turns on RunAOTCompilation in the project; trimming, compression and invariant
+    # globalization are set there too, so no publish property reaches the netstandard2.0 generator.
+    - name: Publish the playground
+      run: dotnet publish samples/Tint.Playground -c Release -o artifacts/playground -p:TintPlaygroundAot=true
+    - name: Prepare the site
+      shell: bash
+      run: |
+        set -euo pipefail
+        site=artifacts/playground/wwwroot
+        # The site is served from /tint/.
+        sed -i 's|<base href="/" />|<base href="/tint/" />|' "$site/index.html"
+        grep -q '<base href="/tint/" />' "$site/index.html"
+        # Serve _framework as is, and let deep links load the app.
+        touch "$site/.nojekyll"
+        cp "$site/index.html" "$site/404.html"
+        echo "### Playground" >> "$GITHUB_STEP_SUMMARY"
+        echo "Compressed _framework: $(du -cb "$site"/_framework/*.br | tail -1 | cut -f1) bytes (Brotli)" >> "$GITHUB_STEP_SUMMARY"
+    - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      with:
+        path: artifacts/playground/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - id: deployment
+      uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
