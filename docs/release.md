@@ -1,6 +1,7 @@
 # Releasing Tint
 
-`Tint`, `Tint.Grammars` and `Tint.Themes` ship together, with the same version. A release is a `vX.Y.Z` tag on a
+The five packages ship together, with the same version: `Tint`, `Tint.Grammars`, `Tint.Themes`, and the file-only
+development dependencies `Tint.Grammars.Sources` and `Tint.Themes.Sources`. A release is a `vX.Y.Z` tag on a
 commit of `main`; CI does the rest. Nobody packs or pushes packages by hand.
 
 ## One-time setup
@@ -44,7 +45,7 @@ Tags are semantic versions: `v1.2.3`, or `v1.2.3-preview.1` for a prerelease on 
    - validates the tag: a semantic version, on a commit contained in `origin/main`; the version is the tag without
      its `v`;
    - restores, builds and tests the whole solution in Release with `-p:Version=<version>`;
-   - packs the three packages (`.nupkg` and `.snupkg`) into `artifacts/`;
+   - packs the five packages into `artifacts/` (`.snupkg` symbol packages for the three with assemblies);
    - attests their build provenance (`actions/attest-build-provenance`);
    - logs in to nuget.org through trusted publishing and pushes every `artifacts/*.nupkg` with `--skip-duplicate`
      (the symbol packages next to them go along), so re-running a failed workflow is safe.
@@ -52,8 +53,9 @@ Tags are semantic versions: `v1.2.3`, or `v1.2.3-preview.1` for a prerelease on 
 ## Verifying
 
 - nuget.org lists the version on [Tint](https://www.nuget.org/packages/Tint),
-  [Tint.Grammars](https://www.nuget.org/packages/Tint.Grammars) and [Tint.Themes](https://www.nuget.org/packages/Tint.Themes)
-  (indexing takes a few minutes). On each page: the dependencies are `GregsEx` and, for the bundles, `Tint` at the
+  [Tint.Grammars](https://www.nuget.org/packages/Tint.Grammars), [Tint.Themes](https://www.nuget.org/packages/Tint.Themes),
+  [Tint.Grammars.Sources](https://www.nuget.org/packages/Tint.Grammars.Sources) and
+  [Tint.Themes.Sources](https://www.nuget.org/packages/Tint.Themes.Sources) (indexing takes a few minutes). On each page: the dependencies are `GregsEx` and, for the bundles, `Tint` at the
   same version; the README, icon, MIT license and repository link show; "Source Link" and "Deterministic" are
   green in the NuGet Package Explorer health checks.
 - The provenance of a downloaded package:
@@ -77,14 +79,14 @@ Tags are semantic versions: `v1.2.3`, or `v1.2.3-preview.1` for a prerelease on 
 
 1. Move every line of each `PublicAPI.Unshipped.txt` (after `#nullable enable`) to the matching
    `PublicAPI.Shipped.txt`.
-2. Set `<PackageValidationBaselineVersion>` to the released version on the three packages, so package validation
+2. Set `<PackageValidationBaselineVersion>` to the released version on `Tint`, `Tint.Grammars` and `Tint.Themes`, so package validation
    reports breaking changes against it from then on.
 3. Bump `<VersionPrefix>` in `Directory.Build.props` to the next version, so previews sort above the release.
 4. Start the next `CHANGELOG.md` section.
 
 ## Previews on Feedz
 
-Every push to `main` (and manual runs of `build.yml`) packs the three packages as
+Every push to `main` (and manual runs of `build.yml`) packs the five packages as
 `<VersionPrefix>-preview.<run number>` and pushes them to the `sebastienros/tint` Feedz feed with
 `--skip-duplicate`. To use them, add the feed next to nuget.org with package source mapping:
 

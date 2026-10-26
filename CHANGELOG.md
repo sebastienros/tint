@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the three
+All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
 ## 0.1.0 (preview)
@@ -43,6 +43,13 @@ the grammars an application references. Licenses in `licenses/THIRD-PARTY-NOTICE
 The 19 color themes of Visual Studio Code (Dark+, Light+, Dark Modern, the 2026 themes, high contrast, Monokai,
 Solarized, Abyss and the others), generated the same way: `TintThemes.DarkPlus`, `TintThemes.All`,
 `TintThemes.Find(name)`.
+
+### Tint.Grammars.Sources and Tint.Themes.Sources
+
+File-only development dependencies with the same VS Code grammar and theme files, for applications that generate
+their own classes: `$(TintGrammarsSourcesPath)`/`$(TintThemesSourcesPath)` point at the files, `@(TintGrammarsSourcesAll)`
+and `@(TintThemesSourcesAll)` list them with the bundles' metadata, and the generator compiles only the ones an
+application includes, with its own names and kernels. Nothing ships with the application.
 
 ### Verification
 
