@@ -6,18 +6,29 @@ using BenchmarkDotNet.Running;
 
 namespace Tint.Benchmarks;
 
-/// <summary>Adds the MB/s column and skips TextMateLib benchmarks when its native library does not load.</summary>
+/// <summary>
+/// Adds the MB/s column, skips TextMateLib benchmarks when its native library does not load, and runs C#-only
+/// benchmarks only for the <c>csharp</c> value of a <c>Language</c> parameter.
+/// </summary>
 public sealed class BenchmarkConfig : ManualConfig
 {
     /// <summary>The category of benchmarks that need TextMateLib's native library.</summary>
     public const string TextMateLib = "TextMateLib";
 
+    /// <summary>The category of benchmarks that only have a C# variant (the kernel-compiled grammar).</summary>
+    public const string CSharpOnly = "CSharpOnly";
+
     /// <summary>Creates the configuration.</summary>
     public BenchmarkConfig()
     {
+        // BenchmarkDotNet rebuilds the project, Tint.Grammars and the kernel-compiled C# grammar included, per job.
+        WithBuildTimeout(TimeSpan.FromMinutes(10));
         AddColumn(new ThroughputColumn());
         AddFilter(new SimpleFilter(benchmark =>
             !benchmark.Descriptor.Categories.Contains(TextMateLib) || TextMateLibAvailability.IsAvailable));
+        AddFilter(new SimpleFilter(benchmark =>
+            !benchmark.Descriptor.Categories.Contains(CSharpOnly)
+            || benchmark.Parameters.Items.All(p => p.Name != "Language" || Equals(p.Value, "csharp"))));
     }
 }
 

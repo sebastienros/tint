@@ -6,8 +6,9 @@ namespace Tint.Benchmarks;
 
 /// <summary>
 /// A documentation site's workload: the 40 fenced blocks of <c>benchmarks/samples/docs/&lt;language&gt;.md</c>, each
-/// tokenized from the initial state with Dark+, once warm. Tint (interpreted and with tier-2 hot patterns) against
-/// TextMateSharp 2.0.4 with its bundled grammars.
+/// tokenized from the initial state with Dark+, once warm. Tint (bundled grammars interpreted, with tier-2 hot patterns,
+/// and through the loader; plus the kernel-compiled grammar for C#) against TextMateSharp 2.0.4 with its bundled
+/// grammars.
 /// </summary>
 [MemoryDiagnoser]
 [ShortRunJob]
@@ -19,7 +20,9 @@ public class DocsHeavyBenchmarks : IThroughputWorkload
 
     private string[][] _blocks = [];
     private TintRunner _tint = null!;
+    private TintRunner? _tintKernels;
     private TintRunner _tintHot = null!;
+    private TintRunner _tintLoader = null!;
     private IGrammar _textMateSharpGrammar = null!;
 
     /// <summary>The language of the fences.</summary>
@@ -32,10 +35,17 @@ public class DocsHeavyBenchmarks : IThroughputWorkload
     {
         _blocks = Workloads.DocsBlocks(Language);
         var theme = Workloads.LoadTheme("dark_plus.json");
-        _tint = TintRunner.Create("docs:" + Language, theme, TokenizerOptions.Default);
-        _tintHot = TintRunner.Create("docs:" + Language, theme, HotPatterns.Options(HotPatterns.Threshold));
+        _tint = TintRunner.Create("docs:" + Language, theme, TokenizerOptions.Default, TintGrammarSet.Bundled);
+        _tintHot = TintRunner.Create("docs:" + Language, theme, HotPatterns.Options(HotPatterns.Threshold), TintGrammarSet.Bundled);
+        _tintLoader = TintRunner.Create("docs:" + Language, theme, TokenizerOptions.Default);
         _tint.Run();
         _tintHot.Run();
+        _tintLoader.Run();
+        if (Language == "csharp")
+        {
+            _tintKernels = TintRunner.Create("docs:" + Language, theme, TokenizerOptions.Default, TintGrammarSet.Kernels);
+            _tintKernels.Run();
+        }
 
         var scope = Workloads.DocsScopes[Language];
         _textMateSharpGrammar = s_textMateSharp.Value.LoadGrammar(scope)
@@ -43,13 +53,22 @@ public class DocsHeavyBenchmarks : IThroughputWorkload
         TextMateSharp();
     }
 
-    /// <summary>Tint, interpreted patterns (the default).</summary>
+    /// <summary>Tint, the bundled grammars with interpreted patterns (the default).</summary>
     [Benchmark(Baseline = true)]
     public int Tint() => _tint.Run();
 
-    /// <summary>Tint with <see cref="TokenizerOptions.CompileHotPatterns"/>.</summary>
+    /// <summary>Tint, <c>CSharpKernelsGrammar</c> (ahead-of-time kernels); C# only.</summary>
+    [Benchmark]
+    [BenchmarkCategory(BenchmarkConfig.CSharpOnly)]
+    public int TintKernels() => _tintKernels!.Run();
+
+    /// <summary>Tint, bundled grammars with <see cref="TokenizerOptions.CompileHotPatterns"/>.</summary>
     [Benchmark]
     public int TintHotPatterns() => _tintHot.Run();
+
+    /// <summary>Tint, the grammar files through <c>GrammarLoader</c>.</summary>
+    [Benchmark]
+    public int TintLoader() => _tintLoader.Run();
 
     /// <summary>TextMateSharp 2.0.4, <c>TokenizeLine2</c>.</summary>
     [Benchmark]

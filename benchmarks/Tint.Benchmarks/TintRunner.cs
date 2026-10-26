@@ -14,16 +14,16 @@ public sealed class TintRunner
     /// Creates the runner of a workload: a sample file name (<c>bigfile.cs</c>, <c>medium.cs</c>…) tokenized with C#,
     /// a docs language (<c>docs:typescript</c>), or <c>docs</c> for every docs language.
     /// </summary>
-    public static TintRunner Create(string workload, Theme theme, TokenizerOptions options)
+    public static TintRunner Create(string workload, Theme theme, TokenizerOptions options, TintGrammarSet grammars = TintGrammarSet.Loader)
     {
         if (workload == "docs" || workload.StartsWith("docs:", StringComparison.Ordinal))
         {
-            var registry = Workloads.AllGrammarsRegistry(options);
+            var registry = Workloads.AllGrammarsRegistry(options, grammars);
             var languages = workload == "docs" ? Workloads.DocsScopes.Keys.ToArray() : [workload[5..]];
             return new TintRunner([.. languages.Select(l => (registry.CreateTokenizer(Workloads.DocsScopes[l], theme), Workloads.DocsBlocks(l)))]);
         }
 
-        var csharp = Workloads.CSharpRegistry();
+        var csharp = Workloads.CSharpRegistry(grammars);
         csharp.TokenizerOptions = options;
         return new TintRunner([(csharp.CreateTokenizer("source.cs", theme), new[] { Workloads.ReadLines(workload) })]);
     }

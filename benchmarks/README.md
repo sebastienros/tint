@@ -16,54 +16,112 @@ does not run benchmarks.
 | Class | Filter | What it measures |
 |---|---|---|
 | `TokenizeLineBenchmarks` | `'*TokenizeLine*'` | `sample.cs` and `medium.cs` line by line, C# + Dark+, `Token` and `EncodedToken` paths. The hot-path regression check. |
-| `BigFileBenchmarks` | `'BigFileBenchmarks*'` | TextMateSharp's `bigfile.cs` (133,439 lines, 5.8 MB), Tint vs TextMateSharp 2.0.4 vs TextMateLib 0.2.1, once warm, `tokenizeLine2` paths. The file is downloaded into `samples/.cache/` (git-ignored) on first run. |
-| `DocsHeavyBenchmarks` | `'*DocsHeavy*'` | 40 fenced blocks per language (`samples/docs/*.md`: csharp, typescript, javascript, html, json, yaml, bash, markdown), each from the initial state, Tint vs TextMateSharp. |
+| `BigFileBenchmarks` | `'BigFileBenchmarks*'` | TextMateSharp's `bigfile.cs` (133,439 lines, 5.8 MB), once warm, `tokenizeLine2` paths: Tint with the bundled grammar, the kernel-compiled grammar, tier-2 hot patterns and the loader, TextMateSharp 2.0.4, TextMateLib 0.2.1. The file is downloaded into `samples/.cache/` (git-ignored) on first run. |
+| `DocsHeavyBenchmarks` | `'*DocsHeavy*'` | 40 fenced blocks per language (`samples/docs/*.md`: csharp, typescript, javascript, html, json, yaml, bash, markdown), each from the initial state: Tint (bundled grammars, tier-2 hot patterns, loader; kernel-compiled grammar for csharp only) vs TextMateSharp. |
 | `RenderBenchmarks` | `'*Render*'` | `Highlighter.ToHtml` (one theme, light + dark, to a `TextWriter`) and `ToAnsi` on `medium.cs`, against tokenization alone. |
-| `FirstUseBenchmarks` | `'*FirstUse*'` | Registry creation, C# grammar and Dark+ loading, first line tokenized: Tint (loader path), TextMateSharp, TextMateLib. |
+| `FirstUseBenchmarks`, `FirstUseColdBenchmarks` | `'*FirstUse*'` | Registry creation, C# grammar and Dark+ loading, first line tokenized: Tint (loader, bundled, kernel-compiled, compile-all), TextMateSharp, TextMateLib, in a warm process; and the Tint rows in a fresh process per measurement (`RunStrategy.ColdStart`, 10 launches), which includes the JIT of the kernels the line reaches. |
 | `HotPatternBenchmarks`, `HotPatternColdBenchmarks` | `'*HotPattern*'` | Tier-2 runtime compilation (`TokenizerOptions.CompileHotPatterns`) for thresholds off/0/16/256, once warm and from a cold registry, on `bigfile.cs`, `medium.cs` and the whole docs mix. |
 
 MB/s is 10^6 bytes of UTF-8 source per second. TextMateLib benchmarks are skipped with a message
 when its native library does not load (it ships win-x64, linux-x64, osx-x64 and osx-arm64 only).
-Tint and TextMateLib read the VS Code grammars in `grammars/`; TextMateSharp uses the copies bundled
-in TextMateSharp.Grammars, which are older, so token counts differ slightly.
+
+What each row tokenizes:
+
+- **Tint, bundled**: `TintGrammars.CSharp` from `Tint.Grammars` (generated from the synced VS Code
+  grammar, patterns parsed on first use and interpreted). This is what `Tint.Grammars` users get.
+- **Tint, kernel-compiled**: `CSharpKernelsGrammar`, the same VS Code grammar generated in this
+  project with `<TintGrammar ... Kernels="true" />`: 293 of the 338 pattern-table entries run
+  ahead-of-time GregsEx kernels, the rest stay interpreted. It is what a project that imports a
+  grammar with `Kernels="true"` gets.
+- **Tint, tier 2**: the bundled grammar with `TokenizerOptions.CompileHotPatterns` (threshold 256).
+- **Tint, loader**: `GrammarLoader` on `grammars/csharp/syntaxes/csharp.tmLanguage.json`.
+- **TextMateLib 0.2.1** (native Oniguruma) reads the same synced VS Code grammar file.
+- **TextMateSharp 2.0.4** (Onigwrap) uses the C# grammar bundled in TextMateSharp.Grammars, which is
+  older, so token counts differ slightly.
+
+Every library uses Dark+ (TextMateLib gets it with its `include` chain flattened, since it does not
+resolve includes) and its encoded binary-token path, `tokenizeLine2` or the equivalent:
+`Tokenizer.TokenizeLineEncoded` for Tint, `TokenizeLine2` for TextMateSharp and TextMateLib.
+
+Kernels cost build time: with `Kernels="true"` the benchmark project's `Csc` step takes 3.8 s instead
+of 0.9 s (warm compiler server, M4 Pro), and the generated C# grammar grows from 0.45 MB to 5.8 MB of
+source (docs/generator.md).
 
 ## Results
 
-Apple M4 Pro (14 cores), macOS 15.8.1, .NET 10.0.11 (SDK 10.0.400), Arm64 RyuJIT, BenchmarkDotNet
-0.15.8 `ShortRun`, GregsEx 0.5.1, 2026-10-25. Tint numbers are the default interpreter tier.
+Apple M4 Pro (14 cores), macOS 15.8.1 (24H32), .NET 10.0.10 (SDK 10.0.302), Arm64 RyuJIT,
+BenchmarkDotNet 0.15.8 `ShortRun` (1 launch, 3 warmup, 3 iterations), GregsEx 0.5.1, 2026-10-25.
+Each class ran twice back to back with no other benchmark, test or fuzz process running (load
+average 2–3 from background services). The first full pass ran while another session was fuzzing
+and was discarded; the `bigfile.cs` rows of the two full passes that followed still had single
+iterations up to 2× slower, so `BigFileBenchmarks` ran twice more on its own and those two passes
+are below. Tables show both passes; the headline table in the repository README takes, for each
+row, the pass with the smaller error.
 
-### `bigfile.cs` (133,439 lines)
+### `bigfile.cs` (133,439 lines, 5.8 MB)
 
-| Library | Mean | MB/s | Allocated | vs Tint |
+| Library | Pass 1 | Pass 2 | MB/s (1 / 2) | Allocated |
 |---|---:|---:|---:|---:|
-| **Tint** | **1.73 s** | **3.35** | **32.6 MB** | 1.00 |
-| Tint, tier 2 (N = 256) | 1.70 s | 3.41 | 32.6 MB | 0.98 |
-| TextMateLib 0.2.1 (native Oniguruma) | 2.80 s | 2.07 | 31.0 MB | 1.62 |
-| TextMateSharp 2.0.4 (Onigwrap) | 7.65 s | 0.76 | 507.3 MB | 4.42 |
+| **Tint, bundled grammar** (interpreted) | 1.795 s ± 0.06 | **1.765 s** ± 0.01 | 3.24 / 3.29 | 32.6 MB |
+| Tint, kernel-compiled grammar | 1.738 s ± 0.48 | **1.687 s** ± 0.003 | 3.34 / 3.44 | 32.6 MB |
+| Tint, tier 2 (N = 256) | 1.740 s ± 0.09 | 1.948 s ± 5.3 | 3.34 / 2.98 | 32.6 MB |
+| Tint, loader | 1.721 s ± 0.02 | 2.193 s ± 2.2 | 3.38 / 2.65 | 32.6 MB |
+| TextMateLib 0.2.1 | **2.807 s** ± 0.49 | 3.621 s ± 4.5 | 2.07 / 1.60 | 31.0 MB |
+| TextMateSharp 2.0.4 | 9.554 s ± 15.4 | **7.867 s** ± 0.71 | 0.61 / 0.74 | 507.3 MB |
 
-The TextMateSharp + GregsEx branch measured 1.74 s / 69.7 MB on the same machine class.
+± is BenchmarkDotNet's error (half the 99.9% confidence interval). **Kernels do not change the
+picture at the tokenizer level: the kernel-compiled grammar is 3–4% faster than the bundled one**
+(1.69–1.74 s against 1.77–1.80 s), about the spread between the bundled and loader rows, which run
+the same interpreted patterns. Allocations are identical: kernels change how a pattern searches, not
+what the tokenizer allocates. Most searches in a tokenizer end in the prefilters the interpreter
+shares (design section 5.5), so the spike's 1.33× per-search geometric mean does not carry over.
 
 ### Docs-heavy (40 fences per language)
 
-| Language | Tint | MB/s | Allocated | TextMateSharp | Allocated | Speedup |
-|---|---:|---:|---:|---:|---:|---:|
-| bash | 0.64 ms | 5.22 | 73.7 KB | 1.81 ms | 333.2 KB | 2.8× |
-| csharp | 3.47 ms | 2.14 | 89.5 KB | 14.59 ms | 1,586.8 KB | 4.2× |
-| html | 1.34 ms | 4.60 | 78.4 KB | 11.71 ms | 2,888.9 KB | 8.7× |
-| javascript | 3.29 ms | 1.90 | 84.8 KB | 26.16 ms | 4,386.6 KB | 7.9× |
-| json | 0.19 ms | 26.36 | 63.3 KB | 1.28 ms | 947.6 KB | 6.7× |
-| markdown | 0.63 ms | 6.35 | 45.2 KB | 3.54 ms | 519.3 KB | 5.6× |
-| typescript | 4.49 ms | 1.60 | 95.5 KB | 26.20 ms | 3,955.0 KB | 5.8× |
-| yaml | 0.68 ms | 6.99 | 105.3 KB | 5.17 ms | 1,069.4 KB | 7.7× |
+Pass 2 (pass 1 agrees within 5% except the bash and html rows, whose first benchmark had a slow
+iteration).
+
+| Language | Tint, bundled | MB/s | Allocated | Tint, loader | Tier 2 (N = 256) | TextMateSharp | Allocated | Speedup |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| bash | 0.64 ms | 5.21 | 73.7 KB | 0.64 ms | 0.79 ms | 1.85 ms | 333.2 KB | 2.9× |
+| csharp | 3.37 ms | 2.20 | 89.5 KB | 3.38 ms | 3.51 ms | 14.50 ms | 1,586.8 KB | 4.3× |
+| html | 1.38 ms | 4.45 | 78.4 KB | 1.38 ms | 1.92 ms | 11.39 ms | 2,888.9 KB | 8.2× |
+| javascript | 3.37 ms | 1.86 | 84.8 KB | 3.47 ms | 4.45 ms | 25.20 ms | 4,386.6 KB | 7.5× |
+| json | 0.19 ms | 26.81 | 63.3 KB | 0.19 ms | 0.17 ms | 1.26 ms | 947.6 KB | 6.7× |
+| markdown | 0.91 ms | 4.39 | 45.2 KB | 0.89 ms | 0.72 ms | 3.44 ms | 519.3 KB | 3.8× |
+| typescript | 4.78 ms | 1.51 | 95.5 KB | 4.60 ms | 5.96 ms | 25.45 ms | 3,955.0 KB | 5.3× |
+| yaml | 0.67 ms | 7.10 | 105.3 KB | 0.67 ms | 0.63 ms | 4.97 ms | 1,069.4 KB | 7.5× |
+
+C# with the kernel-compiled grammar: 3.37 ms / 3.31 ms (passes 1 / 2, 2.24 MB/s, 89.5 KB), against
+3.53 ms / 3.37 ms bundled: 2–5% faster, the same allocations.
 
 ### First use (registry + C# grammar + Dark+ + first line)
 
-| Library | Mean | Allocated |
-|---|---:|---:|
-| **Tint** (loader path) | **2.50 ms** | 5,898 KB |
-| Tint, every reached pattern compiled (N = 0) | 187.2 ms | 20,951 KB |
-| TextMateSharp 2.0.4 | 4.70 ms | 7,812 KB |
-| TextMateLib 0.2.1 | 10.27 ms | 709 KB (managed only) |
+Warm process (the JIT has compiled Tint and, after BenchmarkDotNet's first invocation, the kernels):
+
+| Library | Pass 1 | Pass 2 | Allocated |
+|---|---:|---:|---:|
+| Tint, loader | 2.38 ms | 2.35 ms | 5,898 KB |
+| **Tint, bundled grammar** | **0.19 ms** | **0.18 ms** | 558 KB |
+| Tint, kernel-compiled grammar | 0.20 ms | 0.19 ms | 651 KB |
+| Tint, loader, every reached pattern compiled (N = 0) | 183.8 ms | 179.6 ms | 20,921 KB |
+| TextMateSharp 2.0.4 | 4.52 ms | 4.48 ms | 7,812 KB |
+| TextMateLib 0.2.1 | 10.09 ms | 9.98 ms | 709 KB (managed only) |
+
+Fresh process per measurement (`FirstUseColdBenchmarks`, 10 launches, one invocation each), so the
+time includes the JIT of everything the first line reaches:
+
+| Tint | Pass 1 | Pass 2 | Allocated |
+|---|---:|---:|---:|
+| Loader | 54.7 ms | 47.3 ms | 6,036 KB |
+| Bundled grammar | 70.4 ms | 65.0 ms | 559 KB |
+| Kernel-compiled grammar | 221.0 ms | 207.0 ms | 652 KB |
+
+The kernels the first line reaches add about 140–150 ms of JIT in a fresh process; the spike's
+1.2 ms per kernel predicts this order of magnitude. Once JIT-compiled, first use costs the same as
+the bundled grammar.
+
+The sections below are from the P5 run (same machine, .NET 10.0.11, loader path).
 
 ### Rendering `medium.cs` (956 lines, 36 KB)
 
