@@ -1,4 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- The C# grammar a second time, through the generator with ahead-of-time kernels, as a consumer opts in (see
+       test/Tint.Generator.Sample). The kernels add about 3 s to this project's compile. -->
+  <Import Project="../../src/Tint/build/Tint.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <!-- The benchmarks locate grammars, themes and samples in the checkout through CallerFilePath. -->
@@ -6,12 +9,17 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="GregsEx" />
     <!-- Baselines. TextMateLib ships natives for win-x64, linux-x64, osx-x64 and osx-arm64 only; its benchmarks are
          skipped when the library does not load. -->
     <PackageReference Include="TextMateSharp" />
     <PackageReference Include="TextMateSharp.Grammars" />
     <PackageReference Include="TextMateLib" />
     <ProjectReference Include="../../src/Tint/Tint.csproj" />
-    <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../../src/Tint.Grammars/Tint.Grammars.csproj" />
+    <ProjectReference Include="../../src/Tint.Generator/Tint.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <TintGrammar Include="../../grammars/csharp/syntaxes/csharp.tmLanguage.json" Name="CSharpKernelsGrammar" Kernels="true" LanguageId="csharp" />
   </ItemGroup>
 </Project>

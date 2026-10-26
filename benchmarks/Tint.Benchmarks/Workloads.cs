@@ -7,6 +7,19 @@ using Tint.Loading;
 
 namespace Tint.Benchmarks;
 
+/// <summary>Where Tint's grammars come from.</summary>
+public enum TintGrammarSet
+{
+    /// <summary><c>GrammarLoader</c> on the JSON files of <c>grammars/</c>.</summary>
+    Loader,
+
+    /// <summary>The <c>Tint.Grammars</c> bundle (generated, interpreted patterns).</summary>
+    Bundled,
+
+    /// <summary>The C# grammar generated in this project with ahead-of-time kernels (<c>CSharpKernelsGrammar</c>).</summary>
+    Kernels,
+}
+
 /// <summary>Files, grammars and themes shared by the benchmarks, located in the checkout.</summary>
 public static class Workloads
 {
@@ -88,21 +101,40 @@ public static class Workloads
     /// <summary>The UTF-8 size of lines joined with <c>\n</c>.</summary>
     public static long Utf8Bytes(IEnumerable<string> lines) => lines.Sum(l => (long)Encoding.UTF8.GetByteCount(l) + 1);
 
-    /// <summary>A registry with the C# grammar, through the loader.</summary>
-    public static GrammarRegistry CSharpRegistry()
+    /// <summary>A registry with the C# grammar: through the loader, from the bundle, or kernel-compiled.</summary>
+    public static GrammarRegistry CSharpRegistry(TintGrammarSet grammars = TintGrammarSet.Loader)
     {
         var registry = new GrammarRegistry();
-        registry.Add(GrammarLoader.Load(CSharpGrammarPath, new GrammarInfo { LanguageId = "csharp" }));
+        registry.Add(grammars switch
+        {
+            TintGrammarSet.Bundled => TintGrammars.CSharp,
+            TintGrammarSet.Kernels => CSharpKernelsGrammar.Instance,
+            _ => GrammarLoader.Load(CSharpGrammarPath, new GrammarInfo { LanguageId = "csharp" }),
+        });
         return registry;
     }
 
-    /// <summary>A registry with every grammar of <c>grammars/manifest.json</c>, through the loader.</summary>
-    public static GrammarRegistry AllGrammarsRegistry(TokenizerOptions? options = null)
+    /// <summary>
+    /// A registry with every grammar of <c>grammars/manifest.json</c>: through the loader, from the bundle, or from the
+    /// bundle with the kernel-compiled C# grammar in place of the bundled one.
+    /// </summary>
+    public static GrammarRegistry AllGrammarsRegistry(TokenizerOptions? options = null, TintGrammarSet set = TintGrammarSet.Loader)
     {
         var registry = new GrammarRegistry();
         if (options is not null)
         {
             registry.TokenizerOptions = options;
+        }
+
+        if (set != TintGrammarSet.Loader)
+        {
+            registry.Add([.. TintGrammars.All]);
+            if (set == TintGrammarSet.Kernels)
+            {
+                registry.Add(CSharpKernelsGrammar.Instance);
+            }
+
+            return registry;
         }
 
         var grammars = Path.Combine(RepositoryRoot, "grammars");

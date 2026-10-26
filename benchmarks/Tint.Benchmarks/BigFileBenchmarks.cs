@@ -6,12 +6,13 @@ namespace Tint.Benchmarks;
 
 /// <summary>
 /// TextMateSharp's <c>bigfile.cs</c> (133k lines) tokenized line by line with C# and Dark+, once warm, through each
-/// library's binary-token path (<c>tokenizeLine2</c>): Tint with the interpreter and with tier-2 compiled hot patterns,
-/// TextMateSharp 2.0.4 (Onigwrap) and TextMateLib 0.2.1 (native Oniguruma) when its native library loads.
+/// library's binary-token path (<c>tokenizeLine2</c>): Tint with the bundled grammar (interpreted), the kernel-compiled
+/// grammar, tier-2 compiled hot patterns and the loader, TextMateSharp 2.0.4 (Onigwrap) and TextMateLib 0.2.1 (native
+/// Oniguruma) when its native library loads.
 /// </summary>
 /// <remarks>
-/// Tint and TextMateLib read the VS Code C# grammar in <c>grammars/</c>; TextMateSharp uses the copy bundled in
-/// TextMateSharp.Grammars, which is older.
+/// Tint and TextMateLib read the VS Code C# grammar in <c>grammars/</c> (Tint's bundle and kernel grammar are generated
+/// from it); TextMateSharp uses the copy bundled in TextMateSharp.Grammars, which is older.
 /// </remarks>
 [MemoryDiagnoser]
 [ShortRunJob]
@@ -20,7 +21,9 @@ public class BigFileBenchmarks : IThroughputWorkload
 {
     private string[] _lines = [];
     private TintRunner _tint = null!;
+    private TintRunner _tintKernels = null!;
     private TintRunner _tintHot = null!;
+    private TintRunner _tintLoader = null!;
     private IGrammar _textMateSharp = null!;
     private global::TextMateLib.Bindings.Registry? _textMateLibRegistry;
     private global::TextMateLib.Bindings.Grammar? _textMateLib;
@@ -31,10 +34,14 @@ public class BigFileBenchmarks : IThroughputWorkload
     {
         _lines = Workloads.ReadLines("bigfile.cs");
         var theme = Workloads.LoadTheme("dark_plus.json");
-        _tint = TintRunner.Create("bigfile.cs", theme, TokenizerOptions.Default);
-        _tintHot = TintRunner.Create("bigfile.cs", theme, HotPatterns.Options(HotPatterns.Threshold));
+        _tint = TintRunner.Create("bigfile.cs", theme, TokenizerOptions.Default, TintGrammarSet.Bundled);
+        _tintKernels = TintRunner.Create("bigfile.cs", theme, TokenizerOptions.Default, TintGrammarSet.Kernels);
+        _tintHot = TintRunner.Create("bigfile.cs", theme, HotPatterns.Options(HotPatterns.Threshold), TintGrammarSet.Bundled);
+        _tintLoader = TintRunner.Create("bigfile.cs", theme, TokenizerOptions.Default);
         _tint.Run();
+        _tintKernels.Run();
         _tintHot.Run();
+        _tintLoader.Run();
 
         var options = new RegistryOptions(ThemeName.DarkPlus);
         _textMateSharp = new Registry(options).LoadGrammar("source.cs");
@@ -58,13 +65,21 @@ public class BigFileBenchmarks : IThroughputWorkload
         _textMateLibRegistry?.Dispose();
     }
 
-    /// <summary>Tint, interpreted patterns (the default).</summary>
+    /// <summary>Tint, <c>TintGrammars.CSharp</c> with interpreted patterns (the default).</summary>
     [Benchmark(Baseline = true)]
     public int Tint() => _tint.Run();
 
-    /// <summary>Tint with <see cref="TokenizerOptions.CompileHotPatterns"/>.</summary>
+    /// <summary>Tint, <c>CSharpKernelsGrammar</c>: the same grammar with ahead-of-time GregsEx kernels.</summary>
+    [Benchmark]
+    public int TintKernels() => _tintKernels.Run();
+
+    /// <summary>Tint, bundled grammar with <see cref="TokenizerOptions.CompileHotPatterns"/>.</summary>
     [Benchmark]
     public int TintHotPatterns() => _tintHot.Run();
+
+    /// <summary>Tint, the grammar file through <c>GrammarLoader</c>.</summary>
+    [Benchmark]
+    public int TintLoader() => _tintLoader.Run();
 
     /// <summary>TextMateSharp 2.0.4, <c>TokenizeLine2</c>.</summary>
     [Benchmark]
