@@ -45,7 +45,6 @@ jobs:
         dotnet-version: |
           10.0.x
         global-json-file: global.json
-        check-latest: false
 
     - name: Validate release tag
       id: release

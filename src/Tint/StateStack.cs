@@ -3,7 +3,8 @@ namespace Tint;
 /// <summary>
 /// The tokenizer state at the end of a line: an immutable linked list of the rules that are open, as vscode-textmate's
 /// <c>StateStackImpl</c>. Editors keep one per line and stop re-tokenizing when a line ends in a state equal to the
-/// stored one. Equality is structural.
+/// stored one. Equality is structural. Like vscode-textmate's <c>StateStack</c> interface, only the depth is public:
+/// the rules and scopes it holds are the tokenizer's business.
 /// </summary>
 public sealed class StateStack : IEquatable<StateStack>
 {
@@ -46,23 +47,23 @@ public sealed class StateStack : IEquatable<StateStack>
     /// <summary>The state before the first line of a document.</summary>
     public static StateStack Initial { get; } = new();
 
-    /// <summary>The enclosing state, or null at the root.</summary>
-    public StateStack? Parent { get; }
+    // The enclosing state, or null at the root.
+    internal StateStack? Parent { get; }
 
     /// <summary>The number of open rules, the root rule included; 0 for <see cref="Initial"/>.</summary>
     public int Depth { get; }
 
-    /// <summary>Whether the <c>begin</c> match of this rule consumed the end of its line.</summary>
-    public bool BeginRuleCapturedEol { get; }
+    // Whether the begin match of this rule consumed the end of its line.
+    internal bool BeginRuleCapturedEol { get; }
 
-    /// <summary>The <c>end</c> or <c>while</c> pattern resolved from the captures of the <c>begin</c> match, when it has back-references.</summary>
-    public string? EndRule { get; }
+    // The end or while pattern resolved from the captures of the begin match, when it has back-references.
+    internal string? EndRule { get; }
 
-    /// <summary>The scopes including the rule's <c>name</c>. Null for <see cref="Initial"/>.</summary>
-    public AttributedScopeStack NameScopes { get; } = null!;
+    // The scopes including the rule's name. Null for Initial.
+    internal AttributedScopeStack NameScopes { get; } = null!;
 
-    /// <summary>The scopes including the rule's <c>name</c> and <c>contentName</c>. Null for <see cref="Initial"/>.</summary>
-    public AttributedScopeStack ContentNameScopes { get; } = null!;
+    // The scopes including the rule's name and contentName. Null for Initial.
+    internal AttributedScopeStack ContentNameScopes { get; } = null!;
 
     internal int RuleId { get; }
 

@@ -1,0 +1,390 @@
+#nullable enable
+override Tint.AttributedScopeStack.Equals(object? obj) -> bool
+override Tint.AttributedScopeStack.GetHashCode() -> int
+override Tint.AttributedScopeStack.ToString() -> string!
+override Tint.EncodedToken.GetHashCode() -> int
+override Tint.Grammars.IncludeReference.Equals(object? obj) -> bool
+override Tint.Grammars.IncludeReference.GetHashCode() -> int
+override Tint.Grammars.IncludeReference.ToString() -> string!
+override Tint.Grammars.RegexSource.ToString() -> string!
+override Tint.HighlightedToken.GetHashCode() -> int
+override Tint.StateStack.Equals(object? obj) -> bool
+override Tint.StateStack.GetHashCode() -> int
+override Tint.StateStack.ToString() -> string!
+override Tint.Themes.StyleAttributes.GetHashCode() -> int
+override Tint.Token.GetHashCode() -> int
+static Tint.EncodedToken.operator !=(Tint.EncodedToken left, Tint.EncodedToken right) -> bool
+static Tint.EncodedToken.operator ==(Tint.EncodedToken left, Tint.EncodedToken right) -> bool
+static Tint.EncodedTokenAttributes.ContainsBalancedBrackets(uint metadata) -> bool
+static Tint.EncodedTokenAttributes.GetBackground(uint metadata) -> int
+static Tint.EncodedTokenAttributes.GetFontStyle(uint metadata) -> Tint.FontStyle
+static Tint.EncodedTokenAttributes.GetForeground(uint metadata) -> int
+static Tint.EncodedTokenAttributes.GetLanguageId(uint metadata) -> int
+static Tint.EncodedTokenAttributes.GetTokenType(uint metadata) -> Tint.Grammars.StandardTokenType
+static Tint.EncodedTokenAttributes.Set(uint metadata, int languageId, Tint.Grammars.StandardTokenType? tokenType, bool? containsBalancedBrackets, Tint.FontStyle fontStyle, int foreground, int background) -> uint
+static Tint.Grammars.GrammarInfo.Empty.get -> Tint.Grammars.GrammarInfo!
+static Tint.Grammars.IncludeReference.Base.get -> Tint.Grammars.IncludeReference
+static Tint.Grammars.IncludeReference.operator !=(Tint.Grammars.IncludeReference left, Tint.Grammars.IncludeReference right) -> bool
+static Tint.Grammars.IncludeReference.operator ==(Tint.Grammars.IncludeReference left, Tint.Grammars.IncludeReference right) -> bool
+static Tint.Grammars.IncludeReference.Parse(string! include) -> Tint.Grammars.IncludeReference
+static Tint.Grammars.IncludeReference.Relative(string! ruleName) -> Tint.Grammars.IncludeReference
+static Tint.Grammars.IncludeReference.Self.get -> Tint.Grammars.IncludeReference
+static Tint.Grammars.IncludeReference.TopLevel(string! scopeName) -> Tint.Grammars.IncludeReference
+static Tint.Grammars.IncludeReference.TopLevelRepository(string! scopeName, string! ruleName) -> Tint.Grammars.IncludeReference
+static Tint.Grammars.RegexSource.FromRewritten(string! text, bool hasAnchorA, bool hasAnchorG, bool hasBackReferences, Tint.Grammars.RegexPatternFactory? patternFactory = null) -> Tint.Grammars.RegexSource!
+static Tint.HighlightedToken.operator !=(Tint.HighlightedToken left, Tint.HighlightedToken right) -> bool
+static Tint.HighlightedToken.operator ==(Tint.HighlightedToken left, Tint.HighlightedToken right) -> bool
+static Tint.HighlighterOptions.Default.get -> Tint.HighlighterOptions!
+static Tint.Loading.GrammarLoader.Load(string! path, Tint.Grammars.GrammarInfo? info = null) -> Tint.Loading.LoadedGrammar!
+static Tint.Loading.GrammarLoader.Load(System.IO.Stream! stream, Tint.Loading.DocumentFormat format = Tint.Loading.DocumentFormat.Auto, Tint.Grammars.GrammarInfo? info = null) -> Tint.Loading.LoadedGrammar!
+static Tint.Loading.GrammarLoader.Load(System.ReadOnlySpan<byte> utf8, Tint.Loading.DocumentFormat format = Tint.Loading.DocumentFormat.Auto, Tint.Grammars.GrammarInfo? info = null) -> Tint.Loading.LoadedGrammar!
+static Tint.Loading.ThemeLoader.Load(string! path, Tint.Loading.ThemeLoadMode mode = Tint.Loading.ThemeLoadMode.VSCode) -> Tint.Loading.LoadedTheme!
+static Tint.Loading.ThemeLoader.Load(System.IO.Stream! stream, Tint.Loading.DocumentFormat format = Tint.Loading.DocumentFormat.Auto, Tint.Loading.ThemeIncludeResolver? includeResolver = null, Tint.Loading.ThemeLoadMode mode = Tint.Loading.ThemeLoadMode.VSCode) -> Tint.Loading.LoadedTheme!
+static Tint.Loading.ThemeLoader.Load(System.ReadOnlySpan<byte> utf8, Tint.Loading.DocumentFormat format = Tint.Loading.DocumentFormat.Auto, Tint.Loading.ThemeIncludeResolver? includeResolver = null, Tint.Loading.ThemeLoadMode mode = Tint.Loading.ThemeLoadMode.VSCode) -> Tint.Loading.LoadedTheme!
+static Tint.Rendering.AnsiRendererOptions.Default.get -> Tint.Rendering.AnsiRendererOptions!
+static Tint.Rendering.HtmlRendererOptions.Default.get -> Tint.Rendering.HtmlRendererOptions!
+static Tint.StateStack.Initial.get -> Tint.StateStack!
+static Tint.Theme.Empty.get -> Tint.Theme!
+static Tint.Theme.FromSource(Tint.Themes.IThemeSource! source) -> Tint.Theme!
+static Tint.Themes.StyleAttributes.operator !=(Tint.Themes.StyleAttributes left, Tint.Themes.StyleAttributes right) -> bool
+static Tint.Themes.StyleAttributes.operator ==(Tint.Themes.StyleAttributes left, Tint.Themes.StyleAttributes right) -> bool
+static Tint.Token.operator !=(Tint.Token left, Tint.Token right) -> bool
+static Tint.Token.operator ==(Tint.Token left, Tint.Token right) -> bool
+static Tint.TokenizerOptions.Default.get -> Tint.TokenizerOptions!
+static Tint.TokenizerOptions.DefaultHotPatternThreshold.get -> int
+Tint.AttributedScopeStack
+Tint.AttributedScopeStack.Depth.get -> int
+Tint.AttributedScopeStack.Equals(Tint.AttributedScopeStack? other) -> bool
+Tint.AttributedScopeStack.GetScopeNames() -> string![]!
+Tint.AttributedScopeStack.Parent.get -> Tint.AttributedScopeStack?
+Tint.AttributedScopeStack.ScopeName.get -> string!
+Tint.AttributedScopeStack.TokenAttributes.get -> uint
+Tint.EncodedToken
+Tint.EncodedToken.Background.get -> int
+Tint.EncodedToken.Deconstruct(out int Start, out uint Metadata) -> void
+Tint.EncodedToken.EncodedToken() -> void
+Tint.EncodedToken.EncodedToken(int Start, uint Metadata) -> void
+Tint.EncodedToken.Equals(Tint.EncodedToken other) -> bool
+Tint.EncodedToken.FontStyle.get -> Tint.FontStyle
+Tint.EncodedToken.Foreground.get -> int
+Tint.EncodedToken.LanguageId.get -> int
+Tint.EncodedToken.Metadata.get -> uint
+Tint.EncodedToken.Metadata.init -> void
+Tint.EncodedToken.Start.get -> int
+Tint.EncodedToken.Start.init -> void
+Tint.EncodedToken.TokenType.get -> Tint.Grammars.StandardTokenType
+Tint.EncodedTokenAttributes
+Tint.FontStyle
+Tint.FontStyle.Bold = 2 -> Tint.FontStyle
+Tint.FontStyle.Italic = 1 -> Tint.FontStyle
+Tint.FontStyle.None = 0 -> Tint.FontStyle
+Tint.FontStyle.NotSet = -1 -> Tint.FontStyle
+Tint.FontStyle.Strikethrough = 8 -> Tint.FontStyle
+Tint.FontStyle.Underline = 4 -> Tint.FontStyle
+Tint.GrammarRegistry
+Tint.GrammarRegistry.Add(params Tint.Grammars.IGrammarSource![]! sources) -> void
+Tint.GrammarRegistry.Add(Tint.Grammars.IGrammarSource! source) -> void
+Tint.GrammarRegistry.AddInjection(string! targetScopeName, string! injectionScopeName) -> void
+Tint.GrammarRegistry.CreateHighlighter(string! scopeName, Tint.Theme! defaultTheme, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string!, Tint.Theme!>>! additionalThemes, Tint.HighlighterOptions? options = null) -> Tint.Highlighter!
+Tint.GrammarRegistry.CreateHighlighter(string! scopeName, Tint.Theme! light, Tint.Theme! dark, Tint.HighlighterOptions? options = null) -> Tint.Highlighter!
+Tint.GrammarRegistry.CreateHighlighter(string! scopeName, Tint.Theme! theme, Tint.HighlighterOptions? options = null) -> Tint.Highlighter!
+Tint.GrammarRegistry.CreateTokenizer(string! scopeName, Tint.Theme? theme = null, Tint.TokenizerOptions? options = null) -> Tint.Tokenizer!
+Tint.GrammarRegistry.GetInjections(string! targetScopeName) -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.GrammarRegistry.GetLanguageId(string! languageId) -> int
+Tint.GrammarRegistry.GetMissingGrammars(string! scopeName) -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.GrammarRegistry.GrammarRegistry() -> void
+Tint.GrammarRegistry.TokenizerOptions.get -> Tint.TokenizerOptions!
+Tint.GrammarRegistry.TokenizerOptions.set -> void
+Tint.GrammarRegistry.TryGet(string! scopeName, out Tint.Grammars.IGrammarSource? source) -> bool
+Tint.Grammars.GrammarInfo
+Tint.Grammars.GrammarInfo.Aliases.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.Grammars.GrammarInfo.Aliases.init -> void
+Tint.Grammars.GrammarInfo.BalancedBracketScopes.get -> System.Collections.Generic.IReadOnlyList<string!>?
+Tint.Grammars.GrammarInfo.BalancedBracketScopes.init -> void
+Tint.Grammars.GrammarInfo.Dependencies.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.Grammars.GrammarInfo.Dependencies.init -> void
+Tint.Grammars.GrammarInfo.EmbeddedLanguages.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Tint.Grammars.GrammarInfo.EmbeddedLanguages.init -> void
+Tint.Grammars.GrammarInfo.FileExtensions.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.Grammars.GrammarInfo.FileExtensions.init -> void
+Tint.Grammars.GrammarInfo.GrammarInfo() -> void
+Tint.Grammars.GrammarInfo.InjectionSelector.get -> string?
+Tint.Grammars.GrammarInfo.InjectionSelector.init -> void
+Tint.Grammars.GrammarInfo.InjectTo.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.Grammars.GrammarInfo.InjectTo.init -> void
+Tint.Grammars.GrammarInfo.LanguageId.get -> string?
+Tint.Grammars.GrammarInfo.LanguageId.init -> void
+Tint.Grammars.GrammarInfo.TokenTypes.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string!, Tint.Grammars.StandardTokenType>>!
+Tint.Grammars.GrammarInfo.TokenTypes.init -> void
+Tint.Grammars.GrammarInfo.UnbalancedBracketScopes.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.Grammars.GrammarInfo.UnbalancedBracketScopes.init -> void
+Tint.Grammars.IGrammarSource
+Tint.Grammars.IGrammarSource.GetGrammar() -> Tint.Grammars.RawGrammar!
+Tint.Grammars.IGrammarSource.Info.get -> Tint.Grammars.GrammarInfo!
+Tint.Grammars.IGrammarSource.ScopeName.get -> string!
+Tint.Grammars.IncludeReference
+Tint.Grammars.IncludeReference.Equals(Tint.Grammars.IncludeReference other) -> bool
+Tint.Grammars.IncludeReference.IncludeReference() -> void
+Tint.Grammars.IncludeReference.Kind.get -> Tint.Grammars.IncludeReferenceKind
+Tint.Grammars.IncludeReference.RuleName.get -> string?
+Tint.Grammars.IncludeReference.ScopeName.get -> string?
+Tint.Grammars.IncludeReferenceKind
+Tint.Grammars.IncludeReferenceKind.Base = 1 -> Tint.Grammars.IncludeReferenceKind
+Tint.Grammars.IncludeReferenceKind.Relative = 2 -> Tint.Grammars.IncludeReferenceKind
+Tint.Grammars.IncludeReferenceKind.Self = 0 -> Tint.Grammars.IncludeReferenceKind
+Tint.Grammars.IncludeReferenceKind.TopLevel = 3 -> Tint.Grammars.IncludeReferenceKind
+Tint.Grammars.IncludeReferenceKind.TopLevelRepository = 4 -> Tint.Grammars.IncludeReferenceKind
+Tint.Grammars.RawGrammar
+Tint.Grammars.RawGrammar.Injections.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string!, Tint.Grammars.RawRule!>>!
+Tint.Grammars.RawGrammar.InjectionSelector.get -> string?
+Tint.Grammars.RawGrammar.Name.get -> string?
+Tint.Grammars.RawGrammar.Patterns.get -> System.Collections.Generic.IReadOnlyList<Tint.Grammars.RawRule!>!
+Tint.Grammars.RawGrammar.RawGrammar(string! scopeName, System.Collections.Generic.IReadOnlyList<Tint.Grammars.RawRule!>! patterns, System.Collections.Frozen.FrozenDictionary<string!, Tint.Grammars.RawRule!>? repository = null, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string!, Tint.Grammars.RawRule!>>? injections = null, string? injectionSelector = null, string? name = null) -> void
+Tint.Grammars.RawGrammar.Repository.get -> System.Collections.Frozen.FrozenDictionary<string!, Tint.Grammars.RawRule!>!
+Tint.Grammars.RawGrammar.ScopeName.get -> string!
+Tint.Grammars.RawGrammar.Self.get -> Tint.Grammars.RawRule!
+Tint.Grammars.RawRule
+Tint.Grammars.RawRule.ApplyEndPatternLast.get -> bool
+Tint.Grammars.RawRule.ApplyEndPatternLast.init -> void
+Tint.Grammars.RawRule.Begin.get -> Tint.Grammars.RegexSource?
+Tint.Grammars.RawRule.Begin.init -> void
+Tint.Grammars.RawRule.BeginCaptures.get -> System.Collections.Generic.IReadOnlyList<Tint.Grammars.RawRule?>?
+Tint.Grammars.RawRule.BeginCaptures.init -> void
+Tint.Grammars.RawRule.Captures.get -> System.Collections.Generic.IReadOnlyList<Tint.Grammars.RawRule?>?
+Tint.Grammars.RawRule.Captures.init -> void
+Tint.Grammars.RawRule.ContentName.get -> string?
+Tint.Grammars.RawRule.ContentName.init -> void
+Tint.Grammars.RawRule.End.get -> Tint.Grammars.RegexSource?
+Tint.Grammars.RawRule.End.init -> void
+Tint.Grammars.RawRule.EndCaptures.get -> System.Collections.Generic.IReadOnlyList<Tint.Grammars.RawRule?>?
+Tint.Grammars.RawRule.EndCaptures.init -> void
+Tint.Grammars.RawRule.Include.get -> Tint.Grammars.IncludeReference?
+Tint.Grammars.RawRule.Include.init -> void
+Tint.Grammars.RawRule.Match.get -> Tint.Grammars.RegexSource?
+Tint.Grammars.RawRule.Match.init -> void
+Tint.Grammars.RawRule.Name.get -> string?
+Tint.Grammars.RawRule.Name.init -> void
+Tint.Grammars.RawRule.Patterns.get -> System.Collections.Generic.IReadOnlyList<Tint.Grammars.RawRule!>?
+Tint.Grammars.RawRule.Patterns.init -> void
+Tint.Grammars.RawRule.RawRule() -> void
+Tint.Grammars.RawRule.Repository.get -> System.Collections.Frozen.FrozenDictionary<string!, Tint.Grammars.RawRule!>?
+Tint.Grammars.RawRule.Repository.init -> void
+Tint.Grammars.RawRule.While.get -> Tint.Grammars.RegexSource?
+Tint.Grammars.RawRule.While.init -> void
+Tint.Grammars.RawRule.WhileCaptures.get -> System.Collections.Generic.IReadOnlyList<Tint.Grammars.RawRule?>?
+Tint.Grammars.RawRule.WhileCaptures.init -> void
+Tint.Grammars.RegexAnchorVariant
+Tint.Grammars.RegexAnchorVariant.A0G0 = 0 -> Tint.Grammars.RegexAnchorVariant
+Tint.Grammars.RegexAnchorVariant.A0G1 = 1 -> Tint.Grammars.RegexAnchorVariant
+Tint.Grammars.RegexAnchorVariant.A1G0 = 2 -> Tint.Grammars.RegexAnchorVariant
+Tint.Grammars.RegexAnchorVariant.A1G1 = 3 -> Tint.Grammars.RegexAnchorVariant
+Tint.Grammars.RegexPatternFactory
+Tint.Grammars.RegexSource
+Tint.Grammars.RegexSource.GetText(Tint.Grammars.RegexAnchorVariant variant) -> string!
+Tint.Grammars.RegexSource.HasAnchor.get -> bool
+Tint.Grammars.RegexSource.HasAnchorA.get -> bool
+Tint.Grammars.RegexSource.HasAnchorG.get -> bool
+Tint.Grammars.RegexSource.HasBackReferences.get -> bool
+Tint.Grammars.RegexSource.PatternFactory.get -> Tint.Grammars.RegexPatternFactory?
+Tint.Grammars.RegexSource.RegexSource(string! pattern, Tint.Grammars.RegexPatternFactory? patternFactory = null) -> void
+Tint.Grammars.RegexSource.Text.get -> string!
+Tint.Grammars.StandardTokenType
+Tint.Grammars.StandardTokenType.Comment = 1 -> Tint.Grammars.StandardTokenType
+Tint.Grammars.StandardTokenType.Other = 0 -> Tint.Grammars.StandardTokenType
+Tint.Grammars.StandardTokenType.RegEx = 3 -> Tint.Grammars.StandardTokenType
+Tint.Grammars.StandardTokenType.String = 2 -> Tint.Grammars.StandardTokenType
+Tint.HighlightedToken
+Tint.HighlightedToken.BackgroundColor.get -> string!
+Tint.HighlightedToken.BackgroundColor.init -> void
+Tint.HighlightedToken.Color.get -> string!
+Tint.HighlightedToken.Color.init -> void
+Tint.HighlightedToken.Deconstruct(out int Start, out int Length, out string! Color, out string! BackgroundColor, out Tint.FontStyle FontStyle, out Tint.AttributedScopeStack! Scopes) -> void
+Tint.HighlightedToken.End.get -> int
+Tint.HighlightedToken.Equals(Tint.HighlightedToken other) -> bool
+Tint.HighlightedToken.FontStyle.get -> Tint.FontStyle
+Tint.HighlightedToken.FontStyle.init -> void
+Tint.HighlightedToken.HighlightedToken() -> void
+Tint.HighlightedToken.HighlightedToken(int Start, int Length, string! Color, string! BackgroundColor, Tint.FontStyle FontStyle, Tint.AttributedScopeStack! Scopes) -> void
+Tint.HighlightedToken.Length.get -> int
+Tint.HighlightedToken.Length.init -> void
+Tint.HighlightedToken.Scopes.get -> Tint.AttributedScopeStack!
+Tint.HighlightedToken.Scopes.init -> void
+Tint.HighlightedToken.Start.get -> int
+Tint.HighlightedToken.Start.init -> void
+Tint.Highlighter
+Tint.Highlighter.AdditionalThemes.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string!, Tint.Theme!>>!
+Tint.Highlighter.AnsiRenderer.get -> Tint.Rendering.AnsiRenderer!
+Tint.Highlighter.GetStyleSheet() -> string!
+Tint.Highlighter.HtmlRenderer.get -> Tint.Rendering.HtmlRenderer!
+Tint.Highlighter.ScopeName.get -> string!
+Tint.Highlighter.Theme.get -> Tint.Theme!
+Tint.Highlighter.ToAnsi(string! code) -> string!
+Tint.Highlighter.ToAnsi(System.ReadOnlySpan<char> code, System.Buffers.IBufferWriter<char>! writer) -> void
+Tint.Highlighter.ToAnsi(System.ReadOnlySpan<char> code, System.IO.TextWriter! writer) -> void
+Tint.Highlighter.ToAnsi(System.ReadOnlySpan<char> code, System.Text.StringBuilder! builder) -> void
+Tint.Highlighter.ToHtml(string! code) -> string!
+Tint.Highlighter.ToHtml(System.ReadOnlySpan<char> code, System.Buffers.IBufferWriter<char>! writer) -> void
+Tint.Highlighter.ToHtml(System.ReadOnlySpan<char> code, System.IO.TextWriter! writer) -> void
+Tint.Highlighter.ToHtml(System.ReadOnlySpan<char> code, System.Text.StringBuilder! builder) -> void
+Tint.Highlighter.Tokenize(string! code) -> Tint.HighlightedToken[]![]!
+Tint.HighlighterOptions
+Tint.HighlighterOptions.Ansi.get -> Tint.Rendering.AnsiRendererOptions?
+Tint.HighlighterOptions.Ansi.init -> void
+Tint.HighlighterOptions.HighlighterOptions() -> void
+Tint.HighlighterOptions.Html.get -> Tint.Rendering.HtmlRendererOptions?
+Tint.HighlighterOptions.Html.init -> void
+Tint.HighlighterOptions.Tokenizer.get -> Tint.TokenizerOptions?
+Tint.HighlighterOptions.Tokenizer.init -> void
+Tint.Loading.DocumentFormat
+Tint.Loading.DocumentFormat.Auto = 0 -> Tint.Loading.DocumentFormat
+Tint.Loading.DocumentFormat.Json = 1 -> Tint.Loading.DocumentFormat
+Tint.Loading.DocumentFormat.Plist = 2 -> Tint.Loading.DocumentFormat
+Tint.Loading.GrammarLoader
+Tint.Loading.LoadedGrammar
+Tint.Loading.LoadedGrammar.GetGrammar() -> Tint.Grammars.RawGrammar!
+Tint.Loading.LoadedGrammar.Info.get -> Tint.Grammars.GrammarInfo!
+Tint.Loading.LoadedGrammar.ScopeName.get -> string!
+Tint.Loading.LoadedTheme
+Tint.Loading.LoadedTheme.GetTheme() -> Tint.Themes.RawTheme!
+Tint.Loading.LoadedTheme.Name.get -> string?
+Tint.Loading.ThemeIncludeResolver
+Tint.Loading.ThemeLoader
+Tint.Loading.ThemeLoadMode
+Tint.Loading.ThemeLoadMode.Raw = 1 -> Tint.Loading.ThemeLoadMode
+Tint.Loading.ThemeLoadMode.VSCode = 0 -> Tint.Loading.ThemeLoadMode
+Tint.Rendering.AnsiRenderer
+Tint.Rendering.AnsiRenderer.AnsiRenderer(Tint.Theme! theme, Tint.Rendering.AnsiRendererOptions? options = null) -> void
+Tint.Rendering.AnsiRenderer.Options.get -> Tint.Rendering.AnsiRendererOptions!
+Tint.Rendering.AnsiRenderer.Render(System.ReadOnlySpan<char> code, Tint.Tokenizer! tokenizer) -> string!
+Tint.Rendering.AnsiRenderer.Render(System.ReadOnlySpan<char> code, Tint.Tokenizer! tokenizer, System.Buffers.IBufferWriter<char>! writer) -> void
+Tint.Rendering.AnsiRenderer.Render(System.ReadOnlySpan<char> code, Tint.Tokenizer! tokenizer, System.IO.TextWriter! writer) -> void
+Tint.Rendering.AnsiRenderer.Render(System.ReadOnlySpan<char> code, Tint.Tokenizer! tokenizer, System.Text.StringBuilder! builder) -> void
+Tint.Rendering.AnsiRenderer.Theme.get -> Tint.Theme!
+Tint.Rendering.AnsiRendererOptions
+Tint.Rendering.AnsiRendererOptions.AnsiRendererOptions() -> void
+Tint.Rendering.AnsiRendererOptions.Background.get -> bool
+Tint.Rendering.AnsiRendererOptions.Background.init -> void
+Tint.Rendering.HtmlRenderer
+Tint.Rendering.HtmlRenderer.AdditionalThemes.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.KeyValuePair<string!, Tint.Theme!>>!
+Tint.Rendering.HtmlRenderer.DefaultTheme.get -> Tint.Theme!
+Tint.Rendering.HtmlRenderer.GetStyleSheet() -> string!
+Tint.Rendering.HtmlRenderer.HtmlRenderer(Tint.Theme! defaultTheme, System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<string!, Tint.Theme!>>! additionalThemes, Tint.Rendering.HtmlRendererOptions? options = null) -> void
+Tint.Rendering.HtmlRenderer.HtmlRenderer(Tint.Theme! light, Tint.Theme! dark, Tint.Rendering.HtmlRendererOptions? options = null) -> void
+Tint.Rendering.HtmlRenderer.HtmlRenderer(Tint.Theme! theme, Tint.Rendering.HtmlRendererOptions? options = null) -> void
+Tint.Rendering.HtmlRenderer.Options.get -> Tint.Rendering.HtmlRendererOptions!
+Tint.Rendering.HtmlRenderer.Render(System.ReadOnlySpan<char> code, System.ReadOnlySpan<Tint.Tokenizer!> tokenizers) -> string!
+Tint.Rendering.HtmlRenderer.Render(System.ReadOnlySpan<char> code, System.ReadOnlySpan<Tint.Tokenizer!> tokenizers, System.Buffers.IBufferWriter<char>! writer) -> void
+Tint.Rendering.HtmlRenderer.Render(System.ReadOnlySpan<char> code, System.ReadOnlySpan<Tint.Tokenizer!> tokenizers, System.IO.TextWriter! writer) -> void
+Tint.Rendering.HtmlRenderer.Render(System.ReadOnlySpan<char> code, System.ReadOnlySpan<Tint.Tokenizer!> tokenizers, System.Text.StringBuilder! builder) -> void
+Tint.Rendering.HtmlRenderer.Render(System.ReadOnlySpan<char> code, Tint.Tokenizer! tokenizer) -> string!
+Tint.Rendering.HtmlRenderer.ThemeCount.get -> int
+Tint.Rendering.HtmlRendererOptions
+Tint.Rendering.HtmlRendererOptions.ClassPrefix.get -> string!
+Tint.Rendering.HtmlRendererOptions.ClassPrefix.init -> void
+Tint.Rendering.HtmlRendererOptions.CssVariablePrefix.get -> string!
+Tint.Rendering.HtmlRendererOptions.CssVariablePrefix.init -> void
+Tint.Rendering.HtmlRendererOptions.FirstLineNumber.get -> int
+Tint.Rendering.HtmlRendererOptions.FirstLineNumber.init -> void
+Tint.Rendering.HtmlRendererOptions.HtmlRendererOptions() -> void
+Tint.Rendering.HtmlRendererOptions.LineNumbers.get -> bool
+Tint.Rendering.HtmlRendererOptions.LineNumbers.init -> void
+Tint.Rendering.HtmlRendererOptions.PreClass.get -> string!
+Tint.Rendering.HtmlRendererOptions.PreClass.init -> void
+Tint.Rendering.HtmlRendererOptions.StyleMode.get -> Tint.Rendering.HtmlStyleMode
+Tint.Rendering.HtmlRendererOptions.StyleMode.init -> void
+Tint.Rendering.HtmlStyleMode
+Tint.Rendering.HtmlStyleMode.CssClasses = 1 -> Tint.Rendering.HtmlStyleMode
+Tint.Rendering.HtmlStyleMode.InlineStyles = 0 -> Tint.Rendering.HtmlStyleMode
+Tint.StateStack
+Tint.StateStack.Depth.get -> int
+Tint.StateStack.Equals(Tint.StateStack? other) -> bool
+Tint.Theme
+Tint.Theme.ColorMap.get -> Tint.Themes.ColorMap!
+Tint.Theme.Defaults.get -> Tint.Themes.StyleAttributes
+Tint.Theme.Match(System.Collections.Generic.IReadOnlyList<string!>! scopePath) -> Tint.Themes.StyleAttributes?
+Tint.Theme.Match(Tint.AttributedScopeStack! scopes) -> Tint.Themes.StyleAttributes?
+Tint.Theme.Name.get -> string?
+Tint.Theme.UiColors.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Tint.Themes.ColorMap
+Tint.Themes.ColorMap.Colors.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.Themes.ColorMap.Count.get -> int
+Tint.Themes.ColorMap.GetColor(int id) -> string!
+Tint.Themes.ColorMap.GetId(string? color) -> int
+Tint.Themes.IThemeSource
+Tint.Themes.IThemeSource.GetTheme() -> Tint.Themes.RawTheme!
+Tint.Themes.IThemeSource.Name.get -> string?
+Tint.Themes.RawTheme
+Tint.Themes.RawTheme.GetTheme() -> Tint.Themes.RawTheme!
+Tint.Themes.RawTheme.Name.get -> string?
+Tint.Themes.RawTheme.RawTheme(System.Collections.Generic.IReadOnlyList<Tint.Themes.RawThemeRule!>! rules, string? name = null, string? type = null, System.Collections.Generic.IReadOnlyDictionary<string!, string!>? uiColors = null) -> void
+Tint.Themes.RawTheme.Rules.get -> System.Collections.Generic.IReadOnlyList<Tint.Themes.RawThemeRule!>!
+Tint.Themes.RawTheme.Type.get -> string?
+Tint.Themes.RawTheme.UiColors.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>!
+Tint.Themes.RawThemeRule
+Tint.Themes.RawThemeRule.Background.get -> string?
+Tint.Themes.RawThemeRule.Background.init -> void
+Tint.Themes.RawThemeRule.FontStyle.get -> string?
+Tint.Themes.RawThemeRule.FontStyle.init -> void
+Tint.Themes.RawThemeRule.Foreground.get -> string?
+Tint.Themes.RawThemeRule.Foreground.init -> void
+Tint.Themes.RawThemeRule.Name.get -> string?
+Tint.Themes.RawThemeRule.Name.init -> void
+Tint.Themes.RawThemeRule.RawThemeRule() -> void
+Tint.Themes.RawThemeRule.Scopes.get -> System.Collections.Generic.IReadOnlyList<string!>?
+Tint.Themes.RawThemeRule.Scopes.init -> void
+Tint.Themes.StyleAttributes
+Tint.Themes.StyleAttributes.BackgroundId.get -> int
+Tint.Themes.StyleAttributes.BackgroundId.init -> void
+Tint.Themes.StyleAttributes.Deconstruct(out Tint.FontStyle FontStyle, out int ForegroundId, out int BackgroundId) -> void
+Tint.Themes.StyleAttributes.Equals(Tint.Themes.StyleAttributes other) -> bool
+Tint.Themes.StyleAttributes.FontStyle.get -> Tint.FontStyle
+Tint.Themes.StyleAttributes.FontStyle.init -> void
+Tint.Themes.StyleAttributes.ForegroundId.get -> int
+Tint.Themes.StyleAttributes.ForegroundId.init -> void
+Tint.Themes.StyleAttributes.StyleAttributes() -> void
+Tint.Themes.StyleAttributes.StyleAttributes(Tint.FontStyle FontStyle, int ForegroundId, int BackgroundId) -> void
+Tint.TintGrammarException
+Tint.TintGrammarException.TintGrammarException(string! message) -> void
+Tint.TintGrammarException.TintGrammarException(string! message, System.Exception! innerException) -> void
+Tint.Token
+Tint.Token.Background.get -> int
+Tint.Token.Deconstruct(out int Start, out int Length, out Tint.AttributedScopeStack! Scopes) -> void
+Tint.Token.End.get -> int
+Tint.Token.Equals(Tint.Token other) -> bool
+Tint.Token.FontStyle.get -> Tint.FontStyle
+Tint.Token.Foreground.get -> int
+Tint.Token.Length.get -> int
+Tint.Token.Length.init -> void
+Tint.Token.Scopes.get -> Tint.AttributedScopeStack!
+Tint.Token.Scopes.init -> void
+Tint.Token.Start.get -> int
+Tint.Token.Start.init -> void
+Tint.Token.Token() -> void
+Tint.Token.Token(int Start, int Length, Tint.AttributedScopeStack! Scopes) -> void
+Tint.Tokenizer
+Tint.Tokenizer.LimitExceededCount.get -> long
+Tint.Tokenizer.MissingGrammars.get -> System.Collections.Generic.IReadOnlyList<string!>!
+Tint.Tokenizer.Options.get -> Tint.TokenizerOptions!
+Tint.Tokenizer.ScopeName.get -> string!
+Tint.Tokenizer.StoppedEarly.get -> bool
+Tint.Tokenizer.Theme.get -> Tint.Theme!
+Tint.Tokenizer.TimeBudget.get -> System.TimeSpan?
+Tint.Tokenizer.TimeBudget.set -> void
+Tint.Tokenizer.TokenizeLine(System.ReadOnlySpan<char> line, Tint.StateStack! state, out Tint.StateStack! next) -> System.ReadOnlySpan<Tint.Token>
+Tint.Tokenizer.TokenizeLineEncoded(System.ReadOnlySpan<char> line, Tint.StateStack! state, out Tint.StateStack! next) -> System.ReadOnlySpan<Tint.EncodedToken>
+Tint.TokenizerOptions
+Tint.TokenizerOptions.CompileHotPatterns.get -> bool
+Tint.TokenizerOptions.CompileHotPatterns.init -> void
+Tint.TokenizerOptions.HotPatternThreshold.get -> int
+Tint.TokenizerOptions.HotPatternThreshold.init -> void
+Tint.TokenizerOptions.TokenizerOptions() -> void
+virtual Tint.Grammars.RegexPatternFactory.Invoke(Tint.Grammars.RegexAnchorVariant variant) -> GregsEx.OnigurumaPattern!
+virtual Tint.Loading.ThemeIncludeResolver.Invoke(string! path) -> System.IO.Stream?
+~override Tint.EncodedToken.Equals(object obj) -> bool
+~override Tint.EncodedToken.ToString() -> string
+~override Tint.HighlightedToken.Equals(object obj) -> bool
+~override Tint.HighlightedToken.ToString() -> string
+~override Tint.Themes.StyleAttributes.Equals(object obj) -> bool
+~override Tint.Themes.StyleAttributes.ToString() -> string
+~override Tint.Token.Equals(object obj) -> bool
+~override Tint.Token.ToString() -> string

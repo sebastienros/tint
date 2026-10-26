@@ -82,6 +82,7 @@ internal static class ThemeEmitter
         w.Line("/// <summary>The shared instance.</summary>");
         w.Line("public static " + c + " Instance { get; } = new " + c + "();");
         w.Line();
+        GrammarEmitter.PrivateConstructor(w, unit);
         w.Line("/// <inheritdoc/>");
         w.Line("public string? Name => " + CodeWriter.Literal(theme.Name) + ";");
         w.Line();

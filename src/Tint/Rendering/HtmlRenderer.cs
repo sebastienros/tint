@@ -145,10 +145,13 @@ public sealed class HtmlRenderer
     }
 
     /// <inheritdoc cref="Render(ReadOnlySpan{char}, ReadOnlySpan{Tokenizer}, TextWriter)"/>
-    public void Render(ReadOnlySpan<char> code, ReadOnlySpan<Tokenizer> tokenizers, StringBuilder writer)
+    /// <param name="code">The code.</param>
+    /// <param name="tokenizers">One tokenizer per theme, in order (<see cref="DefaultTheme"/> first), over the same grammar. Each starts from <see cref="StateStack.Initial"/>.</param>
+    /// <param name="builder">Where the HTML goes.</param>
+    public void Render(ReadOnlySpan<char> code, ReadOnlySpan<Tokenizer> tokenizers, StringBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(writer);
-        var sink = new StringBuilderSink(writer);
+        ArgumentNullException.ThrowIfNull(builder);
+        var sink = new StringBuilderSink(builder);
         Render(code, tokenizers, ref sink);
     }
 

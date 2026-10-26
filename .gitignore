@@ -12,5 +12,6 @@ TestResults/
 **/TestResults/
 .nuget/
 benchmarks/samples/.cache/
+node_modules/
 samples/Tint.Playground/wwwroot/samples/
 samples/Tint.Playground/wwwroot/icon.png

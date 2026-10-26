@@ -48,7 +48,6 @@ jobs:
         dotnet-version: |
           10.0.x
         global-json-file: global.json
-        check-latest: false
     - name: Restore
       run: dotnet restore Tint.slnx -p:Configuration=Release -p:VersionSuffix=preview.${{ github.run_number }} -p:ContinuousIntegrationBuild=True
     - name: Build

@@ -34,6 +34,8 @@ dotnet_diagnostic.IDE0007.severity = warning
 
 # IDE0290: Use primary constructor
 csharp_style_prefer_primary_constructors = false:suggestion
+# The style preference alone does not silence the IDE suggestion.
+dotnet_diagnostic.IDE0290.severity = none
 
 # IDE0046: Convert to conditional expression
 dotnet_diagnostic.IDE0046.severity = silent
@@ -101,6 +103,10 @@ dotnet_diagnostic.IDE0078.severity = silent
 
 # xUnit1051: CancellationToken warning (allow tests without explicit cancellation token)
 dotnet_diagnostic.xUnit1051.severity = suggestion
+
+# RS0026: overloads that differ by their first parameters (path, Stream, UTF-8 span; one, two or many themes) each end
+# with optional settings; new parameters go to new overloads, which PublicAPI.Unshipped.txt makes visible in review.
+dotnet_diagnostic.RS0026.severity = none
 
 # FLUID001: Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 dotnet_diagnostic.FLUID001.severity = none

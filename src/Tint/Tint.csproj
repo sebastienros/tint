@@ -12,7 +12,15 @@
     <PackageIcon>icon.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
+    <!-- Compares the package's assemblies across target frameworks; a baseline version is added after 0.1.0 ships. -->
+    <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- Every public change shows in PublicAPI.Unshipped.txt; release moves the entries to PublicAPI.Shipped.txt. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="GregsEx" />
     <!-- Builds the generator first so its assembly can be packed below; nothing is referenced and no package dependency

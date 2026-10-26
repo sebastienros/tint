@@ -76,9 +76,53 @@ public sealed class GeneratorTests
         ]);
 
         Assert.Empty(run.CompilationProblems);
-        Assert.Contains("internal partial class SimpleGrammar", run.Source("Test.Root.SimpleGrammar"));
+        Assert.Contains("internal sealed partial class SimpleGrammar", run.Source("Test.Root.SimpleGrammar"));
         Assert.Contains("Test.Root.CSharpGrammar.g.cs", run.Sources.Keys);
         Assert.Contains("Test.Root.HtmlBasicGrammar.g.cs", run.Sources.Keys);
+    }
+
+    [Fact]
+    public void ItemOnlyClassesAreSealedAndCreatedOnlyThroughInstance()
+    {
+        var run = GeneratorHarness.Run([TestFile.Grammar("simple.tmLanguage.json", SimpleGrammar), TestFile.Theme("dark.json", SimpleTheme)]);
+
+        Assert.Empty(run.CompilationProblems);
+        var assembly = run.Load();
+        foreach (var name in new[] { "Test.Root.SimpleGrammar", "Test.Root.DarkTheme" })
+        {
+            var type = assembly.GetType(name)!;
+            Assert.True(type.IsSealed);
+            Assert.Empty(type.GetConstructors());
+            Assert.Null(type.GetProperty("PatternIndex"));
+        }
+    }
+
+    [Fact]
+    public void AnAttributeBoundClassGetsAPrivateConstructorOnlyWhenItDeclaresNone()
+    {
+        var run = GeneratorHarness.Run(
+            [TestFile.Grammar("simple.tmLanguage.json", SimpleGrammar), TestFile.Theme("dark.json", SimpleTheme)],
+            """
+            [Tint.TextMateGrammar("simple.tmLanguage.json")]
+            public partial class Simple;
+
+            [Tint.TextMateTheme("dark.json")]
+            public partial class Dark
+            {
+                public Dark()
+                {
+                }
+            }
+            """);
+
+        Assert.Empty(run.CompilationProblems);
+        Assert.Contains("private Simple()", run.Source("Simple"));
+        Assert.DoesNotContain("private Dark()", run.Source("Dark"));
+        Assert.DoesNotContain("sealed partial class Simple", run.Source("Simple"));
+        Assert.False(run.Load().GetType("Simple")!.IsSealed);
+        var assembly = run.Load();
+        Assert.Empty(assembly.GetType("Simple")!.GetConstructors());
+        Assert.Single(assembly.GetType("Dark")!.GetConstructors());
     }
 
     [Fact]
@@ -100,7 +144,7 @@ public sealed class GeneratorTests
         ]);
 
         Assert.Empty(run.CompilationProblems);
-        Assert.Contains("public partial class Custom", run.Source("Other.Place.Custom"));
+        Assert.Contains("public sealed partial class Custom", run.Source("Other.Place.Custom"));
         Assert.Contains("Test.Root.Night.g.cs", run.Sources.Keys);
     }
 
@@ -177,7 +221,7 @@ public sealed class GeneratorTests
             """;
         var run = GeneratorHarness.Run([TestFile.Grammar("dedup.json", grammar)]);
         var type = run.Load().GetType("Test.Root.DedupGrammar")!;
-        var index = (IReadOnlyDictionary<string, int>)type.GetProperty("PatternIndex")!.GetValue(null)!;
+        var index = (IReadOnlyDictionary<string, int>)type.GetProperty("PatternIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.GetValue(null)!;
 
         Assert.Equal(["\\w+", "\\￿x", "\\Gx", "\\x{ff}$(?!\\n)(?<!\\n)"], index.OrderBy(e => e.Value).Select(e => e.Key));
         var rules = ((IGrammarSource)type.GetProperty("Instance")!.GetValue(null)!).GetGrammar().Patterns;

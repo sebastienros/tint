@@ -138,7 +138,9 @@ only `CSharpGrammar` when trimmed. `Tint.Grammars` and `Tint.Themes` are built t
 
 ## Generated code
 
-A grammar class implements `IGrammarSource` with `public static X Instance`, `ScopeName`, `Info` (a
+A class generated from an item alone is `sealed`; every generated class gets a private parameterless
+constructor unless its attribute-bound declaration has constructors of its own, so `Instance` is the
+one way to get it. A grammar class implements `IGrammarSource` with `public static X Instance`, `ScopeName`, `Info` (a
 static `GrammarInfo`) and `GetGrammar()`, which builds the `RawGrammar` once with object
 initializers that mirror the file (one `RawRule` per rule, repositories as `FrozenDictionary`,
 includes through the `IncludeReference` factories). Generated and loaded grammars come from one
@@ -153,8 +155,8 @@ generation time. Entries parse on first use with `OnigurumaPattern.Parse(text,
 RegexProfiles.OnigurumaTextMate, OnigurumaCompileOptions.TextMate)`, and bind kernels when they
 were emitted. `end` and `while` patterns with back-references have no factory: the runtime resolves
 and compiles them per match, as it does for loaded grammars. So does a pattern that failed
-validation (it never matches, as with the loader). `public static FrozenDictionary<string, int>
-PatternIndex` maps each table text to its index.
+validation (it never matches, as with the loader). An `internal static FrozenDictionary<string,
+int> PatternIndex` maps each table text to its index.
 
 The texts are stored as one UTF-8 literal with an offset table and decoded on first use: half the
 size of UTF-16 string literals for these mostly ASCII patterns. Measured on the VS Code C++ grammar

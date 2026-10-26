@@ -141,6 +141,19 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   divergences or document them.
 - API review, XML docs on every public member, package validation, `v0.1.0` tag through
   `publish.yml`.
+- Outcome (2026-10-25): `tools/Tint.CorpusCheck` and `tools/Tint.Fuzz` compare Tint with
+  TextMateSharp 2.0.4 reading the same grammar files and settle every difference with
+  vscode-textmate 9.3.2 itself (`tools/Tint.CorpusCheck/referee`). Corpus: 14 pinned repositories,
+  10,345 files, 3.3 million lines, no exception; 1,845 files differ from TextMateSharp and
+  vscode-textmate agrees with Tint on all of them
+  ([report](research/corpus-check-2026-10-25.md)). Fuzzing: 20 minutes, 12,484 inputs, 731,709
+  lines over the 84 grammars; no Tint exception, hang or time-out and no tokenizer difference from
+  vscode-textmate; one GregsEx work-limit difference and long lines where GregsEx is slower than Oniguruma kept as GregsEx
+  inputs ([report](research/fuzz-2026-10-25.md)). Public API tracked by PublicApiAnalyzers
+  (`PublicAPI.Shipped.txt`/`Unshipped.txt`) and, for the generated bundle classes, by
+  `PublicAPI.Generated.txt` checked in a test; package validation on; `StateStack` reduced to
+  `Initial`, `Depth` and equality. `CHANGELOG.md` and [release.md](release.md) written; the
+  `v0.1.0` tag is the maintainer's call.
 
 ## Session protocol
 

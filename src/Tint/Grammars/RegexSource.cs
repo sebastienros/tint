@@ -74,13 +74,15 @@ public sealed class RegexSource
     }
 #endif
 
-    /// <summary>The empty pattern, which matches immediately (the <c>end</c> of a rule that has none).</summary>
-    public static RegexSource Empty { get; } = new(string.Empty);
+    // The empty pattern, which matches immediately: the end of a rule that has none, as in vscode-textmate (#252).
+    internal static RegexSource Empty { get; } = new(string.Empty);
 
 #if !TINT_GENERATOR
     /// <summary>
-    /// Creates a source from text that already went through Tint's rewrites, as generated grammars do.
+    /// Creates a source from text that already went through Tint's rewrites, as generated grammars do. Code written
+    /// by hand uses the constructor, which applies the rewrites.
     /// </summary>
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public static RegexSource FromRewritten(string text, bool hasAnchorA, bool hasAnchorG, bool hasBackReferences, RegexPatternFactory? patternFactory = null)
     {
         ArgumentNullException.ThrowIfNull(text);

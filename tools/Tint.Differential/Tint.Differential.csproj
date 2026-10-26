@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Shared by Tint.CorpusCheck and Tint.Fuzz: Tint and TextMateSharp 2.0.4 behind one interface, and the comparison
+       of their output. -->
+  <ItemGroup>
+    <PackageReference Include="TextMateSharp" />
+    <PackageReference Include="TextMateSharp.Grammars" />
+    <ProjectReference Include="../../src/Tint/Tint.csproj" />
+    <ProjectReference Include="../../src/Tint.Grammars/Tint.Grammars.csproj" />
+    <ProjectReference Include="../../src/Tint.Themes/Tint.Themes.csproj" />
+  </ItemGroup>
+</Project>

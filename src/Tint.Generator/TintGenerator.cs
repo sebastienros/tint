@@ -370,6 +370,7 @@ public sealed class TintGenerator : IIncrementalGenerator
             symbol.ToDisplayString(),
             valid,
             isPublic,
+            symbol.InstanceConstructors.Any(c => !c.IsImplicitlyDeclared),
             LocationInfo.From(attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation() ?? symbol.Locations.FirstOrDefault()));
     }
 
@@ -416,7 +417,9 @@ public sealed class TintGenerator : IIncrementalGenerator
                     target.Kernels ?? file.Kernels ?? globals.Kernels,
                     Merge(target.Settings, file.Settings),
                     HintName(target.Namespace, target.ContainingTypes, target.ClassName),
-                    target.IsPublic));
+                    target.IsPublic,
+                    OwnsClass: false,
+                    target.DeclaresConstructor));
             }
 
             foreach (var file in files)
@@ -464,7 +467,9 @@ public sealed class TintGenerator : IIncrementalGenerator
                     file.Kernels ?? globals.Kernels,
                     file.Settings,
                     HintName(ns, default, className),
-                    accessibility == "public"));
+                    accessibility == "public",
+                    OwnsClass: true,
+                    DeclaresConstructor: false));
             }
 
             // Two units with one fully qualified name would not compile; report and keep the first.
