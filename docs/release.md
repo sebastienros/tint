@@ -108,14 +108,11 @@ Every push to `main` (and manual runs of `build.yml`) packs the three packages a
 
 and reference a preview version (`dotnet add package Tint --prerelease`).
 
-## Branch ruleset (once the repository is public)
+## Branch ruleset
 
-Rulesets need a public repository (or a paid plan). Apply one ruleset to the default branch:
-
-- block deletion;
-- block non-fast-forward pushes (force pushes);
-- require a pull request before merging (no required approvals while there is one maintainer);
-- optionally, require the `build` and `aot-matrix` checks to pass.
+The repository is public and `main` has a ruleset: deletion and force pushes (non-fast-forward) are blocked, and
+changes land through a pull request, squash-merged. The weekly `sync-vscode.yml` workflow pushes to `sync/vscode`
+and opens a pull request, so it is not affected. To recreate the ruleset (for example in a fork):
 
 ```bash
 gh api repos/sebastienros/tint/rulesets --method POST --input - <<'EOF'
@@ -134,7 +131,8 @@ gh api repos/sebastienros/tint/rulesets --method POST --input - <<'EOF'
         "dismiss_stale_reviews_on_push": false,
         "require_code_owner_review": false,
         "require_last_push_approval": false,
-        "required_review_thread_resolution": false
+        "required_review_thread_resolution": false,
+        "allowed_merge_methods": ["squash"]
       }
     }
   ]
@@ -142,6 +140,5 @@ gh api repos/sebastienros/tint/rulesets --method POST --input - <<'EOF'
 EOF
 ```
 
-The weekly `sync-vscode.yml` workflow pushes to `sync/vscode` and opens a pull request, so it is not affected.
-A second ruleset on tags (`refs/tags/v*`, rules `deletion` and `non_fast_forward`) keeps released tags from being
-moved or deleted.
+A second ruleset on tags (`refs/tags/v*`, rules `deletion` and `non_fast_forward`) would keep released tags from
+being moved or deleted; it is not applied yet.
