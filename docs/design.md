@@ -577,7 +577,7 @@ of shiki's per-language modules.
   ([research/corpus-check-2026-10-25.md](research/corpus-check-2026-10-25.md)).
 - Differential fuzzing (`tools/Tint.Fuzz`) comparing tokens, styles, time and exceptions, with
   minimization and the same referee. P7 campaign: 20 minutes, 12,484 inputs, 731,709 lines over
-  the 84 grammars; no Tint exception or hang; one tokenizer bug fixed (`begin` without `end`); one
+  the 84 grammars; no Tint exception or hang, no tokenizer difference from vscode-textmate; one
   GregsEx work-limit difference and a few long lines several times slower than vscode-textmate,
   kept as GregsEx inputs (section 15) ([research/fuzz-2026-10-25.md](research/fuzz-2026-10-25.md)).
 - Bundles: every bundled grammar tokenizes its shiki sample (or its own file when shiki has none)

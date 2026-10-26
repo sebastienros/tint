@@ -133,9 +133,8 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   10,345 files, 3.3 million lines, no exception; 1,845 files differ from TextMateSharp and
   vscode-textmate agrees with Tint on all of them
   ([report](research/corpus-check-2026-10-25.md)). Fuzzing: 20 minutes, 12,484 inputs, 731,709
-  lines over the 84 grammars; no Tint exception, hang or time-out; one Tint bug found and fixed (a
-  `begin` rule without `end` must stay open, as with vscode-textmate's `\uFFFF`), one GregsEx
-  work-limit difference and long lines where GregsEx is slower than Oniguruma kept as GregsEx
+  lines over the 84 grammars; no Tint exception, hang or time-out and no tokenizer difference from
+  vscode-textmate; one GregsEx work-limit difference and long lines where GregsEx is slower than Oniguruma kept as GregsEx
   inputs ([report](research/fuzz-2026-10-25.md)). Public API tracked by PublicApiAnalyzers
   (`PublicAPI.Shipped.txt`/`Unshipped.txt`) and, for the generated bundle classes, by
   `PublicAPI.Generated.txt` checked in a test; package validation on; `StateStack` reduced to

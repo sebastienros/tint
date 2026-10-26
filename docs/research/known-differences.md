@@ -53,9 +53,9 @@ files in a form it can read. None of these changes what vscode-textmate does wit
   grammars a `"comment"`): vscode-textmate skips keys that are not capture numbers, TextMateSharp casts every value
   to a rule (`InvalidCastException` in `Raw.TryGetObject`, which also breaks every grammar that embeds XML or YAML:
   Markdown, PHP, Ruby, Perl, LaTeX, reStructuredText, F#). The reference gets the grammar without them.
-- A `begin` rule without `end` or `while` (XML's malformed comment rule): vscode-textmate compiles it with `\uFFFF`
-  as its end, TextMateSharp passes `null` to `Regex.Match` (`ArgumentNullException`). The reference gets
-  `"end": "\uFFFF"`.
+- A `begin` rule without `end` or `while` (XML's malformed comment rule): vscode-textmate compiles it with the empty
+  pattern as its end (#252), TextMateSharp passes `null` to `Regex.Match` (`ArgumentNullException`). The reference
+  gets `"end": ""`.
 - Theme `include`: VS Code flattens the included theme's rules before the theme's own, into one list resolved by
   specificity. TextMateSharp keeps the include in a second trie that is consulted only when the theme's own rules
   have no match for a scope, so `support.type` in `dark_plus.json` beats `support.type.property-name` in

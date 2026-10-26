@@ -298,8 +298,8 @@ public sealed class TextMateSharpEngine : IEngine
         // Two shapes vscode-textmate accepts and TextMateSharp 2.0.4 does not, fixed for the reference only:
         // - strings among captures ("comment", "name", "end" in VS Code's XML and YAML grammars), which
         //   vscode-textmate ignores and TextMateSharp casts to rules (InvalidCastException in Raw.TryGetObject);
-        // - a begin rule without end or while (XML's malformed comment rule), which vscode-textmate compiles with
-        //   "\uFFFF" as its end and TextMateSharp passes to Regex.Match as null (ArgumentNullException).
+        // - a begin rule without end or while (XML's malformed comment rule), which vscode-textmate compiles with the
+        //   empty pattern as its end (#252) and TextMateSharp passes to Regex.Match as null (ArgumentNullException).
         private static string SanitizeForReference(string json)
         {
             var root = System.Text.Json.Nodes.JsonNode.Parse(json, documentOptions: new System.Text.Json.JsonDocumentOptions { CommentHandling = System.Text.Json.JsonCommentHandling.Skip, AllowTrailingCommas = true })!;
@@ -312,7 +312,7 @@ public sealed class TextMateSharpEngine : IEngine
                 {
                     if (obj.ContainsKey("begin") && !obj.ContainsKey("end") && !obj.ContainsKey("while"))
                     {
-                        obj["end"] = "\uFFFF";
+                        obj["end"] = "";
                     }
 
                     foreach (var (key, value) in obj.ToList())

@@ -18,14 +18,16 @@ vscode-textmate itself (the referee), so a report says which side is right.
 - Tint runs its bundled grammars (`TintGrammars.All`); Dark+ is read as written (`ThemeLoadMode.Raw`) on both sides.
 - `--reference-grammars Same` (the default) gives TextMateSharp the same grammar files Tint's bundle is generated
   from, so differences come from the engines. Two shapes TextMateSharp cannot read are fixed for it only: strings
-  among captures (XML, YAML) are dropped and a `begin` without `end` gets vscode-textmate's `￿`; themes are given
+  among captures (XML, YAML) are dropped and a `begin` without `end` gets the empty pattern, as in vscode-textmate `main` (#252); themes are given
   with comments removed and `include` flattened (see `docs/research/known-differences.md`).
   `--reference-grammars Bundled` uses TextMateSharp.Grammars' own copies instead.
 - The report lists, per grammar, files, lines, mismatched files and lines (cascades included), style-only lines,
   exceptions and seconds per side, the `version` header of each grammar in both bundles, and the first mismatch of
   each file with both outputs.
 - Referee: [`referee/tokenize.mjs`](referee/tokenize.mjs) runs vscode-textmate 9.3.2 over vscode-oniguruma on the same
-  grammar files and Dark+. For the first mismatch of each file, the checker compares Tint and TextMateSharp with it
+  grammar files (all loaded) and Dark+. That is the npm release; Tint ports `main` at `392b23a4`, which adds #252
+  (an empty or missing `end` matches immediately) and #276 (back-reference escaping), so a verdict involving either
+  favors the release's behavior. For the first mismatch of each file, the checker compares Tint and TextMateSharp with it
   from line 1 to that line and records which side agrees. It needs Node and `npm install` in `referee/`; without it
   the report has no verdicts.
 
