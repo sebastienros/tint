@@ -8,27 +8,77 @@ solution, never built by CI. They inherit the repository's `Directory.Build.prop
 
 | Path | What |
 | --- | --- |
-| `grammars/` | `csharp.tmLanguage.json`, `TypeScript.tmLanguage.json` and `cpp.tmLanguage.json` from microsoft/vscode @ `3ac0f056` (`extensions/{csharp,typescript-basics,cpp}/syntaxes/`; converted from dotnet/csharp-tmLanguage, microsoft/TypeScript-TmLanguage and jeff-hykin/better-cpp-syntax, all MIT, as each file's `information_for_contributors` and `version` say). |
 | `samples/lines.txt` | 20 lines of `mediumfile.cs` from danipen/TextMateSharp (`src/TextMateSharp.Demo/testdata/samplefiles/`, adapted from Avalonia/WPF, MIT). |
-| `Emit/` | Walks a grammar's rules, applies the `\xHH`, `\z` and `\A`/`\G` pre-processing of the design, de-duplicates and writes one pattern method per distinct text, plus a `.tsv` manifest. |
+| `Emit/` | Walks the rules of the grammars passed as arguments, applies the `\xHH`, `\z` and `\A`/`\G` pre-processing of the design, de-duplicates and writes one pattern method per distinct text, plus a `.tsv` manifest. |
 | `Spike.CSharp/`, `Spike.TypeScript/`, `Spike.Both/` | `[GeneratedPattern]` kernels for the C# grammar, the TypeScript grammar, and both (de-duplicated) in one assembly. |
 | `Spike.CSharpLazy/` | The C# grammar as lazy `OnigurumaPattern.Parse` methods (no attribute). |
 | `Spike.Cpp/` | Extra stress case beyond the brief: the C++ grammar's kernels (long patterns, many `\A` variants). |
-| `AotProbe/` | NativeAOT binary size and cold cost: `dotnet publish AotProbe -c Release -p:Variant=kernel\|lazy\|none`. |
 | `Measure/` | First-use cost, allocations, kernel/interpreter cross-check and matching throughput for the C# grammar. |
-| `measure_build.py`, `run_measure.py` | Drivers; write `results/*.json`. |
+| `AotProbe/` | NativeAOT binary size and cold cost of the C# kernels, the lazy patterns, or GregsEx alone. |
+| `measure_build.py`, `run_measure.py` | Drivers. `measure_build.py` writes `results/build-<project>.json` (not committed); `run_measure.py` writes `results/measure.json`. |
+| `results/` | `measure.json`, `measure-auto-compilation.jsonl` and `aot.json` from the run the report quotes. |
 
-Reproduce (from this directory):
+The grammars are the repository's own copies under `grammars/` (microsoft/vscode @ `3ac0f056`):
+`csharp/syntaxes/csharp.tmLanguage.json`, `typescript-basics/syntaxes/TypeScript.tmLanguage.json`
+and `cpp/syntaxes/cpp.tmLanguage.json`. The emitted `Spike.*/*Patterns.cs` and `*Patterns.tsv`
+files are not committed (see `.gitignore`); run `Emit` first.
+
+## Reproduce
+
+From this directory, on a clean checkout:
 
 ```bash
 dotnet build Emit -c Release
-dotnet Emit/bin/Release/net10.0/Emit.dll --class CSharpPatterns --namespace Tint.Spike --out Spike.CSharp/CSharpPatterns.cs grammars/csharp.tmLanguage.json
-dotnet Emit/bin/Release/net10.0/Emit.dll --class TypeScriptPatterns --namespace Tint.Spike --out Spike.TypeScript/TypeScriptPatterns.cs grammars/TypeScript.tmLanguage.json
-dotnet Emit/bin/Release/net10.0/Emit.dll --class BothPatterns --namespace Tint.Spike --out Spike.Both/BothPatterns.cs grammars/csharp.tmLanguage.json grammars/TypeScript.tmLanguage.json
-dotnet Emit/bin/Release/net10.0/Emit.dll --class CppPatterns --namespace Tint.Spike --out Spike.Cpp/CppPatterns.cs grammars/cpp.tmLanguage.json
-dotnet Emit/bin/Release/net10.0/Emit.dll --lazy --class CSharpLazyPatterns --namespace Tint.Spike --out Spike.CSharpLazy/CSharpLazyPatterns.cs grammars/csharp.tmLanguage.json
+```
+
+```bash
+dotnet Emit/bin/Release/net10.0/Emit.dll --class CSharpPatterns --namespace Tint.Spike --out Spike.CSharp/CSharpPatterns.cs ../../../grammars/csharp/syntaxes/csharp.tmLanguage.json
+```
+
+```bash
+dotnet Emit/bin/Release/net10.0/Emit.dll --class TypeScriptPatterns --namespace Tint.Spike --out Spike.TypeScript/TypeScriptPatterns.cs ../../../grammars/typescript-basics/syntaxes/TypeScript.tmLanguage.json
+```
+
+```bash
+dotnet Emit/bin/Release/net10.0/Emit.dll --class BothPatterns --namespace Tint.Spike --out Spike.Both/BothPatterns.cs ../../../grammars/csharp/syntaxes/csharp.tmLanguage.json ../../../grammars/typescript-basics/syntaxes/TypeScript.tmLanguage.json
+```
+
+```bash
+dotnet Emit/bin/Release/net10.0/Emit.dll --lazy --class CSharpLazyPatterns --namespace Tint.Spike --out Spike.CSharpLazy/CSharpLazyPatterns.cs ../../../grammars/csharp/syntaxes/csharp.tmLanguage.json
+```
+
+```bash
+dotnet Emit/bin/Release/net10.0/Emit.dll --class CppPatterns --namespace Tint.Spike --out Spike.Cpp/CppPatterns.cs ../../../grammars/cpp/syntaxes/cpp.tmLanguage.json
+```
+
+Build tables (sizes, build times, GREGEX003 declines, analyzer/generator time; ~15 minutes):
+
+```bash
 python3 -I measure_build.py Spike.CSharp Spike.TypeScript Spike.Both Spike.CSharpLazy Spike.Cpp
+```
+
+First use and throughput (`results/measure.json`):
+
+```bash
 python3 -I run_measure.py
 ```
 
-The emitted `*.cs` and `*.tsv` files are committed so the libraries build without running `Emit`.
+The same with GregsEx runtime Auto compilation on (`results/measure-auto-compilation.jsonl`):
+
+```bash
+dotnet build Measure -c Release -p:GregsExEnableAutoCompilation=true -o artifacts/measure-auto
+```
+
+```bash
+dotnet artifacts/measure-auto/Measure.dll throughput
+```
+
+NativeAOT (`results/aot.json`; run each binary a few times), for `Variant` = `none`, `lazy`, `kernel`:
+
+```bash
+dotnet publish AotProbe -c Release -p:Variant=kernel -o AotProbe/pub/kernel
+```
+
+```bash
+AotProbe/pub/kernel/AotProbe
+```
