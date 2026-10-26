@@ -3,6 +3,20 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
+## 0.1.2 (2026-10-26)
+
+### Tint
+
+- GregsEx 0.5.3: binding a generated kernel (every pattern of a grammar generated with `Kernels="true"`, on its first
+  use in each registry) re-plans the pattern to check its fingerprint, and 0.5.2's new analyses had made that five
+  times dearer (the C# grammar's 547 patterns: 37 ms in 0.5.1, 170-200 ms in 0.5.2, 38-52 ms now). A native AOT tool
+  highlighting one page with four kernel grammars paid 350 ms more with 0.1.1; it is back to the 0.5.1 cost. Grammars
+  generated with `Kernels="true"` must be rebuilt against 0.5.3 (the fingerprint changed).
+
+### Tint.Grammars, Tint.Themes
+
+- No content change; shipped with the same version.
+
 ## 0.1.1 (2026-10-26)
 
 ### Tint
