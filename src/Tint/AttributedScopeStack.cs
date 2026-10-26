@@ -10,9 +10,10 @@ namespace Tint;
 /// </summary>
 public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 {
-    // Children kept in a small array before the dictionary, and the most a node caches.
+    // Children kept in a small array before the dictionary, and the most a node caches: large nodes of real
+    // grammars (a C# class body) have over a hundred distinct static children, capture-derived names many more.
     internal const int SmallChildren = 8;
-    internal const int MaxCachedChildren = 64;
+    internal const int MaxCachedChildren = 256;
 
     private readonly ScopeContext _context;
     private readonly int _hashCode;
