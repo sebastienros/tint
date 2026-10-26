@@ -2,6 +2,8 @@
 
 **TextMate syntax colorization for .NET, built for speed, NativeAOT and trimming.**
 
+[Playground](https://sebastienros.github.io/tint/): every bundled grammar and theme, in the browser.
+
 Tint tokenizes and colors source code with the same grammars and themes VS Code uses. Grammars and
 themes are compiled into your assembly by a source generator and validated at build time; regexes
 run on [GregsEx](https://github.com/sebastienros/gregsex), a managed Oniguruma-compatible engine,
@@ -67,7 +69,9 @@ grammars, VS Code JSON themes (with `include`) and `.tmTheme` files are supporte
 
 `Tint.Grammars` and `Tint.Themes` ship the VS Code grammars (84 files, from 51 extensions) and its
 19 color themes already generated, for quick starts, demos and the
-[playground](https://sebastienros.github.io/tint/). No items or generator setup needed.
+[playground](https://sebastienros.github.io/tint/). No items or generator setup needed. The playground
+([samples/Tint.Playground](samples/Tint.Playground)) registers all of them in a Blazor WebAssembly app compiled ahead
+of time.
 
 ```bash
 dotnet add package Tint.Grammars
