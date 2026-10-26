@@ -47,9 +47,13 @@ internal partial class DarkPlus;
 
 The class must be a non-generic, non-static `partial class` (it may be nested in other partial
 types). It binds to the `AdditionalFiles` item whose path, relative to the project directory,
-equals the attribute's path; separators and `.`/`..` segments are normalized, and the comparison
-ignores case. The class keeps its own name, namespace and accessibility. A path that matches no
-item is `TINT001`.
+equals the attribute's path (an absolute path is taken as is); separators and `.`/`..` segments are
+normalized, and the comparison ignores case. A path may start with `$(TintGrammarsSourcesPath)` or
+`$(TintThemesSourcesPath)`, expanded as MSBuild expands it in an item (see
+[VS Code sources packages](#vs-code-sources-packages)). A relative path that matches no item that way
+binds the one item whose path ends with it, so `"csharp/syntaxes/csharp.tmLanguage.json"` finds an
+item included from a package folder; when several items end with it, nothing binds. The class keeps
+its own name, namespace and accessibility. A path that matches no item is `TINT001`.
 
 `TextMateGrammarAttribute` properties: `Kernels`, `LanguageId`, `Aliases`, `FileExtensions`,
 `EmbeddedLanguages` (`scope=languageId` pairs), `InjectTo`, `InjectionSelector`, `TokenTypes`
@@ -208,6 +212,54 @@ When GregsEx cannot be located or the façade is missing, or any reflection step
 generator reports `TINT007`, skips validation and kernels, and still generates the grammar: the
 lazy parse path needs nothing from the build.
 
+## VS Code sources packages
+
+`Tint.Grammars.Sources` and `Tint.Themes.Sources` carry the grammar and theme files of VS Code (the
+ones `Tint.Grammars` and `Tint.Themes` are generated from) as plain files, for projects that generate
+exactly the grammars and themes they use, with their own class names, accessibility and kernels.
+They contain no assembly and are development dependencies: `dotnet add package` writes
+`PrivateAssets="all"`; add it yourself to a hand-written reference so the files stay out of your own
+package's dependencies.
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Tint" Version="..." />
+  <PackageReference Include="Tint.Grammars.Sources" Version="..." PrivateAssets="all" />
+  <PackageReference Include="Tint.Themes.Sources" Version="..." PrivateAssets="all" />
+</ItemGroup>
+<ItemGroup>
+  <TintGrammar Include="$(TintGrammarsSourcesPath)csharp/syntaxes/csharp.tmLanguage.json" Kernels="true" />
+  <TintTheme Include="$(TintThemesSourcesPath)theme-defaults/dark_plus.json" />
+  <AdditionalFiles Include="$(TintThemesSourcesPath)theme-defaults/dark_vs.json" />
+</ItemGroup>
+```
+
+Files keep their VS Code layout, `<extension>/syntaxes/<file>` for grammars and
+`<extension>/<file>` for themes, with `manifest.json` (scope names, languages, upstream provenance)
+at the root of each folder; `THIRD-PARTY-NOTICES.txt` is under `licenses/`. Each package's
+`build/` and `buildTransitive/` props, written by `tools/Tint.Sync` with the bundles' item lists,
+define:
+
+| Name | Kind | Meaning |
+|---|---|---|
+| `TintGrammarsSourcesPath` | Property | The package's `content/grammars/` folder, absolute, ending with a separator. Compiler-visible, so attribute paths can start with it. |
+| `TintGrammarsSourcesAll` | Item | Every grammar, with the metadata the `Tint.Grammars` items carry (`Name`, `LanguageId`, `Aliases`, `FileExtensions`, `EmbeddedLanguages`, `InjectTo`, `TokenTypes`, bracket scopes) and no `Accessibility`. |
+| `TintThemesSourcesPath` | Property | The package's `content/themes/` folder. |
+| `TintThemesSourcesAll` | Item | Every theme, with the `Tint.Themes` class names. |
+| `TintThemesSourcesIncludes` | Item | Files themes include that are not themes themselves (empty in the current sync: `dark_vs.json` and `light_vs.json` are themes). |
+
+Nothing is compiled until the project includes it. Pick from the lists with MSBuild item functions,
+or take all of them:
+
+```xml
+<TintGrammar Include="@(TintGrammarsSourcesAll->WithMetadataValue('LanguageId', 'csharp'))" Kernels="true" />
+<TintGrammar Include="@(TintGrammarsSourcesAll->WithMetadataValue('LanguageId', 'json'))" />
+<TintTheme Include="@(TintThemesSourcesAll)" />
+```
+
+`TINT005` names the file in `Tint.Grammars.Sources` for each missing scope VS Code ships, for
+example `source.css ($(TintGrammarsSourcesPath)css/syntaxes/css.tmLanguage.json)`.
+
 ## Diagnostics
 
 | Id | Severity | Meaning |
@@ -216,7 +268,7 @@ lazy parse path needs nothing from the build.
 | `TINT002` | Error | Two items or attributes generate the same fully qualified class name. |
 | `TINT003` | Error | The grammar or theme file cannot be read, is not valid JSON or plist, or is not a grammar (line and column when the parser gives one). |
 | `TINT004` | Error | Invalid regex: rule path, GregsEx offset and message. The pattern never matches at run time. |
-| `TINT005` | Info | The grammar includes other grammars; lists the scopes to register alongside it. |
+| `TINT005` | Info | The grammar includes other grammars; lists the scopes to register alongside it, with their `$(TintGrammarsSourcesPath)` file when VS Code ships them. |
 | `TINT006` | Info | Kernels were requested but are not emitted (GregsEx unreachable, or the project targets an older framework). |
 | `TINT007` | Info | GregsEx is not reachable at build time; regexes are not validated. |
 | `TINT008` | Error | A theme `include` or `tokenColors` file is not an `AdditionalFiles` item. |

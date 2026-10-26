@@ -74,7 +74,7 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        if [[ -n "$(git status --porcelain -- grammars themes THIRD-PARTY-NOTICES.txt src/Tint.Grammars/VSCodeGrammars.props src/Tint.Themes/VSCodeThemes.props)" ]]; then
+        if [[ -n "$(git status --porcelain -- grammars themes THIRD-PARTY-NOTICES.txt src/Tint.Grammars/VSCodeGrammars.props src/Tint.Themes/VSCodeThemes.props src/Tint.Grammars.Sources/build src/Tint.Themes.Sources/build src/Tint.Generator/VSCodeScopes.cs)" ]]; then
           echo "changed=true" >> "$GITHUB_OUTPUT"
         else
           echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -94,7 +94,7 @@ jobs:
       run: |
         set -euo pipefail
 
-        git add -A -- grammars themes THIRD-PARTY-NOTICES.txt src/Tint.Grammars/VSCodeGrammars.props src/Tint.Themes/VSCodeThemes.props
+        git add -A -- grammars themes THIRD-PARTY-NOTICES.txt src/Tint.Grammars/VSCodeGrammars.props src/Tint.Themes/VSCodeThemes.props src/Tint.Grammars.Sources/build src/Tint.Themes.Sources/build src/Tint.Generator/VSCodeScopes.cs
 
         # Count grammar and theme files by change kind from the staged diff.
         count() { git diff --cached --name-status --diff-filter="$1" -- grammars themes | wc -l | tr -d ' '; }

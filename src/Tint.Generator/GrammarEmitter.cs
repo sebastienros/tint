@@ -182,7 +182,7 @@ internal static class GrammarEmitter
 
         if (info.Dependencies.Count > 0)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.ExternalScopes, location, grammar.ScopeName, string.Join(", ", info.Dependencies)));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.ExternalScopes, location, grammar.ScopeName, string.Join(", ", info.Dependencies.Select(VSCodeScopes.Describe))));
         }
 
         return info;

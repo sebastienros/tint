@@ -6,9 +6,11 @@ using Tint.Generator;
 namespace Tint.Sync;
 
 /// <summary>
-/// Writes the MSBuild item lists the <c>Tint.Grammars</c> and <c>Tint.Themes</c> bundles compile:
-/// <c>src/Tint.Grammars/VSCodeGrammars.props</c> from <c>grammars/manifest.json</c> and
-/// <c>src/Tint.Themes/VSCodeThemes.props</c> from <c>themes/manifest.json</c>.
+/// Writes the MSBuild item lists of the VS Code grammars and themes from <c>grammars/manifest.json</c> and
+/// <c>themes/manifest.json</c>: the ones the <c>Tint.Grammars</c> and <c>Tint.Themes</c> bundles compile
+/// (<c>src/Tint.Grammars/VSCodeGrammars.props</c>, <c>src/Tint.Themes/VSCodeThemes.props</c>), the props of the
+/// <c>Tint.Grammars.Sources</c> and <c>Tint.Themes.Sources</c> packages, and the scope table the generator names in
+/// TINT005 (<c>src/Tint.Generator/VSCodeScopes.cs</c>). One emitter writes them all, so they cannot drift.
 /// </summary>
 /// <remarks>
 /// Class names are written explicitly, with the generator's own naming rules, so that a later sync never renames a
@@ -27,14 +29,19 @@ internal static class BundleProps
         var grammars = JsonNode.Parse(File.ReadAllBytes(Path.Combine(root, "grammars", "manifest.json")), documentOptions: s_lenient)!;
         var themes = JsonNode.Parse(File.ReadAllBytes(Path.Combine(root, "themes", "manifest.json")), documentOptions: s_lenient)!;
 
-        var grammarProps = WriteGrammars(grammars, out var grammarCount);
-        var themeProps = WriteThemes(themes, out var themeCount);
+        var grammarProps = WriteGrammars(grammars, PropsTarget.GrammarsBundle, out var grammarCount);
+        var themeProps = WriteThemes(themes, PropsTarget.ThemesBundle, out var themeCount);
         WriteFile(Path.Combine(root, "src", "Tint.Grammars", "VSCodeGrammars.props"), grammarProps);
         WriteFile(Path.Combine(root, "src", "Tint.Themes", "VSCodeThemes.props"), themeProps);
+        WriteFile(Path.Combine(root, "src", "Tint.Grammars.Sources", "build", "Tint.Grammars.Sources.props"), WriteGrammars(grammars, PropsTarget.GrammarsSources, out _));
+        WriteFile(Path.Combine(root, "src", "Tint.Themes.Sources", "build", "Tint.Themes.Sources.props"), WriteThemes(themes, PropsTarget.ThemesSources, out _));
+        WriteFile(Path.Combine(root, "src", "Tint.Generator", "VSCodeScopes.cs"), WriteScopes(grammars));
         Console.WriteLine($"Bundle items:            {grammarCount} grammars, {themeCount} themes");
     }
 
-    internal static string WriteGrammars(JsonNode manifest, out int count)
+    internal static string WriteGrammars(JsonNode manifest, out int count) => WriteGrammars(manifest, PropsTarget.GrammarsBundle, out count);
+
+    internal static string WriteGrammars(JsonNode manifest, PropsTarget target, out int count)
     {
         // One item per file; a file registered for several languages keeps one LanguageId and every alias and extension.
         var files = manifest["grammars"]!.AsArray()
@@ -47,13 +54,13 @@ internal static class BundleProps
 
         var names = AssignNames(files, GrammarClassName, item => Naming.PascalCase(item.ScopeName.Split('.')[0]));
 
-        var builder = Header(manifest, "grammars/manifest.json", "Tint.Grammars");
+        var builder = Header(manifest, "grammars/manifest.json", target);
         builder.Append("  <ItemGroup>\n");
         foreach (var item in files.OrderBy(i => i.Path, StringComparer.Ordinal))
         {
-            builder.Append("    <TintGrammar Include=\"$(MSBuildThisFileDirectory)../../grammars/").Append(Escape(item.Path)).Append('"');
+            builder.Append("    <").Append(target.ItemName).Append(" Include=\"").Append(target.PathPrefix).Append(Escape(item.Path)).Append('"');
             Attribute(builder, "Name", names[item]);
-            Attribute(builder, "Accessibility", "public");
+            Attribute(builder, "Accessibility", target.Accessibility);
             Attribute(builder, "LanguageId", item.LanguageId);
             Attribute(builder, "Aliases", item.Aliases);
             Attribute(builder, "FileExtensions", item.Extensions);
@@ -150,7 +157,9 @@ internal static class BundleProps
         ["xsl"] = "Xsl",
     };
 
-    internal static string WriteThemes(JsonNode manifest, out int count)
+    internal static string WriteThemes(JsonNode manifest, out int count) => WriteThemes(manifest, PropsTarget.ThemesBundle, out count);
+
+    internal static string WriteThemes(JsonNode manifest, PropsTarget target, out int count)
     {
         var themes = manifest["themes"]!.AsArray()
             .Select(n => (Label: (string)n!["label"]!, Path: (string)n["path"]!, Include: (string?)n["include"]))
@@ -169,13 +178,13 @@ internal static class BundleProps
             .Order(StringComparer.Ordinal)
             .ToList();
 
-        var builder = Header(manifest, "themes/manifest.json", "Tint.Themes");
+        var builder = Header(manifest, "themes/manifest.json", target);
         builder.Append("  <ItemGroup>\n");
         foreach (var theme in themes)
         {
-            builder.Append("    <TintTheme Include=\"$(MSBuildThisFileDirectory)../../themes/").Append(Escape(theme.Path)).Append('"');
+            builder.Append("    <").Append(target.ItemName).Append(" Include=\"").Append(target.PathPrefix).Append(Escape(theme.Path)).Append('"');
             Attribute(builder, "Name", names[theme]);
-            Attribute(builder, "Accessibility", "public");
+            Attribute(builder, "Accessibility", target.Accessibility);
             builder.Append(" />\n");
         }
 
@@ -185,7 +194,7 @@ internal static class BundleProps
             builder.Append("  <ItemGroup>\n");
             foreach (var include in includes)
             {
-                builder.Append("    <AdditionalFiles Include=\"$(MSBuildThisFileDirectory)../../themes/").Append(Escape(include)).Append("\" />\n");
+                builder.Append("    <").Append(target.IncludeItemName).Append(" Include=\"").Append(target.PathPrefix).Append(Escape(include)).Append("\" />\n");
             }
 
             builder.Append("  </ItemGroup>\n");
@@ -248,13 +257,53 @@ internal static class BundleProps
         return string.Join('/', parts);
     }
 
-    private static StringBuilder Header(JsonNode manifest, string source, string project)
+    private static StringBuilder Header(JsonNode manifest, string source, PropsTarget target)
     {
         var builder = new StringBuilder();
         builder.Append("<Project>\n");
         builder.Append($"  <!-- Generated by tools/Tint.Sync from {source} (microsoft/vscode@{(string?)manifest["commit"]}); do not edit by hand.\n");
-        builder.Append($"       Imported by {project}.csproj; paths are relative to this file. -->\n");
+        builder.Append($"       {target.Comment} -->\n");
+        if (target.PathProperty is { } property)
+        {
+            builder.Append("  <PropertyGroup>\n");
+            builder.Append($"    <{property}>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'content', '{target.ContentFolder}'))</{property}>\n");
+            builder.Append("  </PropertyGroup>\n");
+            builder.Append("  <ItemGroup>\n");
+            builder.Append("    <!-- Lets [TextMateGrammar] and [TextMateTheme] paths start with this property, as items do. -->\n");
+            builder.Append($"    <CompilerVisibleProperty Include=\"{property}\" />\n");
+            builder.Append("  </ItemGroup>\n");
+        }
+
         return builder;
+    }
+
+    // The VS Code scopes and their file in Tint.Grammars.Sources, for the generator's TINT005 message.
+    internal static string WriteScopes(JsonNode manifest)
+    {
+        var scopes = manifest["grammars"]!.AsArray()
+            .Select(n => (Scope: (string)n!["scopeName"]!, Path: (string)n["path"]!))
+            .GroupBy(s => s.Scope, StringComparer.Ordinal)
+            .Select(g => g.First())
+            .OrderBy(s => s.Scope, StringComparer.Ordinal)
+            .ToList();
+
+        var builder = new StringBuilder();
+        builder.Append($"// Generated by tools/Tint.Sync from grammars/manifest.json (microsoft/vscode@{(string?)manifest["commit"]}); do not edit by hand.\n");
+        builder.Append("namespace Tint.Generator;\n\n");
+        builder.Append("// The scopes of the VS Code grammars, with their path in the Tint.Grammars.Sources package.\n");
+        builder.Append("internal static class VSCodeScopes\n{\n");
+        builder.Append("    private static readonly Dictionary<string, string> s_paths = new(StringComparer.Ordinal)\n    {\n");
+        foreach (var (scope, path) in scopes)
+        {
+            builder.Append("        [\"").Append(scope).Append("\"] = \"").Append(path).Append("\",\n");
+        }
+
+        builder.Append("    };\n\n");
+        builder.Append("    // \"source.css ($(TintGrammarsSourcesPath)css/syntaxes/css.tmLanguage.json)\" for a VS Code scope, else the scope.\n");
+        builder.Append("    public static string Describe(string scope)\n");
+        builder.Append("        => s_paths.TryGetValue(scope, out var path) ? scope + \" ($(TintGrammarsSourcesPath)\" + path + \")\" : scope;\n");
+        builder.Append("}\n");
+        return builder.ToString();
     }
 
     private static void Attribute(StringBuilder builder, string name, string? value)
@@ -347,5 +396,32 @@ internal static class BundleProps
             => node is JsonObject map
                 ? map.Where(p => p.Value?.GetValueKind() == JsonValueKind.String).Select(p => p.Key + "=" + (string)p.Value!).ToList()
                 : [];
+    }
+
+    // Where an item list goes: the bundles include the synced files relative to the props file under the repository
+    // and make every class public; the sources packages define a path property to their content/ folder and leave the
+    // items for the consumer to include (accessibility then defaults to internal).
+    internal sealed record PropsTarget(string ItemName, string IncludeItemName, string PathPrefix, string? Accessibility, string? PathProperty, string ContentFolder, string Comment)
+    {
+        public static PropsTarget GrammarsBundle { get; } = new(
+            "TintGrammar", "AdditionalFiles", "$(MSBuildThisFileDirectory)../../grammars/", "public", null, "grammars",
+            "Imported by Tint.Grammars.csproj; paths are relative to this file.");
+
+        public static PropsTarget ThemesBundle { get; } = new(
+            "TintTheme", "AdditionalFiles", "$(MSBuildThisFileDirectory)../../themes/", "public", null, "themes",
+            "Imported by Tint.Themes.csproj; paths are relative to this file.");
+
+        public static PropsTarget GrammarsSources { get; } = new(
+            "TintGrammarsSourcesAll", "TintGrammarsSourcesIncludes", "$(TintGrammarsSourcesPath)", null, "TintGrammarsSourcesPath", "grammars",
+            "The build props of the Tint.Grammars.Sources package: TintGrammarsSourcesPath is its content/grammars/ folder, and\n" +
+            "       TintGrammarsSourcesAll lists every grammar with the metadata of Tint.Grammars, for <TintGrammar Include=\"@(TintGrammarsSourcesAll)\" />.\n" +
+            "       Nothing is compiled unless the project includes it.");
+
+        public static PropsTarget ThemesSources { get; } = new(
+            "TintThemesSourcesAll", "TintThemesSourcesIncludes", "$(TintThemesSourcesPath)", null, "TintThemesSourcesPath", "themes",
+            "The build props of the Tint.Themes.Sources package: TintThemesSourcesPath is its content/themes/ folder,\n" +
+            "       TintThemesSourcesAll lists every theme with the names of Tint.Themes, for <TintTheme Include=\"@(TintThemesSourcesAll)\" />, and\n" +
+            "       TintThemesSourcesIncludes the files themes include, for <AdditionalFiles Include=\"@(TintThemesSourcesIncludes)\" />.\n" +
+            "       Nothing is compiled unless the project includes it.");
     }
 }
