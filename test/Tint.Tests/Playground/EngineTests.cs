@@ -96,6 +96,7 @@ public sealed class EngineTests
         Assert.StartsWith("@media (prefers-color-scheme: dark) {\n  .tint, .tint span {\n    color: var(--tint-dark) !important;", css);
         Assert.Contains("    text-decoration: var(--tint-dark-text-decoration) !important;\n  }\n}\n", css);
         Assert.StartsWith(".alt .tint, .alt .tint span {\n  color: var(--tint-light) !important;", PlaygroundEngine.GetDualThemeCss(Engine.FindTheme("light-plus")!, ".alt"));
+        Assert.DoesNotContain('\r', css);
     }
 
     [Fact]

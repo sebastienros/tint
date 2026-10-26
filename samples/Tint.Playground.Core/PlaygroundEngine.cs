@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Tint.Grammars;
 using Tint.Themes;
 
@@ -157,15 +158,16 @@ public sealed class PlaygroundEngine
         var name = variablePrefix + GetVariableName(secondTheme);
         var selector = selectorPrefix is null ? $".{preClass}, .{preClass} span" : $"{selectorPrefix} .{preClass}, {selectorPrefix} .{preClass} span";
         var indent = selectorPrefix is null ? "  " : string.Empty;
-        var rule = $$"""
-            {{indent}}{{selector}} {
-            {{indent}}  color: var({{name}}) !important;
-            {{indent}}  background-color: var({{name}}-bg) !important;
-            {{indent}}  font-style: var({{name}}-font-style) !important;
-            {{indent}}  font-weight: var({{name}}-font-weight) !important;
-            {{indent}}  text-decoration: var({{name}}-text-decoration) !important;
-            {{indent}}}
-            """;
+        // Built with explicit \n: a raw string literal takes the line ends of the checkout (\r\n on Windows).
+        var rule = new StringBuilder()
+            .Append(indent).Append(selector).Append(" {\n")
+            .Append(indent).Append("  color: var(").Append(name).Append(") !important;\n")
+            .Append(indent).Append("  background-color: var(").Append(name).Append("-bg) !important;\n")
+            .Append(indent).Append("  font-style: var(").Append(name).Append("-font-style) !important;\n")
+            .Append(indent).Append("  font-weight: var(").Append(name).Append("-font-weight) !important;\n")
+            .Append(indent).Append("  text-decoration: var(").Append(name).Append("-text-decoration) !important;\n")
+            .Append(indent).Append('}')
+            .ToString();
         if (selectorPrefix is not null)
         {
             return rule + "\n";
