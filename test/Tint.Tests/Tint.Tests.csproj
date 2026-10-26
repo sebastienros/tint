@@ -17,6 +17,7 @@
     <ProjectReference Include="../Tint.Generator.Sample/Tint.Generator.Sample.csproj" />
     <ProjectReference Include="../../src/Tint.Grammars/Tint.Grammars.csproj" />
     <ProjectReference Include="../../src/Tint.Themes/Tint.Themes.csproj" />
+    <ProjectReference Include="../../samples/Tint.Playground.Core/Tint.Playground.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <!-- The generator's JSON reader, checked against System.Text.Json over the grammars and themes. -->

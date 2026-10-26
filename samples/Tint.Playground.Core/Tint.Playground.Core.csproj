@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The playground's logic without UI (URL state, pickers, inspector lookups), tested by test/Tint.Tests/Playground. -->
+  <PropertyGroup>
+    <RootNamespace>Tint.Playground</RootNamespace>
+    <IsAotCompatible>true</IsAotCompatible>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Tint.Tests" />
+    <ProjectReference Include="../../src/Tint/Tint.csproj" />
+  </ItemGroup>
+</Project>
