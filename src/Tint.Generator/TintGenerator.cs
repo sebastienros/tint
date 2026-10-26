@@ -228,7 +228,7 @@ public sealed class TintGenerator : IIncrementalGenerator
 
     private static ProjectFile? ReadFile(AdditionalText text, AnalyzerConfigOptions options, GlobalOptions globals, CancellationToken cancellationToken)
     {
-        string? Get(string name) => options.TryGetValue("build_metadata.AdditionalFiles." + name, out var value) && !string.IsNullOrWhiteSpace(value) ? value.Trim() : null;
+        string? Get(string name) => options.TryGetValue("build_metadata.AdditionalFiles." + name, out var value) && !string.IsNullOrWhiteSpace(value) ? Unescape(value.Trim()) : null;
 
         SourceKind? kind = Get("TintKind") switch
         {
@@ -263,6 +263,31 @@ public sealed class TintGenerator : IIncrementalGenerator
             Get("Accessibility"),
             kernels is null ? null : GlobalOptions.IsTrue(kernels),
             SourceSettings.FromMetadata(Get));
+    }
+
+    // Tint.props writes '#' and '%' as %23 and %25: the analyzer config file would cut a value at '#'.
+    private static string Unescape(string value)
+    {
+        if (value.IndexOf('%') < 0)
+        {
+            return value;
+        }
+
+        var builder = new StringBuilder(value.Length);
+        for (var i = 0; i < value.Length; i++)
+        {
+            if (value[i] == '%' && i + 2 < value.Length && value[i + 1] == '2' && value[i + 2] is '3' or '5')
+            {
+                builder.Append(value[i + 2] == '3' ? '#' : '%');
+                i += 2;
+            }
+            else
+            {
+                builder.Append(value[i]);
+            }
+        }
+
+        return builder.ToString();
     }
 
     // Naming an item-only grammar needs its scope name; a file that does not parse is reported when it is generated.

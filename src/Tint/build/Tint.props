@@ -41,16 +41,19 @@
       <AdditionalFiles Include="@(TintGrammar)" TintKind="Grammar" />
       <AdditionalFiles Include="@(TintTheme)" TintKind="Theme" />
     </ItemGroup>
-    <!-- The analyzer config file cuts values at ';', so the generator receives MSBuild lists comma-separated. -->
+    <!-- The analyzer config file cuts values at ';' and '#', so the generator receives MSBuild lists comma-separated and
+         '#' and '%' as %23 and %25 (written %2523 and %2525 because MSBuild unescapes them once). -->
     <ItemGroup>
       <AdditionalFiles Condition="'%(AdditionalFiles.TintKind)' != ''">
-        <Aliases>$([System.String]::Copy('%(AdditionalFiles.Aliases)').Replace(';', ','))</Aliases>
-        <FileExtensions>$([System.String]::Copy('%(AdditionalFiles.FileExtensions)').Replace(';', ','))</FileExtensions>
-        <EmbeddedLanguages>$([System.String]::Copy('%(AdditionalFiles.EmbeddedLanguages)').Replace(';', ','))</EmbeddedLanguages>
-        <InjectTo>$([System.String]::Copy('%(AdditionalFiles.InjectTo)').Replace(';', ','))</InjectTo>
-        <TokenTypes>$([System.String]::Copy('%(AdditionalFiles.TokenTypes)').Replace(';', ','))</TokenTypes>
-        <BalancedBracketScopes>$([System.String]::Copy('%(AdditionalFiles.BalancedBracketScopes)').Replace(';', ','))</BalancedBracketScopes>
-        <UnbalancedBracketScopes>$([System.String]::Copy('%(AdditionalFiles.UnbalancedBracketScopes)').Replace(';', ','))</UnbalancedBracketScopes>
+        <LanguageId>$([System.String]::Copy('%(AdditionalFiles.LanguageId)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</LanguageId>
+        <Aliases>$([System.String]::Copy('%(AdditionalFiles.Aliases)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</Aliases>
+        <FileExtensions>$([System.String]::Copy('%(AdditionalFiles.FileExtensions)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</FileExtensions>
+        <EmbeddedLanguages>$([System.String]::Copy('%(AdditionalFiles.EmbeddedLanguages)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</EmbeddedLanguages>
+        <InjectTo>$([System.String]::Copy('%(AdditionalFiles.InjectTo)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</InjectTo>
+        <InjectionSelector>$([System.String]::Copy('%(AdditionalFiles.InjectionSelector)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</InjectionSelector>
+        <TokenTypes>$([System.String]::Copy('%(AdditionalFiles.TokenTypes)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</TokenTypes>
+        <BalancedBracketScopes>$([System.String]::Copy('%(AdditionalFiles.BalancedBracketScopes)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</BalancedBracketScopes>
+        <UnbalancedBracketScopes>$([System.String]::Copy('%(AdditionalFiles.UnbalancedBracketScopes)').Replace('%', '%2525').Replace('#', '%2523').Replace(';', ','))</UnbalancedBracketScopes>
       </AdditionalFiles>
     </ItemGroup>
   </Target>
