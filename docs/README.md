@@ -3,6 +3,8 @@
 - [Design](design.md): architecture, grammar and theme model, tokenizer, source generator,
   packaging and performance targets.
 - [Plan](plan.md): phases P0 to P7, what each delivers and when it is done.
+- [Source generator](generator.md): `TintGrammar`/`TintTheme` items, the attributes, metadata,
+  diagnostics, kernels and how the generator finds GregsEx.
 
 ## Research
 

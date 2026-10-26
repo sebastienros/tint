@@ -19,28 +19,39 @@ dotnet add package Tint
 ## Quick start
 
 Import the grammars and themes you need. The source generator turns each file into a class at
-build time.
+build time and checks every regex, so a bad pattern is a build error, not a runtime surprise.
 
 ```xml
 <ItemGroup>
   <TintGrammar Include="grammars/csharp.tmLanguage.json" />
+  <TintGrammar Include="grammars/JSON.tmLanguage.json" LanguageId="json" FileExtensions=".json;.jsonc" />
   <TintTheme Include="themes/dark_plus.json" />
+  <!-- dark_plus.json includes dark_vs.json: make it visible to the generator without a class of its own. -->
+  <AdditionalFiles Include="themes/dark_vs.json" />
 </ItemGroup>
 ```
 
+Bind a file to a class of your own with an attribute (the path is relative to the project), or let
+the item alone generate one: `source.json` becomes `JsonGrammar` and `dark_plus.json` becomes
+`DarkPlusTheme`, in the project's root namespace.
+
 ```csharp
-[TextMateGrammar("grammars/csharp.tmLanguage.json")]
+using Tint;
+
+[TextMateGrammar("grammars/csharp.tmLanguage.json", LanguageId = "csharp", FileExtensions = [".cs"])]
 public partial class CSharpGrammar;
 
-[TextMateTheme("themes/dark_plus.json")]
-public partial class DarkPlusTheme;
-
 var registry = new GrammarRegistry();
-registry.Add(CSharpGrammar.Instance);
+registry.Add(CSharpGrammar.Instance, JsonGrammar.Instance);
 
 var highlighter = registry.CreateHighlighter("source.cs", DarkPlusTheme.Instance);
 string html = highlighter.ToHtml(code);
 ```
+
+Patterns are parsed on first use. For NativeAOT or WebAssembly apps with a few hot grammars, opt
+into ahead-of-time regex kernels with `Kernels = true` on the attribute, `Kernels="true"` on the
+item, or `<TintKernels>true</TintKernels>` for the project. Items, metadata, diagnostics and
+kernels are described in [docs/generator.md](docs/generator.md).
 
 Grammar files come from any TextMate source: the
 [VS Code extensions](https://github.com/microsoft/vscode/tree/main/extensions) or shiki's
