@@ -259,20 +259,40 @@ common interface, with the same three implementations as grammars.
 
 ### 8.1 User model
 
+Everything is a Roslyn incremental source generator shipped inside the `Tint` package. There is no
+command-line tool, no MSBuild task and no build step outside the compiler. Two ways to drive it:
+
+**Attribute-driven** (the `[GeneratedRegex]` style, preferred):
+
+```csharp
+[TextMateGrammar("grammars/csharp.tmLanguage.json")]
+public partial class CSharpGrammar;
+
+[TextMateTheme("themes/dark_plus.json")]
+public partial class DarkPlusTheme;
+```
+
 ```xml
 <ItemGroup>
   <PackageReference Include="Tint" Version="…" />
   <TintGrammar Include="grammars/csharp.tmLanguage.json" />
-  <TintGrammar Include="grammars/json.tmLanguage.json" Name="JsonGrammar" />
   <TintTheme Include="themes/dark_plus.json" />
 </ItemGroup>
 ```
 
-`Tint.props` (packed under `build/` and `buildTransitive/`) maps these items to `AdditionalFiles`
-with metadata the generator reads (`TintKind`, `Name`, `Namespace`). The generator emits
-`partial class CSharpGrammar : IGrammarSource` with a static `Instance`, in the project's root
-namespace unless overridden. Grammars that include other grammars (`source.js` from HTML) get a
-diagnostic listing the scopes to register alongside, and `GrammarInfo.Dependencies` lists them.
+The item types (defined by `Tint.props`, packed under `build/` and `buildTransitive/`) only make the
+files visible to the compiler as `AdditionalFiles`; the attribute decides the class name, namespace,
+accessibility and which file it binds to (matched by path relative to the project, with a diagnostic
+when no AdditionalFile matches). The attributes are emitted into the consumer as `internal` types
+by the generator, so they add no runtime dependency.
+
+**Item-only**: a `TintGrammar` item without a matching attribute still produces a class, named from
+the grammar (`CSharpGrammar` for `source.cs`, overridable with `Name` and `Namespace` metadata), in
+the project's root namespace. This is the zero-code path for the bundles and quick starts.
+
+Either way the generator emits `partial class CSharpGrammar : IGrammarSource` with a static
+`Instance`. Grammars that include other grammars (`source.js` from HTML) get a diagnostic listing
+the scopes to register alongside, and `GrammarInfo.Dependencies` lists them.
 
 Supported inputs: `.tmLanguage.json` (JSON with comments), `.tmLanguage` / `.plist`, themes as
 `.json` (VS Code, with `include`) and `.tmTheme`. Both the generator and `Tint.Loading` share one
@@ -316,10 +336,10 @@ Roslyn generators cannot see each other's output, so Tint's generator cannot emi
    Still AOT-safe, still no JSON, interpreted matching speed (the speed the TextMateSharp branch
    measured). The Phase 2 spike measures both.
 
-Until option 1 lands, our own bundles can use a two-step build instead: the Tint generator CLI
-(`tools/Tint.Cli`) writes `.g.cs` files with `[GeneratedPattern]` attributes into the bundle
-projects and GregsEx's generator compiles them. That path is for this repository only; users get
-the single-step experience.
+The bundles (`Tint.Grammars`, `Tint.Themes`) are built with the same generator as user projects,
+through `TintGrammar`/`TintTheme` items over `grammars/` and `themes/`. Until option 1 lands they
+run on the interpreter like everyone else; when it lands they pick up kernels with no change to this
+repository beyond a GregsEx version bump. No second code path, no tool.
 
 ### 8.4 Size budget (spike before committing)
 
@@ -331,7 +351,9 @@ whether bundles are split into a few assemblies so Blazor can lazy-load them per
 
 ## 9. Bundles and sourcing
 
-`tools/Tint.Sync` fetches grammars and themes from a pinned `microsoft/vscode` commit into
+`tools/Tint.Sync` is a repository maintenance tool (the equivalent of vscode's `update-grammar`
+scripts and shiki's sync scripts), never part of a package. It fetches grammars and themes from a
+pinned `microsoft/vscode` commit into
 `grammars/<extension>/` and `themes/` with each extension's `cgmanifest.json` (upstream
 repository, commit, license) and generates `THIRD-PARTY-NOTICES.txt` from them (45 MIT, 11
 TextMate Bundle License, 1 BSD, 1 Apache-2.0 among the grammar registrations). The VS Code
