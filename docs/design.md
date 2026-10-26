@@ -327,11 +327,47 @@ binds rules to patterns by index at generation time and never hashes strings.
 Roslyn generators cannot see each other's output, so Tint's generator cannot emit
 `[GeneratedPattern]` methods for GregsEx's generator to compile. Two options, both planned:
 
-1. **Preferred:** GregsEx exposes a public kernel-emission API usable from another generator
-   (netstandard2.0), roughly `KernelSource.TryEmit(string pattern, OnigurumaOptions options,
-   string className, out string source, out string declineReason)` plus the fingerprint used by
-   `WithGeneratedKernels`. Tint's generator calls it and inlines the kernels. This is a change in
-   GregsEx (your repository); it is listed in section 15.
+1. **Preferred:** GregsEx exposes a public kernel-emission façade in `GregsEx.Generator.dll`. As of
+   0.5.0 the consumption side is public (`OnigurumaPattern.WithGeneratedKernels(ulong fingerprint,
+   CoreKernel plain, CoreKernel capture)`, `GregsEx.Execution.Compiled.CoreKernel`, `KernelGuard`)
+   but the emission side is internal: `SourcePlanner.TryPlan(string pattern, RegexProfile profile,
+   out CoreKernelPlan? plan, out string reason, out RegexDiagnostic diagnostic)`,
+   `KernelEmitter.EmitClass(string className, CoreKernelPlan plan, bool track)` and
+   `CoreKernelPlan.Fingerprint()`. The façade Tint needs wraps exactly those three calls:
+
+   ```csharp
+   namespace GregsEx.SourceGeneration;
+
+   public static class KernelSource
+   {
+       // Succeeded: emit PlainClass (+ CaptureClass when the pattern has groups) and bind with
+       //   pattern.WithGeneratedKernels(Fingerprint, <plainClass>.Run, <captureClass>.Run).
+       // Declined: the planner left the pattern to the interpreter; DeclineReason says why.
+       // Invalid: Diagnostic carries the parse error (code, offset, length, message).
+       public static KernelSourceResult TryEmit(
+           string pattern, OnigurumaOptions options, string plainClassName, string captureClassName,
+           OnigurumaCompileOptions? compileOptions = null);
+   }
+
+   public sealed class KernelSourceResult
+   {
+       public KernelSourceStatus Status { get; }      // Succeeded | Declined | Invalid
+       public ulong Fingerprint { get; }
+       public string? PlainClass { get; }             // C# source of a static class with Run(...)
+       public string? CaptureClass { get; }           // null when GroupCount == 1
+       public string? DeclineReason { get; }
+       public RegexDiagnostic Diagnostic { get; }
+   }
+   ```
+
+   How Tint's generator reaches it without a compile-time reference: `Tint.targets` marks the
+   consumer's `GregsEx` package reference with `GeneratePathProperty="true"` and passes
+   `$(PkgGregsEx)/analyzers/dotnet/cs/GregsEx.Generator.dll` to the generator as a
+   `CompilerVisibleProperty`; the generator loads that assembly and calls the façade through a
+   small reflection shim bound to the public signature above. Kernels are therefore always emitted
+   by the exact GregsEx version the consumer runs, so the fingerprint always matches and no copy of
+   `GregsEx.Generator.dll` ships inside Tint. If the property is missing or the façade is absent
+   (older GregsEx), Tint reports an informational diagnostic and emits the fallback below.
 2. **Fallback, available today:** generated pattern methods call `OnigurumaPattern.Parse` lazily.
    Still AOT-safe, still no JSON, interpreted matching speed (the speed the TextMateSharp branch
    measured). The Phase 2 spike measures both.
@@ -415,11 +451,12 @@ trimmed app keeps only the grammars it references. The playground is the proof: 
 
 ## 15. Open items and asks on GregsEx
 
-1. Public kernel-emission API for third-party generators (section 8.3).
+1. Public kernel-emission façade `GregsEx.SourceGeneration.KernelSource` in `GregsEx.Generator.dll`
+   (section 8.3 has the proposed shape). 0.5.0 made the consumption side public; emission is still
+   internal.
 2. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
    result cache (section 5.5).
-3. Stable preview feed version to pin (`0.1.0-preview.56` at the time of writing) or a `0.5.0`
-   release including the compiled Oniguruma kernels.
+3. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
 
 Decisions deferred to measurements: bundle scope and partitioning (8.4), kernel length threshold
 (8.4), combined-alternation experiment (5.4).
