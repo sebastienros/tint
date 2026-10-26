@@ -232,9 +232,13 @@ public sealed class Tokenizer
                 // We matched the end of this rule: pop it.
                 var poppedRule = (BeginEndRule)_rules[stack.RuleId];
                 Produce(stack.ContentNameScopes, capture0.Start);
-                stack = stack.WithContentNameScopes(stack.NameScopes);
-                HandleCaptures(text, isFirstLine, stack, poppedRule.EndCaptures, match.CaptureOffset, captureCount);
-                Produce(stack.ContentNameScopes, capture0.End);
+
+                // stack.WithContentNameScopes(stack.NameScopes): end captures live under the name only.
+                var endState = ReferenceEquals(stack.ContentNameScopes, stack.NameScopes)
+                    ? PendingState.Of(stack)
+                    : new PendingState(stack.Parent, stack.RuleId, stack.EnterPos, stack.AnchorPos, stack.BeginRuleCapturedEol, stack.EndRule, stack.NameScopes, stack.NameScopes);
+                HandleCaptures(text, isFirstLine, ref endState, poppedRule.EndCaptures, match.CaptureOffset, captureCount);
+                Produce(stack.NameScopes, capture0.End);
 
                 var popped = stack;
                 stack = stack.Parent!;
@@ -244,7 +248,7 @@ public sealed class Tokenizer
                 {
                     // [1] The grammar pushed and popped a rule without advancing: assume the author meant to stay
                     // in this state (vscode-textmate#12).
-                    stack = popped;
+                    stack = endState.Materialize();
                     Produce(stack.ContentNameScopes, lineLength);
                     break;
                 }
@@ -257,21 +261,22 @@ public sealed class Tokenizer
 
                 var beforePush = stack;
                 var nameScopes = PushName(stack.ContentNameScopes, rule.Name, rule.NameIsCapturing, text, match.CaptureOffset, captureCount);
-                stack = stack.Push(match.RuleId, linePos, anchorPosition, capture0.End == lineLength, null, nameScopes, nameScopes);
+
+                // stack.push(...): the captures see the pushed state, which is only allocated when a capture is
+                // retokenized; a begin rule then gets its final state (content name, resolved end) in one node.
+                var pushed = new PendingState(stack, match.RuleId, linePos, anchorPosition, capture0.End == lineLength, null, nameScopes, nameScopes);
 
                 if (rule is BeginEndRule beginEnd)
                 {
-                    HandleCaptures(text, isFirstLine, stack, beginEnd.BeginCaptures, match.CaptureOffset, captureCount);
-                    Produce(stack.ContentNameScopes, capture0.End);
+                    HandleCaptures(text, isFirstLine, ref pushed, beginEnd.BeginCaptures, match.CaptureOffset, captureCount);
+                    Produce(nameScopes, capture0.End);
                     anchorPosition = capture0.End;
 
                     var contentNameScopes = PushName(nameScopes, beginEnd.ContentName, beginEnd.ContentNameIsCapturing, text, match.CaptureOffset, captureCount);
-                    stack = stack.WithContentNameScopes(contentNameScopes);
-
-                    if (beginEnd.EndHasBackReferences)
-                    {
-                        stack = stack.WithEndRule(ResolveBackReferences(match.RuleId, isWhile: false, beginEnd.End, text, match.CaptureOffset, captureCount));
-                    }
+                    var endRule = beginEnd.EndHasBackReferences
+                        ? ResolveBackReferences(match.RuleId, isWhile: false, beginEnd.End, text, match.CaptureOffset, captureCount)
+                        : null;
+                    stack = pushed.Materialize(contentNameScopes, endRule);
 
                     if (!hasAdvanced && beforePush.HasSameRuleAs(stack))
                     {
@@ -283,17 +288,15 @@ public sealed class Tokenizer
                 }
                 else if (rule is BeginWhileRule beginWhile)
                 {
-                    HandleCaptures(text, isFirstLine, stack, beginWhile.BeginCaptures, match.CaptureOffset, captureCount);
-                    Produce(stack.ContentNameScopes, capture0.End);
+                    HandleCaptures(text, isFirstLine, ref pushed, beginWhile.BeginCaptures, match.CaptureOffset, captureCount);
+                    Produce(nameScopes, capture0.End);
                     anchorPosition = capture0.End;
 
                     var contentNameScopes = PushName(nameScopes, beginWhile.ContentName, beginWhile.ContentNameIsCapturing, text, match.CaptureOffset, captureCount);
-                    stack = stack.WithContentNameScopes(contentNameScopes);
-
-                    if (beginWhile.WhileHasBackReferences)
-                    {
-                        stack = stack.WithEndRule(ResolveBackReferences(match.RuleId, isWhile: true, beginWhile.While, text, match.CaptureOffset, captureCount));
-                    }
+                    var whileRule = beginWhile.WhileHasBackReferences
+                        ? ResolveBackReferences(match.RuleId, isWhile: true, beginWhile.While, text, match.CaptureOffset, captureCount)
+                        : null;
+                    stack = pushed.Materialize(contentNameScopes, whileRule);
 
                     if (!hasAdvanced && beforePush.HasSameRuleAs(stack))
                     {
@@ -306,11 +309,10 @@ public sealed class Tokenizer
                 else
                 {
                     var matchRule = (MatchRule)rule;
-                    HandleCaptures(text, isFirstLine, stack, matchRule.Captures, match.CaptureOffset, captureCount);
-                    Produce(stack.ContentNameScopes, capture0.End);
+                    HandleCaptures(text, isFirstLine, ref pushed, matchRule.Captures, match.CaptureOffset, captureCount);
+                    Produce(nameScopes, capture0.End);
 
-                    // Pop the rule immediately since it is a match rule.
-                    stack = stack.Pop()!;
+                    // Pop the rule immediately since it is a match rule: the stack stays as it was.
 
                     if (!hasAdvanced)
                     {
@@ -372,7 +374,8 @@ public sealed class Tokenizer
             {
                 var capture0 = _captures[match.CaptureOffset];
                 Produce(node.ContentNameScopes, capture0.Start);
-                HandleCaptures(text, isFirstLine, node, rule.WhileCaptures, match.CaptureOffset, match.CaptureCount);
+                var whileState = PendingState.Of(node);
+                HandleCaptures(text, isFirstLine, ref whileState, rule.WhileCaptures, match.CaptureOffset, match.CaptureCount);
                 Produce(node.ContentNameScopes, capture0.End);
                 anchorPosition = capture0.End;
                 if (capture0.End > linePos)
@@ -598,7 +601,7 @@ public sealed class Tokenizer
     }
 
     // handleCaptures.
-    private void HandleCaptures(string text, bool isFirstLine, StateStack stack, CaptureRule?[] captures, int captureOffset, int captureCount)
+    private void HandleCaptures(string text, bool isFirstLine, ref PendingState stack, CaptureRule?[] captures, int captureOffset, int captureCount)
     {
         if (captures.Length == 0)
         {
@@ -646,7 +649,7 @@ public sealed class Tokenizer
                 // keeps look-behinds working) from the capture's start.
                 var nameScopes = PushName(stack.ContentNameScopes, captureRule.Name, captureRule.NameIsCapturing, text, captureOffset, captureCount);
                 var contentNameScopes = PushName(nameScopes, captureRule.ContentName, captureRule.ContentNameIsCapturing, text, captureOffset, captureCount);
-                var stackClone = stack.Push(captureRule.RetokenizeCapturedWithRuleId, capture.Start, -1, false, null, nameScopes, contentNameScopes);
+                var stackClone = stack.Materialize().Push(captureRule.RetokenizeCapturedWithRuleId, capture.Start, -1, false, null, nameScopes, contentNameScopes);
                 TokenizeString(text, capture.End, isFirstLine && capture.Start == 0, capture.Start, ref stackClone, checkWhileConditions: false, deadline: 0);
                 continue;
             }
@@ -865,6 +868,55 @@ public sealed class Tokenizer
         '\uD83B' => low is >= '\uDC00' and <= '\uDEBB',
         _ => false,
     };
+
+    // A state handleCaptures sees, allocated only when a capture is retokenized from it.
+    private struct PendingState
+    {
+        private readonly StateStack? _parent;
+        private readonly int _ruleId;
+        private readonly int _enterPos;
+        private readonly int _anchorPos;
+        private readonly bool _beginRuleCapturedEol;
+        private readonly string? _endRule;
+        private readonly AttributedScopeStack _nameScopes;
+        private StateStack? _node;
+
+        public PendingState(StateStack? parent, int ruleId, int enterPos, int anchorPos, bool beginRuleCapturedEol, string? endRule, AttributedScopeStack nameScopes, AttributedScopeStack contentNameScopes)
+        {
+            _parent = parent;
+            _ruleId = ruleId;
+            _enterPos = enterPos;
+            _anchorPos = anchorPos;
+            _beginRuleCapturedEol = beginRuleCapturedEol;
+            _endRule = endRule;
+            _nameScopes = nameScopes;
+            ContentNameScopes = contentNameScopes;
+            _node = null;
+        }
+
+        public AttributedScopeStack ContentNameScopes { get; }
+
+        public static PendingState Of(StateStack node)
+        {
+            var state = new PendingState(node.Parent, node.RuleId, node.EnterPos, node.AnchorPos, node.BeginRuleCapturedEol, node.EndRule, node.NameScopes, node.ContentNameScopes);
+            state._node = node;
+            return state;
+        }
+
+        public StateStack Materialize()
+            => _node ??= new StateStack(_parent, _ruleId, _enterPos, _anchorPos, _beginRuleCapturedEol, _endRule, _nameScopes, ContentNameScopes);
+
+        // The same state with its final content scopes and resolved end rule (withContentNameScopesList, withEndRule).
+        public readonly StateStack Materialize(AttributedScopeStack contentNameScopes, string? endRule)
+        {
+            if (_node is { } node && ReferenceEquals(node.ContentNameScopes, contentNameScopes) && node.EndRule == endRule)
+            {
+                return node;
+            }
+
+            return new StateStack(_parent, _ruleId, _enterPos, _anchorPos, _beginRuleCapturedEol, endRule ?? _endRule, _nameScopes, contentNameScopes);
+        }
+    }
 
     private readonly record struct MatchResult(int RuleId, int CaptureOffset, int CaptureCount);
 

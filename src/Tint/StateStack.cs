@@ -7,8 +7,8 @@ namespace Tint;
 /// </summary>
 public sealed class StateStack : IEquatable<StateStack>
 {
-    private readonly int _structuralHash;
-    private readonly int _hashCode;
+    // Computed on first use: most states are pushed and popped within a line and never hashed.
+    private int _hashCode;
 
     // Where the state was pushed on the current line, and the anchor position then. Meaningless across lines; reset
     // to -1 when a line starts from this state (vscode-textmate mutates them the same way).
@@ -41,8 +41,6 @@ public sealed class StateStack : IEquatable<StateStack>
         NameScopes = nameScopes;
         ContentNameScopes = contentNameScopes;
         Depth = parent is null ? 1 : parent.Depth + 1;
-        _structuralHash = HashCode.Combine(parent?._structuralHash ?? 0, ruleId, Depth, endRule);
-        _hashCode = HashCode.Combine(_structuralHash, contentNameScopes.GetHashCode());
     }
 
     /// <summary>The state before the first line of a document.</summary>
@@ -130,7 +128,7 @@ public sealed class StateStack : IEquatable<StateStack>
             return true;
         }
 
-        if (other is null || _hashCode != other._hashCode || !StructuralEquals(this, other))
+        if (other is null || (_hashCode != 0 && other._hashCode != 0 && _hashCode != other._hashCode) || !StructuralEquals(this, other))
         {
             return false;
         }
@@ -142,7 +140,26 @@ public sealed class StateStack : IEquatable<StateStack>
     public override bool Equals(object? obj) => obj is StateStack other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode() => _hashCode;
+    public override int GetHashCode()
+    {
+        var hashCode = _hashCode;
+        if (hashCode == 0)
+        {
+            var hash = new HashCode();
+            for (var node = this; node is not null && node.Depth > 0; node = node.Parent)
+            {
+                hash.Add(node.RuleId);
+                hash.Add(node.EndRule);
+            }
+
+            hash.Add(Depth);
+            hash.Add(ContentNameScopes?.GetHashCode() ?? 0);
+            hashCode = hash.ToHashCode();
+            _hashCode = hashCode == 0 ? 1 : hashCode;
+        }
+
+        return _hashCode;
+    }
 
     /// <summary>The open rules with their scopes, outermost first.</summary>
     public override string ToString()
