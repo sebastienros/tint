@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <!-- The Tint playground (docs/design.md section 11), deployed to GitHub Pages by .github/workflows/pages.yml. -->
+  <PropertyGroup>
+    <RootNamespace>Tint.Playground</RootNamespace>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <BlazorEnableCompression>true</BlazorEnableCompression>
+    <!-- Set here rather than on the command line: command-line properties reach the netstandard2.0 generator's restore,
+         which refuses them. -->
+    <PublishTrimmed>true</PublishTrimmed>
+    <!-- -p:TintPlaygroundAot=true compiles to WebAssembly ahead of time on publish (the Pages deployment does). It needs
+         `dotnet workload install wasm-tools`, and the SDK asks for the workload as soon as RunAOTCompilation is set,
+         even to build, so it is off by default. -->
+    <RunAOTCompilation Condition="'$(TintPlaygroundAot)' == 'true'">true</RunAOTCompilation>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+    <ProjectReference Include="../../src/Tint/Tint.csproj" />
+    <ProjectReference Include="../../src/Tint.Grammars/Tint.Grammars.csproj" />
+    <ProjectReference Include="../../src/Tint.Themes/Tint.Themes.csproj" />
+    <ProjectReference Include="../Tint.Playground.Core/Tint.Playground.Core.csproj" />
+  </ItemGroup>
+  <!-- The language samples (shiki's, MIT; test/Tint.Tests/Fixtures/samples/README.md) are served from
+       wwwroot/samples/<language id>.txt and the icon from wwwroot/icon.png. They are copied there before static web assets
+       are resolved instead of being committed twice (the copies are git-ignored); linked Content items would publish,
+       but the development server only serves files under wwwroot. -->
+  <ItemGroup>
+    <PlaygroundAsset Include="../../test/Tint.Tests/Fixtures/samples/*.sample" Destination="wwwroot/samples/%(Filename).txt" />
+    <PlaygroundAsset Include="../../assets/icon.png" Destination="wwwroot/icon.png" />
+  </ItemGroup>
+  <Target Name="CopyPlaygroundAssets" BeforeTargets="AssignTargetPaths;ResolveProjectStaticWebAssets" Inputs="@(PlaygroundAsset)" Outputs="@(PlaygroundAsset->'%(Destination)')">
+    <Copy SourceFiles="@(PlaygroundAsset)" DestinationFiles="@(PlaygroundAsset->'%(Destination)')" SkipUnchangedFiles="true" />
+    <ItemGroup>
+      <Content Remove="@(PlaygroundAsset->'%(Destination)')" />
+      <Content Include="@(PlaygroundAsset->'%(Destination)')" />
+    </ItemGroup>
+  </Target>
+</Project>

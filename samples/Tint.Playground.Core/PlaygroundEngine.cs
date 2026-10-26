@@ -6,7 +6,7 @@ namespace Tint.Playground;
 
 /// <summary>One highlight of the playground: the HTML, the tokens and how long each took.</summary>
 /// <param name="Html">What <see cref="Highlighter.ToHtml(string)"/> wrote.</param>
-/// <param name="Tokens">The tokens of the default theme, for the inspector.</param>
+/// <param name="Tokens">The tokens of the inspected theme, for the inspector.</param>
 /// <param name="TokenizeTime">The time <see cref="Highlighter.Tokenize(string)"/> took.</param>
 /// <param name="RenderTime">The time <see cref="Highlighter.ToHtml(string)"/> took (it tokenizes again, once per theme).</param>
 public sealed record HighlightResult(string Html, TokenMap Tokens, TimeSpan TokenizeTime, TimeSpan RenderTime);
@@ -123,13 +123,17 @@ public sealed class PlaygroundEngine
         return highlighter;
     }
 
-    /// <summary>Tokenizes and renders code, timing each.</summary>
-    public HighlightResult Highlight(LanguageOption language, ThemeOption theme, ThemeOption? secondTheme, string code)
+    /// <summary>
+    /// Renders code with one or two themes and tokenizes it with <paramref name="inspectedTheme"/> (the first theme by
+    /// default) for the inspector, timing each.
+    /// </summary>
+    public HighlightResult Highlight(LanguageOption language, ThemeOption theme, ThemeOption? secondTheme, string code, ThemeOption? inspectedTheme = null)
     {
         ArgumentNullException.ThrowIfNull(code);
         var highlighter = GetHighlighter(language, theme, secondTheme);
+        var tokenizer = inspectedTheme is null || inspectedTheme == theme ? highlighter : GetHighlighter(language, inspectedTheme);
         var start = Stopwatch.GetTimestamp();
-        var tokens = highlighter.Tokenize(code);
+        var tokens = tokenizer.Tokenize(code);
         var tokenized = Stopwatch.GetTimestamp();
         var html = highlighter.ToHtml(code);
         var rendered = Stopwatch.GetTimestamp();

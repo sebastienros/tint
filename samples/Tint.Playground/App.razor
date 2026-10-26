@@ -1,0 +1,151 @@
+<div class="page @(_showSecond ? "show-second" : null)">
+    <header class="toolbar">
+        <a class="brand" href="https://github.com/sebastienros/tint" title="Tint on GitHub">
+            <img src="icon.png" alt="" width="20" height="20" />
+            <span>Tint</span><span class="brand-sub">playground</span>
+        </a>
+
+        <label class="field">
+            <span>Language</span>
+            <select value="@_language.Id" @onchange="OnLanguageChanged" aria-label="Language">
+                @foreach (var language in Engine.Languages)
+                {
+                    <option value="@language.Id">@language.Label</option>
+                }
+            </select>
+        </label>
+
+        <label class="field">
+            <span>Theme</span>
+            <select value="@_theme.Id" @onchange="OnThemeChanged" aria-label="Theme">
+                @ThemeOptions(null)
+            </select>
+        </label>
+
+        <label class="field">
+            <span>Second theme</span>
+            <select value="@(_secondTheme?.Id ?? string.Empty)" @onchange="OnSecondThemeChanged" aria-label="Second theme">
+                <option value="">None</option>
+                @ThemeOptions(_theme.Id)
+            </select>
+        </label>
+
+        @if (_secondTheme is not null)
+        {
+            <div class="segmented" role="group" aria-label="Preview">
+                <button type="button" class="@(_showSecond ? null : "active")" @onclick="() => ShowSecond(false)" title="Preview the first theme">@_theme.Name</button>
+                <button type="button" class="@(_showSecond ? "active" : null)" @onclick="() => ShowSecond(true)" title="Preview the second theme, as the CSS below switches to it">@_secondTheme.Name</button>
+            </div>
+        }
+
+        <div class="actions">
+            <button type="button" @onclick="LoadSampleAsync" disabled="@(_loading)" title="Load the sample for this language">Sample</button>
+            <button type="button" @onclick="CopyHtmlAsync" title="Copy the HTML Highlighter.ToHtml produced">@_copyLabel</button>
+        </div>
+    </header>
+
+    @if (_secondTheme is not null)
+    {
+        <style>@_previewCss</style>
+    }
+
+    <main class="workspace">
+        <section class="editor" aria-label="Code">
+            <div class="editor-output" @ref="_output"></div>
+            <textarea @ref="_textarea" class="editor-input" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Code"></textarea>
+        </section>
+
+        <aside class="inspector" aria-label="Token inspector">
+            <h2>Token</h2>
+            @if (_hit is { } hit)
+            {
+                var token = hit.Token;
+                var text = _code.Substring(hit.Offset, token.Length);
+                <div class="token-text"><code>@Visible(text)</code></div>
+                <dl class="facts">
+                    <dt>Position</dt>
+                    <dd>line @(hit.Line + 1), column @(token.Start + 1), @token.Length char@(token.Length == 1 ? null : "s")</dd>
+                    <dt>Color</dt>
+                    <dd><span class="swatch" style="background:@token.Color"></span><code>@token.Color.ToLowerInvariant()</code></dd>
+                    <dt>Background</dt>
+                    <dd><span class="swatch" style="background:@token.BackgroundColor"></span><code>@token.BackgroundColor.ToLowerInvariant()</code></dd>
+                    <dt>Font style</dt>
+                    <dd>@FontStyleText(token.FontStyle)</dd>
+                </dl>
+
+                <h3>Scopes</h3>
+                <ol class="scopes" reversed>
+                    @{
+                        var scopes = token.Scopes.GetScopeNames();
+                    }
+                    @for (var i = scopes.Length - 1; i >= 0; i--)
+                    {
+                        <li class="@(i == scopes.Length - 1 ? "innermost" : null)"><code>@scopes[i]</code></li>
+                    }
+                </ol>
+
+                <h3>Theme rules</h3>
+                <dl class="rules">
+                    <dt>Foreground</dt>
+                    <dd>@RuleText(_explanation?.Foreground)</dd>
+                    <dt>Font style</dt>
+                    <dd>@RuleText(_explanation?.FontStyle)</dd>
+                </dl>
+            }
+            else
+            {
+                <p class="hint">Hover over the code or move the caret to inspect a token: its scopes and the theme rule that colors it.</p>
+            }
+        </aside>
+    </main>
+
+    <footer class="status">
+        @if (_result is { } result)
+        {
+            <span>@result.Tokens.LineCount.ToString("N0") line@(result.Tokens.LineCount == 1 ? null : "s")</span>
+            <span>@result.Tokens.TokenCount.ToString("N0") tokens</span>
+            <span title="Highlighter.Tokenize, timed with Stopwatch">tokenize @Ms(result.TokenizeTime)</span>
+            <span title="Highlighter.ToHtml, which tokenizes again once per theme">HTML @Ms(result.RenderTime)</span>
+            <span>@result.Html.Length.ToString("N0") HTML chars</span>
+        }
+        @if (_interactiveMs is { } interactive)
+        {
+            <span title="From the first byte of the page to the first highlight">ready in @interactive.ToString("N0") ms</span>
+        }
+        @if (_message is not null)
+        {
+            <span class="message">@_message</span>
+        }
+    </footer>
+
+    <section class="html-output">
+        <button type="button" class="disclosure" aria-expanded="@(_showHtml ? "true" : "false")" @onclick="() => _showHtml = !_showHtml">
+            <span class="chevron">@(_showHtml ? "▾" : "▸")</span> HTML output
+        </button>
+        @if (_showHtml && _result is not null)
+        {
+            @if (_secondTheme is not null)
+            {
+                <h3>CSS that switches to @_secondTheme.Name</h3>
+                <pre class="source">@_dualCss</pre>
+            }
+            <h3>Markup</h3>
+            <pre class="source">@_result.Html</pre>
+        }
+    </section>
+</div>
+
+@code {
+    private RenderFragment ThemeOptions(string? exclude) => __builder =>
+    {
+        foreach (var group in Engine.Themes.Where(t => t.Id != exclude).GroupBy(t => t.Kind))
+        {
+            <optgroup label="@group.Key">
+                @foreach (var theme in group)
+                {
+                    <option value="@theme.Id">@theme.Name</option>
+                }
+            </optgroup>
+        }
+    };
+}

@@ -29,6 +29,19 @@ public sealed class EngineTests
     }
 
     [Fact]
+    public void The_inspected_theme_colors_the_tokens()
+    {
+        var csharp = Engine.FindLanguage("csharp")!;
+        var dark = Engine.FindTheme("dark-plus")!;
+        var light = Engine.FindTheme("light-plus")!;
+
+        var result = Engine.Highlight(csharp, dark, light, "return;", light);
+
+        Assert.Contains("--tint-light:", result.Html);
+        Assert.Equal("#af00db", result.Tokens.Lines[0][0].Color, StringComparer.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Highlighters_are_cached_per_language_and_themes()
     {
         var engine = new PlaygroundEngine(TintGrammars.All, TintThemes.All);

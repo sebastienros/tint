@@ -3,6 +3,7 @@
     <Project Path="benchmarks/Tint.Benchmarks/Tint.Benchmarks.csproj" />
   </Folder>
   <Folder Name="/samples/">
+    <Project Path="samples/Tint.Playground/Tint.Playground.csproj" />
     <Project Path="samples/Tint.Playground.Core/Tint.Playground.Core.csproj" />
   </Folder>
   <Folder Name="/src/">

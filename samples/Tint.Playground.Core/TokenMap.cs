@@ -44,6 +44,12 @@ public sealed class TokenMap
     public IReadOnlyList<HighlightedToken[]> Lines => _lines;
 
     /// <summary>
+    /// The offset of a line and column, or -1 when the line does not exist or the column is past its end (the newline).
+    /// </summary>
+    public int GetOffset(int line, int column)
+        => (uint)line < (uint)_lines.Length && (uint)column < (uint)_lineLengths[line] ? _lineStarts[line] + column : -1;
+
+    /// <summary>
     /// The token holding the character at <paramref name="offset"/>, as a mouse hover reports it. At a line end (the
     /// newline, or the end of the code) there is none, unless <paramref name="caret"/> is set: a caret sits between
     /// characters and takes the token before it when no token starts at it.
