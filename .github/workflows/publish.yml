@@ -78,7 +78,12 @@ jobs:
       run: dotnet test --solution Tint.slnx --configuration Release --no-build --minimum-expected-tests 1
 
     - name: Pack with dotnet
-      run: dotnet pack src/Tint/Tint.csproj --output artifacts --configuration Release --no-build -p:Version=${{ steps.release.outputs.version }} -p:ContinuousIntegrationBuild=True
+      shell: bash
+      run: |
+        set -euo pipefail
+        for project in src/Tint/Tint.csproj src/Tint.Grammars/Tint.Grammars.csproj src/Tint.Themes/Tint.Themes.csproj; do
+          dotnet pack "$project" --output artifacts --configuration Release --no-build -p:Version=${{ steps.release.outputs.version }} -p:ContinuousIntegrationBuild=True
+        done
 
     - name: Attest NuGet packages
       uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3

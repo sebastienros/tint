@@ -5,6 +5,8 @@
   <Folder Name="/src/">
     <Project Path="src/Tint/Tint.csproj" />
     <Project Path="src/Tint.Generator/Tint.Generator.csproj" />
+    <Project Path="src/Tint.Grammars/Tint.Grammars.csproj" />
+    <Project Path="src/Tint.Themes/Tint.Themes.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Tint.Generator.Sample/Tint.Generator.Sample.csproj" />
