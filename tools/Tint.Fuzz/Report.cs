@@ -36,7 +36,8 @@ public static class Report
             }
 
             var path = Path.Combine(inputsDirectory, $"{Generator.StableHash(finding.Signature):x8}.txt");
-            File.WriteAllText(path, string.Join('\n', finding.Lines), new UTF8Encoding(false, false));
+            // Every line ends with \n, so a trailing empty line (or an input of one empty line) survives the round trip.
+            File.WriteAllText(path, string.Concat(finding.Lines.Select(l => l + "\n")), new UTF8Encoding(false, false));
             var (tintLine, referenceLine, error) = referee.Judge(finding.ScopeName, path, finding.Line);
             if (error is not null)
             {
