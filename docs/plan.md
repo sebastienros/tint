@@ -98,6 +98,14 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
 - Tier-2 runtime compilation (design 5.5): `Compile()` hot patterns after N searches on JIT
   runtimes; measure N and the gain on `bigfile.cs`; off under AOT.
 - Done when: benchmarks run on macOS arm64 and linux x64 and the numbers are in the README table.
+- Outcome (2026-10-25, macOS arm64 measured; linux x64 not yet run): `Highlighter`, `HtmlRenderer`
+  (single, dual and named themes, CSS classes), `AnsiRenderer` shipped. On an M4 Pro, `bigfile.cs`
+  tokenizes in 1.73 s (3.35 MB/s, 32.6 MB) against 7.65 s / 507 MB for TextMateSharp 2.0.4 and
+  2.80 s for TextMateLib 0.2.1 (its native library loads on osx-arm64); docs-heavy is 2.8×–8.7×
+  faster than TextMateSharp with 4.5×–52× fewer allocations; first use 2.5 ms vs 4.7 ms; HTML
+  rendering adds under 2% to tokenization. Tier 2 is opt-in (`TokenizerOptions.CompileHotPatterns`,
+  threshold 256): 3–5% faster on C# once warm, slower on short blocks, hundreds of milliseconds to
+  compile. Numbers in [benchmarks/README.md](../benchmarks/README.md).
 
 ## P6 — Playground
 

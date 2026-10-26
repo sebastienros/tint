@@ -39,6 +39,12 @@ public sealed class TokenizationSuiteTests
     [MemberData(nameof(Cases))]
     public void TokenizesLikeVSCodeTextMate(string suite, int index) => Run(suite, index, path => GrammarLoader.Load(path));
 
+    // Tier 2 (docs/design.md section 5.5): every pattern runtime-compiled when its rule is first reached.
+    [Theory]
+    [MemberData(nameof(Cases))]
+    public void TokenizesLikeVSCodeTextMateWithCompiledPatterns(string suite, int index)
+        => Run(suite, index, path => GrammarLoader.Load(path), new TokenizerOptions { CompileHotPatterns = true, HotPatternThreshold = 0 });
+
     // The grammar files every case of the suites uses, as full paths.
     internal static IEnumerable<string> GrammarFiles()
     {
@@ -56,7 +62,7 @@ public sealed class TokenizationSuiteTests
         }
     }
 
-    internal static void Run(string suite, int index, Func<string, IGrammarSource> load)
+    internal static void Run(string suite, int index, Func<string, IGrammarSource> load, TokenizerOptions? options = null)
     {
         var suitePath = SuitePath(suite);
         using var document = JsonDocument.Parse(File.ReadAllBytes(suitePath));
@@ -86,7 +92,7 @@ public sealed class TokenizationSuiteTests
             }
         }
 
-        var tokenizer = registry.CreateTokenizer(scopeName);
+        var tokenizer = registry.CreateTokenizer(scopeName, null, options ?? TokenizerOptions.Default);
         var state = StateStack.Initial;
         foreach (var testLine in test.GetProperty("lines").EnumerateArray())
         {
