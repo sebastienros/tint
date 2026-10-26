@@ -12,3 +12,4 @@ TestResults/
 **/TestResults/
 .nuget/
 benchmarks/samples/.cache/
+node_modules/

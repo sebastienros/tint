@@ -1,0 +1,10 @@
+{
+  "name": "tint-referee",
+  "private": true,
+  "description": "vscode-textmate over vscode-oniguruma, the behavior Tint ports: settles corpus check and fuzz differences.",
+  "type": "module",
+  "dependencies": {
+    "vscode-oniguruma": "2.0.1",
+    "vscode-textmate": "9.3.2"
+  }
+}

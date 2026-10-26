@@ -1,0 +1,20 @@
+{
+  "comment": "Repositories tokenized by Tint.CorpusCheck. Each is cloned shallow, blobless and sparse into artifacts/corpus/<name> at the pinned commit; 'paths' are sparse-checkout (no-cone) patterns. Files map to grammars by the file extensions of the bundled grammars. 'maxFilesPerLanguage' caps the files of one language over the whole corpus, taken in path order per repository, round-robin across repositories.",
+  "maxFilesPerLanguage": 500,
+  "repositories": [
+    { "name": "aspnetcore", "url": "https://github.com/dotnet/aspnetcore", "commit": "ceb0eec49d8d2c77f4f7c26b85ddb6e96940dfed", "license": "MIT", "paths": ["/src/Mvc/", "/src/Components/", "/src/Http/", "/eng/"] },
+    { "name": "vscode", "url": "https://github.com/microsoft/vscode", "commit": "1c20ad34761ad529d85ecaacd0ce4f31ef515185", "license": "MIT", "paths": ["/extensions/", "/src/vs/base/", "/build/"] },
+    { "name": "cpython", "url": "https://github.com/python/cpython", "commit": "1c327a4464fa47f5d3aaf4c6c0184cb14ef2e21e", "license": "PSF-2.0", "paths": ["/Lib/", "/Modules/", "/Tools/"] },
+    { "name": "go", "url": "https://github.com/golang/go", "commit": "17d7bdecd0259971b1ace357f8efdb3efbf916b4", "license": "BSD-3-Clause", "paths": ["/src/"] },
+    { "name": "rust", "url": "https://github.com/rust-lang/rust", "commit": "859220648edee0282af5b56f0b490cd4beb074db", "license": "MIT OR Apache-2.0", "paths": ["/library/"] },
+    { "name": "curl", "url": "https://github.com/curl/curl", "commit": "bc677a8f16a51e728136eff130509cfac57aad19", "license": "curl", "paths": ["/lib/", "/src/", "/scripts/", "/tests/"] },
+    { "name": "laravel", "url": "https://github.com/laravel/framework", "commit": "5d7797528723107cd4f495326838a7d7d67fbb20", "license": "MIT", "paths": ["/src/"] },
+    { "name": "node", "url": "https://github.com/nodejs/node", "commit": "3983092f63284fe57e53006cba91948fbbd84967", "license": "MIT", "paths": ["/lib/", "/doc/", "/tools/"] },
+    { "name": "powershell", "url": "https://github.com/PowerShell/PowerShell", "commit": "dad69345f3fae3d0530f87ec73c8441649760483", "license": "MIT", "paths": ["/test/powershell/", "/tools/", "/build.psm1"] },
+    { "name": "rails", "url": "https://github.com/rails/rails", "commit": "d5c10191684c845d4ddb53587d3a2965270369fc", "license": "MIT", "paths": ["/activerecord/lib/", "/actionpack/lib/", "/railties/lib/"] },
+    { "name": "guava", "url": "https://github.com/google/guava", "commit": "5ae56d77e64305752b919ff2c96713f47ac0c94c", "license": "Apache-2.0", "paths": ["/guava/src/"] },
+    { "name": "fmt", "url": "https://github.com/fmtlib/fmt", "commit": "f87a75e15262614ce8aa0e6a0664df9d0823fb92", "license": "MIT", "paths": ["/include/", "/src/", "/test/"] },
+    { "name": "postgres", "url": "https://github.com/postgres/postgres", "commit": "022a80fe6c1d82f7777bd52f9d3e5f9952533109", "license": "PostgreSQL", "paths": ["/src/test/regress/sql/", "/contrib/"] },
+    { "name": "kubernetes-examples", "url": "https://github.com/kubernetes/examples", "commit": "d6b8cd27eacb51e651a1aa6f7c190a28713eff6e", "license": "Apache-2.0", "paths": ["*.yaml", "*.yml", "*.md", "*.sh", "*.py", "*.go", "*.json"] }
+  ]
+}
