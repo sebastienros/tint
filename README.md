@@ -65,8 +65,9 @@ grammars, VS Code JSON themes (with `include`) and `.tmTheme` files are supporte
 
 ### Bundled grammars and themes
 
-`Tint.Grammars` and `Tint.Themes` ship the VS Code grammars and themes already generated, for
-quick starts, demos and the [playground](https://sebastienros.github.io/tint/).
+`Tint.Grammars` and `Tint.Themes` ship the VS Code grammars (84 files, from 51 extensions) and its
+19 color themes already generated, for quick starts, demos and the
+[playground](https://sebastienros.github.io/tint/). No items or generator setup needed.
 
 ```bash
 dotnet add package Tint.Grammars
@@ -74,14 +75,32 @@ dotnet add package Tint.Themes
 ```
 
 ```csharp
-var registry = new GrammarRegistry();
-registry.Add(TintGrammars.All);          // or registry.Add(TintGrammars.CSharp, TintGrammars.Json)
+using Tint;
+using Tint.Grammars;
+using Tint.Themes;
 
-var highlighter = registry.CreateHighlighter("source.ts", TintThemes.GitHubDark);
-Console.Write(highlighter.ToAnsi(code)); // terminal output
+var registry = new GrammarRegistry();
+registry.Add(TintGrammars.CSharp, TintGrammars.Json); // or registry.Add([.. TintGrammars.All])
+
+var tokenizer = registry.CreateTokenizer("source.cs", Theme.FromSource(TintThemes.DarkPlus));
+
+IGrammarSource? markdown = TintGrammars.Find("text.html.markdown"); // by scope name: TintGrammars.Markdown
+IThemeSource? monokai = TintThemes.Find("Monokai");                // by theme name or property name
 ```
 
-Only the grammars you reference stay in a trimmed or NativeAOT build.
+Each grammar and theme is a class (`CSharpGrammar`, `DarkPlusTheme`, ...) with a shared
+`Instance`; `TintGrammars` and `TintThemes` expose one property per class, named after it without
+the suffix (`TintGrammars.CSharp`, `TintGrammars.Markdown`, `TintGrammars.TypeScriptReact`,
+`TintThemes.DarkPlus`, `TintThemes.LightVisualStudio`), `All` and `Find`. Grammar classes are named
+after their language (`ShellScriptGrammar` for `shellscript`, `PugGrammar` for `jade`); grammars
+without one, included by others, after their scope (`HtmlBasicGrammar`, `Yaml12Grammar`,
+`JsDocTypeScriptInjectionGrammar`). Patterns are parsed on first use.
+
+Only the classes you reference stay in a trimmed or NativeAOT build: an app that uses
+`TintGrammars.CSharp`, `TintGrammars.Json` and `TintThemes.DarkPlus` trims `Tint.Grammars.dll`
+from 5.2 MB to 146 KB. Reading `All` or calling `Find` keeps every class, as it must. A grammar
+that includes another (Markdown fenced blocks, HTML with CSS and JavaScript) needs that one
+registered too; `registry.GetMissingGrammars(scopeName)` lists what is missing.
 
 ### Tokens
 

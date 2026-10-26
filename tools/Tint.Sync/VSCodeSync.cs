@@ -8,7 +8,8 @@ namespace Tint.Sync;
 
 /// <summary>
 /// Downloads the grammars and themes contributed by the extensions of a <c>microsoft/vscode</c> commit and writes
-/// <c>grammars/manifest.json</c>, <c>themes/manifest.json</c> and <c>THIRD-PARTY-NOTICES.txt</c>.
+/// <c>grammars/manifest.json</c>, <c>themes/manifest.json</c>, <c>THIRD-PARTY-NOTICES.txt</c> and the bundles' item lists
+/// (<see cref="BundleProps"/>).
 /// </summary>
 internal sealed class VSCodeSync
 {
@@ -187,6 +188,7 @@ internal sealed class VSCodeSync
         WriteFile(Path.Combine(grammarsDirectory, "manifest.json"), WriteGrammarManifest(commitHash, grammarEntries));
         WriteFile(Path.Combine(themesDirectory, "manifest.json"), WriteThemeManifest(commitHash, themeEntries));
         WriteFile(Path.Combine(_root, "THIRD-PARTY-NOTICES.txt"), Encoding.UTF8.GetBytes(WriteNotices(commitHash, registrations)));
+        BundleProps.Write(_root);
 
         var uniqueGrammars = grammarEntries.Select(g => g.Path).Distinct(StringComparer.Ordinal).ToList();
         Console.WriteLine($"Extensions scanned:      {extensions.Count}");

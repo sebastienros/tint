@@ -26,7 +26,7 @@ public sealed class TintGenerator : IIncrementalGenerator
         {
             /// <summary>
             /// Generates an <c>IGrammarSource</c> implementation on this partial class from a <c>TintGrammar</c> (or
-            /// <c>AdditionalFiles</c>) item whose path, relative to the project directory, is <paramref name="path"/>.
+            /// <c>AdditionalFiles</c>) item whose path, relative to the project directory, is the constructor argument.
             /// </summary>
             [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
             [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
@@ -76,7 +76,7 @@ public sealed class TintGenerator : IIncrementalGenerator
 
             /// <summary>
             /// Generates an <c>IThemeSource</c> implementation on this partial class from a <c>TintTheme</c> (or
-            /// <c>AdditionalFiles</c>) item whose path, relative to the project directory, is <paramref name="path"/>.
+            /// <c>AdditionalFiles</c>) item whose path, relative to the project directory, is the constructor argument.
             /// </summary>
             [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
             [global::System.AttributeUsage(global::System.AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
@@ -159,6 +159,32 @@ public sealed class TintGenerator : IIncrementalGenerator
             .Combine(files)
             .Select(static (input, cancellationToken) => ThemeEmitter.Generate(input.Left, input.Right, cancellationToken));
         context.RegisterSourceOutput(themes, Emit);
+
+        // Opt-in aggregate classes (TintGrammarsClass, TintThemesClass) over every generated class of the compilation.
+        RegisterAggregate(context, grammars, globals.Select(static (g, _) => AggregateTarget.From(g.GrammarsClass, g.RootNamespace)), SourceKind.Grammar);
+        RegisterAggregate(context, themes, globals.Select(static (g, _) => AggregateTarget.From(g.ThemesClass, g.RootNamespace)), SourceKind.Theme);
+    }
+
+    private static void RegisterAggregate(
+        IncrementalGeneratorInitializationContext context,
+        IncrementalValuesProvider<GenerationResult> results,
+        IncrementalValueProvider<AggregateTarget?> target,
+        SourceKind kind)
+    {
+        var entries = results
+            .Select(static (result, _) => result.Entry)
+            .Where(static entry => entry is not null)
+            .Select(static (entry, _) => entry!)
+            .Collect()
+            .Select(static (entries, _) => entries.ToEquatableArray());
+        context.RegisterSourceOutput(entries.Combine(target), (context, input) =>
+        {
+            if (input.Right is { } aggregate)
+            {
+                var result = AggregateEmitter.Generate(aggregate, kind, input.Left);
+                context.AddSource(result.HintName + ".g.cs", SourceText.From(result.Source!, Encoding.UTF8));
+            }
+        });
     }
 
     private static void Emit(SourceProductionContext context, GenerationResult result)
@@ -202,7 +228,7 @@ public sealed class TintGenerator : IIncrementalGenerator
 
     private static ProjectFile? ReadFile(AdditionalText text, AnalyzerConfigOptions options, GlobalOptions globals, CancellationToken cancellationToken)
     {
-        string? Get(string name) => options.TryGetValue("build_metadata.AdditionalFiles." + name, out var value) && !string.IsNullOrWhiteSpace(value) ? value.Trim() : null;
+        string? Get(string name) => options.TryGetValue("build_metadata.AdditionalFiles." + name, out var value) && !string.IsNullOrWhiteSpace(value) ? Unescape(value.Trim()) : null;
 
         SourceKind? kind = Get("TintKind") switch
         {
@@ -237,6 +263,31 @@ public sealed class TintGenerator : IIncrementalGenerator
             Get("Accessibility"),
             kernels is null ? null : GlobalOptions.IsTrue(kernels),
             SourceSettings.FromMetadata(Get));
+    }
+
+    // Tint.props writes '#' and '%' as %23 and %25: the analyzer config file would cut a value at '#'.
+    private static string Unescape(string value)
+    {
+        if (value.IndexOf('%') < 0)
+        {
+            return value;
+        }
+
+        var builder = new StringBuilder(value.Length);
+        for (var i = 0; i < value.Length; i++)
+        {
+            if (value[i] == '%' && i + 2 < value.Length && value[i + 1] == '2' && value[i + 2] is '3' or '5')
+            {
+                builder.Append(value[i + 2] == '3' ? '#' : '%');
+                i += 2;
+            }
+            else
+            {
+                builder.Append(value[i]);
+            }
+        }
+
+        return builder.ToString();
     }
 
     // Naming an item-only grammar needs its scope name; a file that does not parse is reported when it is generated.
@@ -291,9 +342,11 @@ public sealed class TintGenerator : IIncrementalGenerator
             && declaration.Modifiers.Any(m => m.Text == "partial");
         var containingTypes = new List<string>();
         var valid = isPartial && !symbol.IsStatic && !symbol.IsGenericType;
+        var isPublic = symbol.DeclaredAccessibility == Accessibility.Public;
         for (var containing = symbol.ContainingType; containing is not null; containing = containing.ContainingType)
         {
             valid &= !containing.IsGenericType && containing.DeclaringSyntaxReferences.Length > 0;
+            isPublic &= containing.DeclaredAccessibility == Accessibility.Public;
             var keyword = containing.IsRecord
                 ? (containing.TypeKind == TypeKind.Struct ? "record struct" : "record")
                 : containing.TypeKind switch
@@ -316,6 +369,7 @@ public sealed class TintGenerator : IIncrementalGenerator
             containingTypes.ToEquatableArray(),
             symbol.ToDisplayString(),
             valid,
+            isPublic,
             LocationInfo.From(attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation() ?? symbol.Locations.FirstOrDefault()));
     }
 
@@ -360,13 +414,21 @@ public sealed class TintGenerator : IIncrementalGenerator
                     file.Text!,
                     target.Kernels ?? file.Kernels ?? globals.Kernels,
                     Merge(target.Settings, file.Settings),
-                    HintName(target.Namespace, target.ContainingTypes, target.ClassName)));
+                    HintName(target.Namespace, target.ContainingTypes, target.ClassName),
+                    target.IsPublic));
             }
 
             foreach (var file in files)
             {
-                if (file.Kind is not { } kind || file.Text is null || bound.Contains(file.FullPath))
+                if (file.Kind is not { } kind || bound.Contains(file.FullPath))
                 {
+                    continue;
+                }
+
+                if (file.Text is null)
+                {
+                    diagnostics.Add(DiagnosticInfo.Create(
+                        TintDiagnostics.InvalidFile, LocationInfo.InFile(file.DisplayPath), PathUtilities.Relative(file.FullPath, globals.ProjectDirectory), kind == SourceKind.Grammar ? "grammar" : "theme", "the file cannot be read"));
                     continue;
                 }
 
@@ -400,7 +462,8 @@ public sealed class TintGenerator : IIncrementalGenerator
                     file.Text,
                     file.Kernels ?? globals.Kernels,
                     file.Settings,
-                    HintName(ns, default, className)));
+                    HintName(ns, default, className),
+                    accessibility == "public"));
             }
 
             // Two units with one fully qualified name would not compile; report and keep the first.

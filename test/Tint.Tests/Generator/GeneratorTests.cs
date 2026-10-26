@@ -323,6 +323,30 @@ public sealed class GeneratorTests
     }
 
     [Fact]
+    public void MetadataDecodesTheHashAndPercentEscapesOfTintProps()
+    {
+        // Tint.props writes '#' and '%' as %23 and %25, because the analyzer config file cuts values at '#'.
+        var run = GeneratorHarness.Run([TestFile.Grammar("simple.json", SimpleGrammar, ("Aliases", "C%23,F%2523,100%25"), ("LanguageId", "c%23"))]);
+
+        var info = Grammar(run.Load(), "Test.Root.SimpleGrammar").Info;
+        Assert.Equal(["C#", "F%23", "100%"], info.Aliases);
+        Assert.Equal("c#", info.LanguageId);
+    }
+
+    [Fact]
+    public void AnItemWhoseTextCannotBeReadIsTint003()
+    {
+        var run = GeneratorHarness.Run([TestFile.Grammar("grammars/missing.tmLanguage.json", null), TestFile.Theme("themes/missing.json", null)]);
+
+        Assert.Collection(
+            run.Tint("TINT003").OrderBy(d => d.GetMessage(), StringComparer.Ordinal),
+            grammar => Assert.Equal("'grammars/missing.tmLanguage.json' cannot be read as a grammar: the file cannot be read", grammar.GetMessage()),
+            theme => Assert.Equal("'themes/missing.json' cannot be read as a theme: the file cannot be read", theme.GetMessage()));
+        Assert.All(run.Tint("TINT003"), d => Assert.Equal(DiagnosticSeverity.Error, d.Severity));
+        Assert.DoesNotContain(run.Sources.Keys, k => k.Contains("Missing", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void AnInvalidRegexIsTint004WithTheRulePathAndOffset()
     {
         var run = GeneratorHarness.Run([TestFile.Grammar("bad.json", """

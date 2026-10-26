@@ -68,7 +68,7 @@ internal static class ThemeEmitter
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        return new GenerationResult(unit.HintName, Emit(unit, theme), null, diagnostics.ToEquatableArray());
+        return new GenerationResult(unit.HintName, Emit(unit, theme), null, diagnostics.ToEquatableArray(), AggregateEntry.For(unit, theme.Name));
     }
 
     private static string Emit(GenerationUnit unit, RawTheme theme)

@@ -92,7 +92,7 @@ internal static class GrammarEmitter
 
         var mainSource = EmitMain(unit, grammar, info, table, kernels.Count > 0);
         var kernelSource = kernels.Count > 0 ? EmitKernels(unit, kernels) : null;
-        return new GenerationResult(unit.HintName, mainSource, kernelSource, diagnostics.ToEquatableArray());
+        return new GenerationResult(unit.HintName, mainSource, kernelSource, diagnostics.ToEquatableArray(), AggregateEntry.For(unit, grammar.ScopeName));
     }
 
     public static RawGrammar? Parse(GenerationUnit unit, LocationInfo fileLocation, List<DiagnosticInfo> diagnostics)
