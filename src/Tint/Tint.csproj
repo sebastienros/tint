@@ -12,9 +12,6 @@
     <PackageIcon>icon.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <WarningsAsErrors>$(WarningsAsErrors);CS1591</WarningsAsErrors>
-    <!-- GregsEx is consumed as a Feedz preview (compiled Oniguruma kernels) until a stable release carries them.
-         Remove once Directory.Packages.props points at a stable GregsEx. -->
-    <NoWarn>$(NoWarn);NU5104</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="GregsEx" />
