@@ -5,4 +5,8 @@
   <ItemGroup>
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The generator's class naming rules, so the bundles' explicit names are the ones the generator would pick. -->
+    <Compile Include="../../src/Tint.Generator/Naming.cs" Link="Shared/Naming.cs" />
+  </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 name: Sync VS Code grammars and themes
 
-# Keeps grammars/ and themes/ (and the generated THIRD-PARTY-NOTICES.txt) in sync with
+# Keeps grammars/ and themes/ (and the generated THIRD-PARTY-NOTICES.txt and bundle item lists) in sync with
 # microsoft/vscode. When anything changed, the run force-updates the single long-lived
 # branch `sync/vscode` and creates or updates the pull request from it, so there is never
 # more than one open sync pull request.
@@ -74,7 +74,7 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        if [[ -n "$(git status --porcelain -- grammars themes THIRD-PARTY-NOTICES.txt)" ]]; then
+        if [[ -n "$(git status --porcelain -- grammars themes THIRD-PARTY-NOTICES.txt src/Tint.Grammars/VSCodeGrammars.props src/Tint.Themes/VSCodeThemes.props)" ]]; then
           echo "changed=true" >> "$GITHUB_OUTPUT"
         else
           echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -94,7 +94,7 @@ jobs:
       run: |
         set -euo pipefail
 
-        git add -A -- grammars themes THIRD-PARTY-NOTICES.txt
+        git add -A -- grammars themes THIRD-PARTY-NOTICES.txt src/Tint.Grammars/VSCodeGrammars.props src/Tint.Themes/VSCodeThemes.props
 
         # Count grammar and theme files by change kind from the staged diff.
         count() { git diff --cached --name-status --diff-filter="$1" -- grammars themes | wc -l | tr -d ' '; }
@@ -104,7 +104,7 @@ jobs:
 
         title="Sync grammars and themes with microsoft/vscode@${SHORT}"
         body="$(cat <<EOF
-        Automated sync of \`grammars/\`, \`themes/\` and \`THIRD-PARTY-NOTICES.txt\` from [microsoft/vscode](https://github.com/microsoft/vscode) by \`tools/Tint.Sync\`.
+        Automated sync of \`grammars/\`, \`themes/\`, \`THIRD-PARTY-NOTICES.txt\` and the bundle item lists (\`src/Tint.Grammars/VSCodeGrammars.props\`, \`src/Tint.Themes/VSCodeThemes.props\`) from [microsoft/vscode](https://github.com/microsoft/vscode) by \`tools/Tint.Sync\`.
 
         | | Commit |
         | --- | --- |

@@ -51,7 +51,28 @@ sync.SetAction(async (result, cancellationToken) =>
     return 0;
 });
 
-var rootCommand = new RootCommand("Tint repository tools.") { sync };
+var propsRootOption = new Option<DirectoryInfo?>("--root")
+{
+    Description = "The repository root. Defaults to the nearest directory containing Tint.slnx.",
+};
+var props = new Command("props", "Regenerate src/Tint.Grammars/VSCodeGrammars.props and src/Tint.Themes/VSCodeThemes.props from the manifests. Downloads nothing; sync runs this too.")
+{
+    propsRootOption,
+};
+props.SetAction(result =>
+{
+    var root = result.GetValue(propsRootOption)?.FullName ?? FindRepositoryRoot();
+    if (root is null)
+    {
+        Console.Error.WriteLine("Could not find Tint.slnx; pass --root.");
+        return 1;
+    }
+
+    BundleProps.Write(root);
+    return 0;
+});
+
+var rootCommand = new RootCommand("Tint repository tools.") { sync, props };
 return await rootCommand.Parse(args).InvokeAsync();
 
 static string? FindRepositoryRoot()
