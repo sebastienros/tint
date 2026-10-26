@@ -74,8 +74,9 @@ public sealed class RegexSource
     }
 #endif
 
-    /// <summary>The empty pattern, which matches immediately (the <c>end</c> of a rule that has none).</summary>
-    public static RegexSource Empty { get; } = new(string.Empty);
+    // The end of a begin rule that has none: U+FFFF, which never matches, so the rule stays open to the end of the line
+    // (vscode-textmate's BeginEndRule: new RegExpSource(end || '\uFFFF', -1)).
+    internal static RegexSource MissingEnd { get; } = new("\uFFFF");
 
 #if !TINT_GENERATOR
     /// <summary>

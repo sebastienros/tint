@@ -375,7 +375,7 @@ internal sealed class CompiledGrammar
             var beginCaptures = CompileCaptures(desc.BeginCaptures ?? desc.Captures, owner, repository);
             var endCaptures = CompileCaptures(desc.EndCaptures ?? desc.Captures, owner, repository);
             var (ids, missing) = CompilePatterns(desc.Patterns, owner, repository);
-            rule = new BeginEndRule(id, desc.Name, desc.ContentName, desc.Begin, beginCaptures, desc.End ?? RegexSource.Empty, endCaptures, desc.ApplyEndPatternLast, ids, missing);
+            rule = new BeginEndRule(id, desc.Name, desc.ContentName, desc.Begin, beginCaptures, desc.End ?? RegexSource.MissingEnd, endCaptures, desc.ApplyEndPatternLast, ids, missing);
         }
 
         Rules.Set(id, rule);

@@ -1,5 +1,5 @@
 // Tokenizes a file with vscode-textmate over vscode-oniguruma, the reference behavior Tint ports, using the checkout's
-// grammars/ (injections from grammars/manifest.json) and Dark+ (themes/theme-defaults/dark_plus.json with its include
+// grammars/ (all of them loaded, injections from grammars/manifest.json) and Dark+ (themes/theme-defaults/dark_plus.json with its include
 // flattened, read as written). Prints one block per line: "L<n>", then "start-end scopes" per token of tokenizeLine,
 // ends clamped to the line and empty tokens dropped as Tint.CorpusCheck normalizes them, then "S start foreground
 // background fontStyle" per token of tokenizeLine2. Without the S lines, the output diffs against
@@ -72,6 +72,12 @@ function themeRules(file) {
 
 registry.setTheme({ name: 'Dark+', settings: themeRules(path.join(root, 'themes', 'theme-defaults', 'dark_plus.json')) });
 const colorMap = registry.getColorMap();
+// Tint's checkers register every bundled grammar. vscode-textmate loads a grammar's dependencies from its patterns
+// and includes but not from its captures (CoffeeScript embeds source.js in a capture only), so load them all first:
+// a grammar is then available to every other one, as in a Tint registry or a VS Code session where it was used.
+for (const g of manifest.grammars) {
+    await registry.loadGrammar(g.scopeName);
+}
 const grammar = await registry.loadGrammar(scope);
 // A UTF-8 byte order mark is not text, as .NET's File.ReadAllText and editors treat it.
 const lines = fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, '').split(/\r\n|\r|\n/);
