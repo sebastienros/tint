@@ -496,14 +496,11 @@ trimmed app keeps only the grammars it references. The playground is the proof: 
 
 ## 15. Open items and asks on GregsEx
 
-1. Done in [gregsex#27](https://github.com/sebastienros/gregsex/pull/27): the `KernelSource` façade
-   (issue [#26](https://github.com/sebastienros/gregsex/issues/26)).
-2. A `TextMate` compile-limits preset (`OnigurumaCompileOptions.TextMate` or
-   `RegexCompileLimits.TextMate`: `maxPatternUnits 1 << 22`, `maxNestingDepth 4096`,
-   `maxInstructions 1 << 24`, `maxClassRanges 1 << 20`, `maxCaptureGroups 32767`, raised compile
-   work/plan/memory) so the façade caller, the runtime `Parse` and a future `[GeneratedPattern]`
-   knob all name the same limits and fingerprints agree by construction. Without it Tint's
-   generator builds `RegexCompileLimits` through an 8-argument constructor by reflection.
+1. Done in GregsEx 0.5.1 ([gregsex#27](https://github.com/sebastienros/gregsex/pull/27)): the
+   `KernelSource` façade (issue [#26](https://github.com/sebastienros/gregsex/issues/26)).
+2. Done in GregsEx 0.5.1: `OnigurumaCompileOptions.TextMate`, the compile limits TextMate grammars
+   need. Tint uses it for every runtime `Parse` and passes it to `KernelSource.TryEmit`, so the
+   fingerprint of an emitted kernel always matches the pattern the runtime parses.
 3. `OnigurumaScanner` search over `ReadOnlySpan<char>` with caller-supplied text identity for the
    result cache (section 5.6).
 4. From the kernel spike, for kernels to become worth their size: share `SearchValues`/bitmap
