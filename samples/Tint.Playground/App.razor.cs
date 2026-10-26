@@ -25,7 +25,6 @@ public sealed partial class App : IAsyncDisposable
     private ThemeOption _theme = null!;
     private ThemeOption? _secondTheme;
     private string _code = string.Empty;
-    private bool _codeIsSample;
     private HighlightResult? _result;
     private TokenHit? _hit;
     private ThemeExplanation? _explanation;
@@ -65,11 +64,7 @@ public sealed partial class App : IAsyncDisposable
         _language = Engine.FindLanguage(language) ?? _language;
         _theme = Engine.FindTheme(theme) ?? _theme;
         _secondTheme = Engine.FindTheme(secondTheme) is { } second && second != _theme ? second : null;
-        if (code is null)
-        {
-            code = await FetchSampleAsync(_language) ?? string.Empty;
-            _codeIsSample = true;
-        }
+        code ??= await FetchSampleAsync(_language) ?? string.Empty;
 
         _code = Normalize(code);
         Highlight();
@@ -85,7 +80,6 @@ public sealed partial class App : IAsyncDisposable
     public string Update(string code)
     {
         _code = Normalize(code);
-        _codeIsSample = false;
         Highlight();
         StateHasChanged();
         return _result!.Html;
@@ -171,14 +165,8 @@ public sealed partial class App : IAsyncDisposable
         _language = language;
         _message = null;
 
-        // Like shiki's playground: an untouched sample follows the language.
-        if (_codeIsSample || _code.Length == 0)
-        {
-            await LoadSampleAsync();
-            return;
-        }
-
-        await RefreshAsync();
+        // The sample follows the language, replacing whatever was typed; a language without one keeps the code.
+        await LoadSampleAsync();
     }
 
     private async Task OnThemeChanged(ChangeEventArgs e)
@@ -234,7 +222,6 @@ public sealed partial class App : IAsyncDisposable
 
             _message = null;
             _code = Normalize(sample);
-            _codeIsSample = true;
             Highlight();
             if (_editor is not null)
             {
