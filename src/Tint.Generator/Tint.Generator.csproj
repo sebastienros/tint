@@ -24,10 +24,6 @@
     <PackageReference Include="Meziantou.Polyfill" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
-    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
-  </ItemGroup>
-  <ItemGroup>
     <!-- The implicit usings the shared runtime sources are written against. -->
     <Using Include="System" />
     <Using Include="System.Collections.Generic" />

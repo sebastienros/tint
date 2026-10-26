@@ -79,7 +79,7 @@ internal static class GrammarEmitter
                     source.Invalid = true;
                     var (offset, message) = table.InvalidMessages[index];
                     diagnostics.Add(DiagnosticInfo.Create(
-                        TintDiagnostics.InvalidRegex, fileLocation, source.FirstPath, unit.DisplayPath, message, offset.ToString(CultureInfo.InvariantCulture)));
+                        TintDiagnostics.InvalidRegex, fileLocation, source.FirstPath, unit.RelativePath, message, offset.ToString(CultureInfo.InvariantCulture)));
                 }
             }
 
@@ -111,15 +111,15 @@ internal static class GrammarEmitter
         }
         catch (JsonTreeException e)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, e.Line - 1, e.Column - 1), unit.DisplayPath, "grammar", e.Message));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, e.Line - 1, e.Column - 1), unit.RelativePath, "grammar", e.Message));
         }
         catch (XmlException e)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, Math.Max(0, e.LineNumber - 1), Math.Max(0, e.LinePosition - 1)), unit.DisplayPath, "grammar", e.Message));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, Math.Max(0, e.LineNumber - 1), Math.Max(0, e.LinePosition - 1)), unit.RelativePath, "grammar", e.Message));
         }
         catch (FormatException e)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, fileLocation, unit.DisplayPath, "grammar", e.Message));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, fileLocation, unit.RelativePath, "grammar", e.Message));
         }
 
         return null;
@@ -468,7 +468,6 @@ internal static class GrammarEmitter
         // The regex sources, one per distinct text.
         w.Line();
         w.Open("private static " + RegexSourceType + "[] __TintRegexes()");
-        w.Line("var t = __TintData.Texts;");
         w.Line("return new " + RegexSourceType + "[]");
         w.Line("{");
         w.Indent();
@@ -476,9 +475,9 @@ internal static class GrammarEmitter
         {
             var source = entry.Source;
             var factory = entry.Variants is { } v && !entry.Invalid
-                ? "new __TintFactory(" + string.Join(", ", v.Select(i => i.ToString(CultureInfo.InvariantCulture))) + ").Create"
+                ? "__TintFactory.Of(" + string.Join(", ", v.Select(i => i.ToString(CultureInfo.InvariantCulture))) + ")"
                 : "null";
-            w.Line(RegexSourceType + ".FromRewritten(t[" + entry.TextIndex.ToString(CultureInfo.InvariantCulture) + "], " + CodeWriter.Bool(source.HasAnchorA) + ", "
+            w.Line(RegexSourceType + ".FromRewritten(__TintData.Text(" + entry.TextIndex.ToString(CultureInfo.InvariantCulture) + "), " + CodeWriter.Bool(source.HasAnchorA) + ", "
                 + CodeWriter.Bool(source.HasAnchorG) + ", " + CodeWriter.Bool(source.HasBackReferences) + ", " + factory + "),");
         }
 
@@ -492,7 +491,7 @@ internal static class GrammarEmitter
         w.Line("var pattern = global::System.Threading.Volatile.Read(ref __TintData.Patterns[index]);");
         w.Line("if (pattern is not null)").Line("{").Line("    return pattern;").Line("}");
         w.Line();
-        w.Line("pattern = " + PatternType + ".Parse(__TintData.Texts[index], global::GregsEx.RegexProfiles.OnigurumaTextMate, global::GregsEx.OnigurumaCompileOptions.TextMate);");
+        w.Line("pattern = " + PatternType + ".Parse(__TintData.Text(index), global::GregsEx.RegexProfiles.OnigurumaTextMate, global::GregsEx.OnigurumaCompileOptions.TextMate);");
         if (hasKernels)
         {
             w.Line("pattern = __TintBindKernels(index, pattern);");
@@ -507,11 +506,19 @@ internal static class GrammarEmitter
         w.Line("private readonly int _a1g0;");
         w.Line("private readonly int _a1g1;");
         w.Line();
-        w.Open("public __TintFactory(int a0g0, int a0g1, int a1g0, int a1g1)");
+        w.Open("private __TintFactory(int a0g0, int a0g1, int a1g0, int a1g1)");
         w.Line("_a0g0 = a0g0;");
         w.Line("_a0g1 = a0g1;");
         w.Line("_a1g0 = a1g0;");
         w.Line("_a1g1 = a1g1;");
+        w.Close();
+        w.Line();
+
+        // A lambda, not a method group: Roslyn 5.0 (the .NET 10.0.100 SDK) crashes in nullable analysis on method group
+        // conversions under C# 12 when GregsEx is referenced.
+        w.Open("public static global::Tint.Grammars.RegexPatternFactory Of(int a0g0, int a0g1, int a1g0, int a1g1)");
+        w.Line("var factory = new __TintFactory(a0g0, a0g1, a1g0, a1g1);");
+        w.Line("return variant => factory.Create(variant);");
         w.Close();
         w.Line();
         w.Line("public " + PatternType + " Create(global::Tint.Grammars.RegexAnchorVariant variant) => __TintPattern(variant switch");
@@ -523,20 +530,7 @@ internal static class GrammarEmitter
         w.Line("});");
         w.Close();
         w.Line();
-        w.Open("private static class __TintData");
-        w.Line("internal static readonly string[] Texts = new string[]");
-        w.Line("{");
-        w.Indent();
-        foreach (var text in table.Texts)
-        {
-            w.Line(CodeWriter.Literal(text) + ",");
-        }
-
-        w.Unindent();
-        w.Line("};");
-        w.Line();
-        w.Line("internal static readonly " + PatternType + "?[] Patterns = new " + PatternType + "?[" + table.ParsedCount.ToString(CultureInfo.InvariantCulture) + "];");
-        w.Close();
+        EmitTexts(w, table);
         w.Line();
         w.Open("private static class __TintIndex");
         w.Line("internal static readonly global::System.Collections.Frozen.FrozenDictionary<string, int> Value = Create();");
@@ -544,7 +538,7 @@ internal static class GrammarEmitter
         w.Open("private static global::System.Collections.Frozen.FrozenDictionary<string, int> Create()");
         w.Line("var index = new global::System.Collections.Generic.Dictionary<string, int>(" + table.ParsedCount.ToString(CultureInfo.InvariantCulture) + ", global::System.StringComparer.Ordinal);");
         w.Open("for (var i = 0; i < " + table.ParsedCount.ToString(CultureInfo.InvariantCulture) + "; i++)");
-        w.Line("index[__TintData.Texts[i]] = i;");
+        w.Line("index[__TintData.Text(i)] = i;");
         w.Close();
         w.Line();
         w.Line("return " + FrozenDictionary + ".ToFrozenDictionary(index, global::System.StringComparer.Ordinal);");
@@ -553,6 +547,73 @@ internal static class GrammarEmitter
 
         Footer(w, nesting);
         return w.ToString();
+    }
+
+    // The pattern texts as one UTF-8 literal and its offsets: half the assembly size of UTF-16 string literals for the
+    // mostly ASCII patterns (545 KB to 273 KB for the C++ grammar, about a third of its assembly), decoded on first use.
+    // A text with a lone surrogate has no UTF-8 form; such a grammar keeps string literals.
+    private static void EmitTexts(CodeWriter w, PatternTable table)
+    {
+        var count = table.Texts.Count.ToString(CultureInfo.InvariantCulture);
+        w.Open("private static class __TintData");
+        w.Line("internal static readonly " + PatternType + "?[] Patterns = new " + PatternType + "?[" + table.ParsedCount.ToString(CultureInfo.InvariantCulture) + "];");
+        w.Line();
+        if (table.Texts.Any(HasLoneSurrogate))
+        {
+            w.Line("private static readonly string[] s_texts = new string[]");
+            w.Line("{");
+            w.Indent();
+            foreach (var text in table.Texts)
+            {
+                w.Line(CodeWriter.Literal(text) + ",");
+            }
+
+            w.Unindent();
+            w.Line("};");
+            w.Line();
+            w.Line("internal static string Text(int index) => s_texts[index];");
+            w.Close();
+            return;
+        }
+
+        var offsets = new List<int> { 0 };
+        foreach (var text in table.Texts)
+        {
+            offsets.Add(offsets[offsets.Count - 1] + Encoding.UTF8.GetByteCount(text));
+        }
+
+        w.Line("private static readonly string?[] s_texts = new string?[" + count + "];");
+        w.Line();
+        w.Line("private static global::System.ReadOnlySpan<int> Offsets => new int[] { " + string.Join(", ", offsets.Select(o => o.ToString(CultureInfo.InvariantCulture))) + " };");
+        w.Line();
+        w.Line("private static global::System.ReadOnlySpan<byte> Utf8 => " + CodeWriter.Literal(string.Concat(table.Texts)) + "u8;");
+        w.Line();
+        w.Open("internal static string Text(int index)");
+        w.Line("var text = global::System.Threading.Volatile.Read(ref s_texts[index]);");
+        w.Line("if (text is not null)").Line("{").Line("    return text;").Line("}");
+        w.Line();
+        w.Line("var offsets = Offsets;");
+        w.Line("text = global::System.Text.Encoding.UTF8.GetString(Utf8.Slice(offsets[index], offsets[index + 1] - offsets[index]));");
+        w.Line("return global::System.Threading.Interlocked.CompareExchange(ref s_texts[index], text, null) ?? text;");
+        w.Close();
+        w.Close();
+    }
+
+    private static bool HasLoneSurrogate(string text)
+    {
+        for (var i = 0; i < text.Length; i++)
+        {
+            if (char.IsHighSurrogate(text[i]) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+            {
+                i++;
+            }
+            else if (char.IsSurrogate(text[i]))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string InfoExpression(Info info)

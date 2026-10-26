@@ -102,6 +102,7 @@ internal sealed record GenerationUnit(
     string? Accessibility,
     string FullPath,
     string DisplayPath,
+    string RelativePath,
     string Text,
     bool Kernels,
     SourceSettings Settings,

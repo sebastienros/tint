@@ -48,22 +48,22 @@ internal static class ThemeEmitter
         }
         catch (FileNotFoundException) when (missing is not null)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.MissingThemeInclude, location, unit.DisplayPath, missing));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.MissingThemeInclude, location, unit.RelativePath, missing));
             return new GenerationResult(unit.HintName, null, null, diagnostics.ToEquatableArray());
         }
         catch (JsonTreeException e)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, e.Line - 1, e.Column - 1), unit.DisplayPath, "theme", e.Message));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, e.Line - 1, e.Column - 1), unit.RelativePath, "theme", e.Message));
             return new GenerationResult(unit.HintName, null, null, diagnostics.ToEquatableArray());
         }
         catch (XmlException e)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, Math.Max(0, e.LineNumber - 1), Math.Max(0, e.LinePosition - 1)), unit.DisplayPath, "theme", e.Message));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, LocationInfo.InFile(unit.DisplayPath, Math.Max(0, e.LineNumber - 1), Math.Max(0, e.LinePosition - 1)), unit.RelativePath, "theme", e.Message));
             return new GenerationResult(unit.HintName, null, null, diagnostics.ToEquatableArray());
         }
         catch (FormatException e)
         {
-            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, location, unit.DisplayPath, "theme", e.Message));
+            diagnostics.Add(DiagnosticInfo.Create(TintDiagnostics.InvalidFile, location, unit.RelativePath, "theme", e.Message));
             return new GenerationResult(unit.HintName, null, null, diagnostics.ToEquatableArray());
         }
 
