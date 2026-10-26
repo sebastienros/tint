@@ -4,8 +4,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-    <!-- 0.5.0 ships the compiled Oniguruma kernels. Previews (0.1.0-preview.N) come from the Feedz feed in nuget.config. -->
-    <PackageVersion Include="GregsEx" Version="0.5.0" />
+    <!-- 0.5.1 ships the compiled Oniguruma kernels, the KernelSource façade and OnigurumaCompileOptions.TextMate. Previews (0.1.0-preview.N) come from the Feedz feed in nuget.config. -->
+    <PackageVersion Include="GregsEx" Version="0.5.1" />
     <PackageVersion Include="Meziantou.Polyfill" Version="1.0.166" />
     <!-- Pinned to the Roslyn shipped with the base .NET 10.0.100 SDK so the generator does not force a newer SDK. -->
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
