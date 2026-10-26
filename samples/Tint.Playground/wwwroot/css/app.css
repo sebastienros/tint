@@ -1,0 +1,400 @@
+/* The page takes the selected theme's editor colors (--page-bg, --page-fg, set by js/playground.js); every other
+   color is mixed from those two so the chrome follows light and dark themes alike. */
+:root {
+    --page-bg: #1e1e1e;
+    --page-fg: #d4d4d4;
+    --muted: color-mix(in srgb, var(--page-fg) 62%, var(--page-bg));
+    --line: color-mix(in srgb, var(--page-fg) 16%, var(--page-bg));
+    --panel: color-mix(in srgb, var(--page-fg) 5%, var(--page-bg));
+    --control: color-mix(in srgb, var(--page-fg) 9%, var(--page-bg));
+    --accent: color-mix(in srgb, var(--page-fg) 28%, var(--page-bg));
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --code-size: 13.5px;
+    --code-line: 1.55;
+    --code-pad: 16px;
+    color-scheme: light dark;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    background: var(--page-bg);
+    color: var(--page-fg);
+    font: 14px/1.45 var(--sans);
+}
+
+a {
+    color: inherit;
+}
+
+code {
+    font-family: var(--mono);
+}
+
+.loading {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    color: var(--muted);
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Toolbar */
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px 14px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    align-self: center;
+    margin-right: 6px;
+    font-weight: 600;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.brand-sub {
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+select, button {
+    font: 13px var(--sans);
+    color: var(--page-fg);
+    background: var(--control);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px 9px;
+}
+
+select {
+    min-width: 150px;
+    max-width: 230px;
+}
+
+option, optgroup {
+    background: var(--page-bg);
+    color: var(--page-fg);
+}
+
+button {
+    cursor: pointer;
+}
+
+button:hover:not(:disabled), select:hover {
+    border-color: var(--accent);
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+select:focus-visible, button:focus-visible, .editor-input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.segmented {
+    display: flex;
+}
+
+.segmented button {
+    border-radius: 0;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.segmented button:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+.segmented button:last-child {
+    border-radius: 0 6px 6px 0;
+    border-left: 0;
+}
+
+.segmented button.active {
+    background: var(--accent);
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* Editor: a transparent textarea over the highlighted pre, same metrics, scroll synchronized by script. */
+
+.workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    flex: 1;
+    min-height: 0;
+}
+
+.editor {
+    position: relative;
+    height: calc(100vh - 150px);
+    min-height: 320px;
+    border-right: 1px solid var(--line);
+}
+
+.editor-output, .editor-input {
+    position: absolute;
+    inset: 0;
+}
+
+.editor-output .tint, .editor-input {
+    margin: 0;
+    padding: var(--code-pad);
+    font-family: var(--mono);
+    font-size: var(--code-size);
+    line-height: var(--code-line);
+    tab-size: 4;
+    white-space: pre;
+    letter-spacing: normal;
+    font-variant-ligatures: none;
+}
+
+.editor-output .tint {
+    height: 100%;
+    overflow: hidden;
+    /* Room below the last line, so the pre can scroll as far as the textarea. */
+    padding-bottom: calc(var(--code-pad) + 3em);
+}
+
+.editor-output .tint code {
+    font: inherit;
+}
+
+.editor-input {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    resize: none;
+    overflow: auto;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background: transparent;
+    caret-color: var(--page-fg);
+    outline: none;
+}
+
+.editor-input::selection {
+    background: color-mix(in srgb, var(--page-fg) 22%, transparent);
+}
+
+/* Inspector */
+
+.inspector {
+    padding: 12px 16px 20px;
+    overflow: auto;
+    height: calc(100vh - 150px);
+    min-height: 320px;
+    background: var(--panel);
+    font-size: 13px;
+}
+
+.inspector h2 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+}
+
+.inspector h3 {
+    margin: 16px 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.hint {
+    color: var(--muted);
+}
+
+.token-text {
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--page-bg);
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.facts, .rules {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 4px 12px;
+    margin: 10px 0 0;
+}
+
+dt {
+    color: var(--muted);
+}
+
+dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.swatch {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    margin-right: 6px;
+    vertical-align: -1px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+}
+
+.scopes {
+    margin: 0;
+    padding-left: 22px;
+    font-size: 12.5px;
+}
+
+.scopes li {
+    overflow-wrap: anywhere;
+    color: var(--muted);
+}
+
+.scopes li.innermost {
+    color: var(--page-fg);
+    font-weight: 600;
+}
+
+.rule-meta {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* Status line */
+
+.status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    padding: 6px 16px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.status .message {
+    color: var(--page-fg);
+}
+
+/* HTML output */
+
+.html-output {
+    padding: 6px 16px 24px;
+    border-top: 1px solid var(--line);
+}
+
+.disclosure {
+    background: none;
+    border: 0;
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.chevron {
+    display: inline-block;
+    width: 1em;
+}
+
+.html-output h3 {
+    margin: 12px 0 6px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.source {
+    margin: 0;
+    max-height: 420px;
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    font: 12px/1.5 var(--mono);
+    white-space: pre;
+}
+
+/* Narrow screens: the inspector goes under the editor. */
+
+@media (max-width: 860px) {
+    .workspace {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .editor {
+        height: 60vh;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .inspector {
+        height: auto;
+        min-height: 0;
+    }
+
+    .actions {
+        margin-left: 0;
+    }
+}
+
+/* Blazor's error bar. */
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 8px 16px;
+    background: #ffd54f;
+    color: #000;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 12px;
+    top: 8px;
+}

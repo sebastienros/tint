@@ -120,6 +120,14 @@ P0 scaffold ──► P1 core tokenizer + themes ──► P3 generator ──�
   token inspector, permalinks; AOT + trimmed publish; lazy assembly loading; `pages.yml` workflow
   deploying to GitHub Pages.
 - Done when: the site is live from `main`.
+- Outcome (2026-10-25): `samples/Tint.Playground` (Blazor WebAssembly, plain CSS) and
+  `samples/Tint.Playground.Core` (URL state, pickers, token lookup, theme rule explanation; tested in
+  `test/Tint.Tests/Playground`). No lazy assembly loading: `Tint.Grammars` is a single assembly and only 449 KB of
+  the 5.4 MB compressed download (design section 11). AOT publish in 2.5 minutes; cold load to first highlight
+  0.40–0.53 s; the C# sample tokenizes in 0.9 ms warm (7 ms interpreted). `pages.yml` deploys from `main` once Pages
+  is enabled with the "GitHub Actions" source (the repository is private until it goes public); `build.yml` builds
+  the app without AOT. Three VS Code themes (Monokai, Monokai Dimmed, Tomorrow Night Blue) have no `name`, so
+  `IThemeSource.Name` is null for them; the playground names them after their class.
 
 ## P7 — Hardening and 0.1.0
 
