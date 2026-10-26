@@ -34,6 +34,8 @@ dotnet_diagnostic.IDE0007.severity = warning
 
 # IDE0290: Use primary constructor
 csharp_style_prefer_primary_constructors = false:suggestion
+# The style preference alone does not silence the IDE suggestion.
+dotnet_diagnostic.IDE0290.severity = none
 
 # IDE0046: Convert to conditional expression
 dotnet_diagnostic.IDE0046.severity = silent
