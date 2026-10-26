@@ -42,8 +42,9 @@ public sealed class Tokenizer
     private LocalStackElement[] _localStack = new LocalStackElement[16];
     private int _localTop;
     private string[] _scopeNames = new string[32];
+    private readonly int _hotThreshold;
 
-    internal Tokenizer(CompiledGrammar grammar, Theme theme)
+    internal Tokenizer(CompiledGrammar grammar, Theme theme, TokenizerOptions options)
     {
         _grammar = grammar;
         _rules = grammar.Rules;
@@ -52,6 +53,8 @@ public sealed class Tokenizer
         _scanners = new RuleScanner?[_rules.Count * 4];
         _whileScanners = new RuleScanner?[_rules.Count * 4];
         Theme = theme;
+        Options = options;
+        _hotThreshold = options.EffectiveHotThreshold;
     }
 
     /// <summary>The root scope name of the grammar.</summary>
@@ -59,6 +62,9 @@ public sealed class Tokenizer
 
     /// <summary>The theme token attributes are resolved against.</summary>
     public Theme Theme { get; }
+
+    /// <summary>The options the tokenizer was created with.</summary>
+    public TokenizerOptions Options { get; }
 
     /// <summary>Scope names the grammar includes that were not registered; their rules were skipped.</summary>
     public IReadOnlyList<string> MissingGrammars => _grammar.MissingGrammars;
@@ -91,6 +97,26 @@ public sealed class Tokenizer
             foreach (var cache in _dynamicPatterns.Values)
             {
                 count += cache.LimitExceededCount;
+            }
+
+            return count;
+        }
+    }
+
+    // The patterns of this tokenizer's scanners that run generated code (tier 2).
+    internal int CompiledPatternCount
+    {
+        get
+        {
+            var count = 0;
+            foreach (var scanner in _scanners)
+            {
+                count += scanner?.CompiledPatternCount ?? 0;
+            }
+
+            foreach (var scanner in _whileScanners)
+            {
+                count += scanner?.CompiledPatternCount ?? 0;
             }
 
             return count;
@@ -577,7 +603,7 @@ public sealed class Tokenizer
             ruleIds[i] = entries[i].RuleId;
         }
 
-        return scanners[slot] = new RuleScanner(compiled, ruleIds);
+        return scanners[slot] = new RuleScanner(compiled, ruleIds, _hotThreshold);
     }
 
     private RuleScanner GetDynamicScanner(int ruleId, bool isWhile, RegexSource source, int dynamicRuleId, string text, bool allowA, bool allowG)
