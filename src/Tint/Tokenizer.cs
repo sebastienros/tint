@@ -1,8 +1,10 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using GregsEx;
 using Tint.Grammars;
 using Tint.Internal.Regex;
 using Tint.Internal.Rules;
+using Tint.Internal;
 
 namespace Tint;
 
@@ -165,6 +167,7 @@ public sealed class Tokenizer
         return _encodedTokens.AsSpan(0, _encodedTokenCount);
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private void Tokenize(ReadOnlySpan<char> line, StateStack state, bool encoded, out StateStack next)
     {
         ArgumentNullException.ThrowIfNull(state);
@@ -249,6 +252,7 @@ public sealed class Tokenizer
     }
 
     // _tokenizeString. Returns true when the time budget ran out.
+    [MethodImpl(Jit.FullOpts)]
     private bool TokenizeString(string text, int lineLength, bool isFirstLine, int linePos, ref StateStack stack, bool checkWhileConditions, long deadline)
     {
         var anchorPosition = -1;
@@ -391,6 +395,7 @@ public sealed class Tokenizer
 
     // _checkWhileConditions: from the outermost begin/while rule inward, each while pattern must match at the line
     // start; the first that fails cuts the stack above it.
+    [MethodImpl(Jit.FullOpts)]
     private void CheckWhileConditions(string text, int lineLength, ref bool isFirstLine, ref int linePos, ref StateStack stack, ref int anchorPosition)
     {
         anchorPosition = stack.BeginRuleCapturedEol ? 0 : -1;
@@ -442,6 +447,7 @@ public sealed class Tokenizer
         }
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private bool MatchRuleOrInjections(string text, int lineLength, bool isFirstLine, int linePos, StateStack stack, int anchorPosition, out MatchResult result)
     {
         // Look for a normal grammar rule.
@@ -476,6 +482,7 @@ public sealed class Tokenizer
         return true;
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private bool MatchInjections(string text, int lineLength, bool isFirstLine, int linePos, StateStack stack, int anchorPosition, out MatchResult result, out bool priorityMatch)
     {
         // The lower the better.
@@ -525,6 +532,7 @@ public sealed class Tokenizer
         return hasBest;
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private ulong GetInjectionMask(AttributedScopeStack scopes)
     {
         if (scopes.TryGetInjectionMask(out var mask))
@@ -545,6 +553,7 @@ public sealed class Tokenizer
         return mask;
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private RulePatterns GetScannerPatterns(Rule rule) => rule switch
     {
         RuleWithPatterns withPatterns => withPatterns.GetScannerPatterns(_rules),
@@ -554,6 +563,7 @@ public sealed class Tokenizer
 
     // CompiledRule.findNextMatchSync over the rule's patterns: the static ones in one scanner, a back-referencing
     // end or while pattern in its own, merged by earliest start with the dynamic one first or last in priority.
+    [MethodImpl(Jit.FullOpts)]
     private bool Search(int ruleId, RulePatterns patterns, string? endRule, bool isWhile, string text, int lineLength, int start, bool allowA, bool allowG, out MatchResult result)
     {
         RuleScanner? winner = null;
@@ -599,6 +609,7 @@ public sealed class Tokenizer
         return true;
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private RuleScanner GetScanner(int ruleId, bool isWhile, RulePatterns patterns, RegexAnchorVariant variant)
     {
         var scanners = isWhile ? _whileScanners : _scanners;
@@ -620,6 +631,7 @@ public sealed class Tokenizer
         return scanners[slot] = new RuleScanner(compiled, ruleIds, _hotThreshold);
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private RuleScanner GetDynamicScanner(int ruleId, bool isWhile, RegexSource source, int dynamicRuleId, string text, bool allowA, bool allowG)
     {
         var entry = GetDynamicCache(ruleId, isWhile).Get(text);
@@ -647,6 +659,7 @@ public sealed class Tokenizer
 
     // getEndWithResolvedBackReferences / getWhileWithResolvedBackReferences. Resolved texts the rule saw recently are
     // reused, so a repeated heredoc delimiter or fence allocates nothing.
+    [MethodImpl(Jit.FullOpts)]
     private string ResolveBackReferences(int ruleId, bool isWhile, RegexSource source, string text, int captureOffset, int captureCount)
     {
         PatternRewriter.ResolveBackReferences(source.Text, text, _captures.AsSpan(captureOffset, captureCount), _buffer);
@@ -654,6 +667,7 @@ public sealed class Tokenizer
     }
 
     // handleCaptures.
+    [MethodImpl(Jit.FullOpts)]
     private void HandleCaptures(string text, bool isFirstLine, ref PendingState stack, CaptureRule?[] captures, int captureOffset, int captureCount)
     {
         if (captures.Length == 0)
@@ -727,6 +741,7 @@ public sealed class Tokenizer
         }
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private AttributedScopeStack PushName(AttributedScopeStack scopes, string? name, bool isCapturing, string text, int captureOffset, int captureCount, string grammarScopeName)
     {
         if (name is null)
@@ -743,6 +758,7 @@ public sealed class Tokenizer
         return scopes.PushAttributed(_buffer.AsSpan(), grammarScopeName);
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private int CopyCaptures(ReadOnlySpan<RegexCapture> captures)
     {
         var offset = _captureTop;
@@ -761,6 +777,7 @@ public sealed class Tokenizer
         return offset;
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private ReadOnlySpan<string> FillScopeNames(AttributedScopeStack scopes)
     {
         if (_scopeNames.Length < scopes.Depth)
@@ -774,6 +791,7 @@ public sealed class Tokenizer
     }
 
     // LineTokens.produceFromScopes.
+    [MethodImpl(Jit.FullOpts)]
     private void Produce(AttributedScopeStack scopes, int endIndex)
     {
         if (_lastTokenEndIndex >= endIndex)
@@ -813,6 +831,7 @@ public sealed class Tokenizer
     }
 
     // The binary metadata of a scope stack with the grammar's token type and bracket overrides, cached per node.
+    [MethodImpl(Jit.FullOpts)]
     private uint GetEncodedMetadata(AttributedScopeStack scopes)
     {
         if (scopes.TryGetEncodedMetadata(out var cached))
@@ -850,6 +869,7 @@ public sealed class Tokenizer
     }
 
     // utils.ts containsRTL: any character of Unicode bidirectional class R or AL.
+    [MethodImpl(Jit.FullOpts)]
     internal static bool ContainsRtl(ReadOnlySpan<char> text)
     {
 #if NETSTANDARD2_0
@@ -955,6 +975,7 @@ public sealed class Tokenizer
 
         public AttributedScopeStack ContentNameScopes { get; }
 
+        [MethodImpl(Jit.FullOpts)]
         public static PendingState Of(StateStack node)
         {
             var state = new PendingState(node.Parent, node.RuleId, node.EnterPos, node.AnchorPos, node.BeginRuleCapturedEol, node.EndRule, node.NameScopes, node.ContentNameScopes);
@@ -962,10 +983,12 @@ public sealed class Tokenizer
             return state;
         }
 
+        [MethodImpl(Jit.FullOpts)]
         public StateStack Materialize()
             => _node ??= new StateStack(_parent, _ruleId, _enterPos, _anchorPos, _beginRuleCapturedEol, _endRule, _nameScopes, ContentNameScopes);
 
         // The same state with its final content scopes and resolved end rule (withContentNameScopesList, withEndRule).
+        [MethodImpl(Jit.FullOpts)]
         public readonly StateStack Materialize(AttributedScopeStack contentNameScopes, string? endRule)
         {
             if (_node is { } node && ReferenceEquals(node.ContentNameScopes, contentNameScopes) && node.EndRule == endRule)
@@ -1009,6 +1032,7 @@ public sealed class Tokenizer
             }
         }
 
+        [MethodImpl(Jit.FullOpts)]
         public string? FindText(ReadOnlySpan<char> text)
         {
             for (var i = 0; i < _count; i++)
@@ -1022,6 +1046,7 @@ public sealed class Tokenizer
             return null;
         }
 
+        [MethodImpl(Jit.FullOpts)]
         public Entry Get(string text)
         {
             for (var i = 0; i < _count; i++)

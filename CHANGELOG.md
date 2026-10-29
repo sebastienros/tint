@@ -13,6 +13,14 @@ packages always ship together with the same version.
   before a state is returned, so kept states are never modified and can be shared across threads.
 - `GrammarLoader` documents its JSON dialect: comments and trailing commas are accepted; unquoted or single-quoted
   property names and content after the root value are not.
+- The per-line path is compiled fully optimized on first use (`MethodImplOptions.AggressiveOptimization`) instead of
+  starting in tier 0, where it ran three to five times slower until the runtime promoted it, which an editor's steady
+  stream of new methods postpones indefinitely (docs/design.md section 6.2). GregsEx 0.5.5 does the same for its
+  Oniguruma scanner and interpreter, except the instruction loop, whose dynamic profile is worth keeping. The first
+  passes over a 10,000-line file in a fresh process are about twice as fast (benchmarks/README.md, editor files);
+  the steady state is unchanged.
+- `EditorFilesBenchmarks` and `EditorFilesColdBenchmarks`: the ten files of Passenger's highlighting benchmark
+  (`benchmarks/samples/passenger`), warm and in a fresh process, against TextMateSharp reading the same grammar files.
 
 ## 0.2.0 (2026-10-28)
 

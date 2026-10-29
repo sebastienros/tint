@@ -289,6 +289,34 @@ request. The encoded form uses vscode's bit layout (language id 8 bits, token ty
 bracket 1, font style 4, foreground 9, background 9), so Monaco-style consumers can reuse it, and
 adjacent tokens with equal metadata are merged exactly as vscode does.
 
+### 6.2 Compilation of the per-line path
+
+The methods of the per-line path (`Tokenizer`'s tokenize loop, searches, captures and token
+production, `RuleScanner`, `AttributedScopeStack` pushes, `StateStack` operations; `Jit.FullOpts`
+marks them) carry `MethodImplOptions.AggressiveOptimization`, and GregsEx 0.5.5 marks its
+Oniguruma scanner search and the interpreter's search, attempt and helper methods the same way.
+The runtime then compiles them fully optimized on their first call instead of starting them in
+tier 0.
+
+Why: tier-0 code inlines nothing, so a tokenizer whose hot path is dozens of small methods runs
+three to five times slower until the runtime promotes them, and promotion is slow in exactly the
+hosts that matter. Call counting starts only after 100 ms without a new tier-0 method, and a
+tokenizer keeps producing new ones (patterns parsed as a file reaches new rules, scanners built
+per rule), an editor more so. Measured on Passenger's harness (an editor's full-file highlighting
+pass, ten passes per fresh process, `benchmarks/samples/passenger`): with tiering, the XML
+fixture took 80–104 ms per pass for seven passes before dropping to 15 ms, and the Markdown
+fixture 175–243 ms before dropping to 28 ms, so Passenger's medians put Tint at 0.85 (XML) and
+0.95 (Markdown) of native Oniguruma.
+
+What is marked is a trade: a method compiled this way never gets dynamic PGO. Marking everything,
+the interpreter's instruction loop included, brought the first passes down 3–4× but cost 8–12%
+of steady-state throughput on every workload, most of it from that one loop (the profile shapes
+its instruction switch). So GregsEx leaves `Run` tiered, where on-stack replacement optimizes its
+long loop without waiting for call counting, and marks the rest: the first passes are about 2×
+faster than before and the steady state is unchanged (`benchmarks/README.md`, editor files,
+before and after). Methods small enough to inline need no attribute: inlining is decided by the
+caller's compilation. The `netstandard2.0` target has no such option and keeps tiering.
+
 ## 7. Themes
 
 A port of vscode-textmate `theme.ts`: `tokenColors` rules parsed into (scope, parent scopes,

@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Passenger: free C# and .NET IDE for Windows, macOS and Linux</title>
+    <meta name="description" content="A free, open-source C# and .NET IDE: debug and profile Docker Compose and Aspire services, see each request's SQL, fix EF Core migrations.">
+    <link rel="canonical" href="https://passenger-ide.net/">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Passenger">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:url" content="https://passenger-ide.net/">
+    <meta property="og:title" content="Passenger: free C# and .NET IDE for Windows, macOS and Linux">
+    <meta property="og:description" content="A free, open-source C# and .NET IDE: debug and profile Docker Compose and Aspire services, see each request's SQL, fix EF Core migrations.">
+    <meta property="og:image" content="https://passenger-ide.net/images/social-622499b6.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Passenger's Requests window beside the words: Debug the whole stack. The free IDE for C# and .NET.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@Zaneris">
+    <meta name="twitter:creator" content="@Zaneris">
+    <meta name="twitter:title" content="Passenger: free C# and .NET IDE for Windows, macOS and Linux">
+    <meta name="twitter:description" content="A free, open-source C# and .NET IDE: debug and profile Docker Compose and Aspire services, see each request's SQL, fix EF Core migrations.">
+    <meta name="twitter:image" content="https://passenger-ide.net/images/social-622499b6.png">
+    <meta name="twitter:image:alt" content="Passenger's Requests window beside the words: Debug the whole stack. The free IDE for C# and .NET.">
+    <meta name="theme-color" content="#0F131C" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#2F6BF2">
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Passenger",
+    "description": "A free, open-source C# and .NET IDE: debug and profile Docker Compose and Aspire services, see each request's SQL, fix EF Core migrations.",
+    "url": "https://passenger-ide.net/",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Windows, macOS, Linux",
+    "softwareVersion": "0.2.0",
+    "downloadUrl": "https://github.com/Zaneris/passenger/releases",
+    "releaseNotes": "https://github.com/Zaneris/passenger/releases/tag/v0.2.0",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+    },
+    "license": "https://opensource.org/licenses/MIT",
+    "featureList": [
+        "Debugger with Hot Reload",
+        "CPU and memory profiler",
+        "Debugging and profiling .NET services in Docker Compose and Dockerfile containers",
+        "Aspire AppHosts run, debugged and profiled",
+        "Live HTTP requests with their SQL and N+1 queries marked",
+        "EF Core migrations window",
+        "XAML tooling for Avalonia and WPF",
+        "MCP server for coding agents"
+    ],
+    "image": "https://passenger-ide.net/images/social-622499b6.png",
+    "screenshot": "https://passenger-ide.net/images/requests-dark.webp",
+    "author": {
+        "@type": "Person",
+        "name": "Zaneris",
+        "url": "https://github.com/Zaneris",
+        "sameAs": [
+            "https://x.com/Zaneris",
+            "https://github.com/Zaneris"
+        ]
+    },
+    "sameAs": [
+        "https://github.com/Zaneris/passenger"
+    ]
+}
+    </script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/site.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+    <div class="wrap">
+        <a class="brand" href="/"><img src="/favicon.svg" alt="" width="28" height="28">Passenger</a>
+        <nav aria-label="Sections">
+            <a class="wide" href="#services">Containers</a>
+            <a class="wide" href="#web">Web and data</a>
+            <a class="wide" href="#profiling">Profiler</a>
+            <a class="wide" href="#agents">Agents</a>
+            <a class="wide" href="#xaml">XAML</a>
+            <a href="#download">Download</a>
+            <a href="https://github.com/Zaneris/passenger">GitHub</a>
+        </nav>
+    </div>
+</header>
+
+<main id="main">
+    <div class="hero">
+        <div class="wrap">
+            <a class="news" href="https://github.com/Zaneris/passenger/releases/tag/v0.2.0"><span class="tag">New in 0.2.0</span>
+                <span class="what">Docker Compose, Aspire, live requests and EF Core migrations</span><span class="short">What's
+                new</span><span class="arrow" aria-hidden="true">&rarr;</span></a>
+            <h1><span class="lead">Debug the whole stack.</span> The free IDE for C# and .NET.</h1>
+            <p class="lede">From a console app to a Docker Compose stack or an Aspire AppHost, Passenger runs every .NET
+                service under its own debugger, Hot Reload and profiler, shows each request with the SQL it ran, and fixes
+                what stops <code>dotnet&nbsp;ef</code>. Your coding agent can drive all of it.</p>
+            <div class="actions">
+                <a class="button primary" id="primary-download" href="#download">Download</a>
+                <a class="button" href="https://github.com/Zaneris/passenger">Source on GitHub</a>
+            </div>
+            <p class="under" id="primary-note">For Windows, macOS and Linux.</p>
+            <p class="under">Free and open source under MIT: no account, no licence key, no telemetry.</p>
+            <figure class="shot">
+                <picture>
+                    <source media="(prefers-color-scheme: light)" srcset="/images/requests-light.webp" width="2400" height="1500">
+                    <img src="/images/requests-dark.webp" width="2400" height="1500" fetchpriority="high"
+                         alt="Passenger's Requests window following an Aspire app's ASP.NET Core API as it runs, under the minimal API handler that loops over the plants: each GET /plants/thirsty request marked N+1, its repeated SQL query marked ×6 with its reads and times">
+                </picture>
+            </figure>
+        </div>
+    </div>
+
+    <section id="included" class="included">
+        <div class="wrap">
+            <p class="kicker">Included</p>
+            <h2>Everything included, nothing to pay</h2>
+            <p class="intro">Most of this usually takes a paid IDE or a paid add-on. In Passenger it is part of the IDE, free
+                and open source under MIT, for work and personal projects alike.</p>
+            <ul class="checks">
+                <li><a href="#debugging"><strong>A debugger with Hot Reload</strong>
+                    <span>Its own, over the runtime's ICorDebug, with your edits put in the program while it runs.</span></a></li>
+                <li><a href="#profiling"><strong>CPU and memory profiling</strong>
+                    <span>Call tree, hot spots, flame graph, and heap snapshots compared.</span></a></li>
+                <li><a href="/containers"><strong>Debugging and profiling in containers</strong>
+                    <span>Every .NET service of a compose file or Dockerfile, inside its container.</span></a></li>
+                <li><a href="/containers#aspire"><strong>Aspire, as the AppHost's IDE</strong>
+                    <span>Each resource started by Passenger, debugged, reloaded and profiled.</span></a></li>
+                <li><a href="#web"><strong>Live requests with their SQL</strong>
+                    <span>Each request a running app serves, the queries it ran, N+1s marked.</span></a></li>
+                <li><a href="#migrations"><strong>EF Core migrations</strong>
+                    <span>Listed, added and applied, with what would stop <code>dotnet&nbsp;ef</code> fixed first.</span></a></li>
+                <li><a href="#xaml"><strong>XAML tooling for Avalonia and WPF</strong>
+                    <span>Completion, a live preview, the Live Visual Tree and binding errors with fixes.</span></a></li>
+                <li><a href="/agents"><strong>An MCP server for your agent</strong>
+                    <span>Claude Code, Codex, OpenCode and any MCP agent work through the IDE.</span></a></li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="services">
+        <div class="wrap">
+            <p class="kicker">Containers and Aspire</p>
+            <h2>Debug Docker Compose and Aspire services</h2>
+            <p class="intro">Passenger runs an app made of several services as one. Your compose files, Dockerfiles and
+                Aspire AppHosts are run configurations as the solution opens, and every .NET service in them runs under
+                Passenger's debugger, Hot Reload and profiler, wherever it runs.</p>
+
+            <div class="feature">
+                <div class="text">
+                    <h3>Every service under the debugger</h3>
+                    <p>Debug holds each .NET service at its start, attaches inside its container and lets it go, so a
+                        breakpoint in <code>Main</code> stops. Each service gets a Debug tab with its log as its console, and
+                        Hot Reload reaches them all.</p>
+                    <p>By default Passenger builds the services itself and runs each from its build, so a code change needs no
+                        image rebuild, and Rerun restarts only the services whose build changed.</p>
+                    <h3>Aspire's IDE</h3>
+                    <p>Run or debug an AppHost and Aspire asks Passenger to start each project: the Aspire window shows its
+                        resources, their consoles, details, logs and traces, and its code help checks every connection string
+                        against the AppHost.</p>
+                    <a class="more" href="/containers">Containers and Aspire in depth</a>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/aspire-light.webp" width="2400" height="1500">
+                        <img src="/images/aspire-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="An Aspire AppHost debugged in Passenger: the API service stopped at a breakpoint with its values after the lines, a Debug tab for each service, and the Aspire window listing both services running with the API's details">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>One service at a time</h3>
+                    <p>From a service's row, or the run icon beside it in the compose file: debug it, attach to it, restart
+                        or profile it while the others run on.</p>
+                </div>
+                <div class="card">
+                    <h3>Profiled in its container</h3>
+                    <p>CPU traces and memory snapshots taken where the service runs and shown as any others, hot spots at
+                        their lines.</p>
+                </div>
+                <div class="card">
+                    <h3>The Containers window</h3>
+                    <p>Compose projects and their services, containers, images, volumes and networks: logs, stats, files,
+                        details and a shell.</p>
+                </div>
+                <div class="card">
+                    <h3>Compose files, understood</h3>
+                    <p>Each <code>${VAR}</code> shown as it comes out, names completed, renamed and checked, and a connection
+                        string a service never gets warned of, with its fix.</p>
+                </div>
+                <div class="card">
+                    <h3>Your engine, as it is</h3>
+                    <p>Docker Desktop, Colima, OrbStack, Rancher Desktop, Podman or a remote engine, through your own
+                        <code>docker</code> command.</p>
+                </div>
+                <div class="card">
+                    <h3>Nothing left behind</h3>
+                    <p>Stop, closing the folder or a crash takes down what a run started. Your own containers are never
+                        touched without asking.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="web">
+        <div class="wrap">
+            <p class="kicker">Web apps and their data</p>
+            <h2>Every ASP.NET Core request, with its SQL</h2>
+            <p class="intro">For ASP.NET Core and EF Core: what your app serves and what it asks of the database, as it runs,
+                with no change to the app.</p>
+            <div class="grid two">
+                <div class="card">
+                    <h3>Live requests and their queries</h3>
+                    <p>The Requests window lists each request a running app serves, and the database commands it ran, with
+                        their times and rows. A command run again for every row (an N+1) or a slow one is marked; a request
+                        opens at its handler, or at the exception that ended it. It works for Run, Debug and Profile, and for
+                        the services of a compose run or an AppHost.</p>
+                </div>
+                <div class="card" id="migrations">
+                    <h3>EF Core migrations that run</h3>
+                    <p>The Migrations window lists each context's migrations and whether the database has them: add, remove,
+                        update, script and bundle. Before <code>dotnet&nbsp;ef</code> runs it finds what would stop it (the
+                        tool missing or of another version, the Design package, a provider behind) and offers the fix. During
+                        a compose run or an AppHost, it works on the database that run uses.</p>
+                </div>
+                <div class="card">
+                    <h3>Endpoints from your code</h3>
+                    <p>Minimal APIs, controllers, Razor Pages, Blazor, SignalR and gRPC routes read from the code with no
+                        build. A route's icon sends its request to the running app, from your <code>.http</code> file.</p>
+                </div>
+                <div class="card">
+                    <h3>Configuration it knows</h3>
+                    <p><code>appsettings.json</code> and user secrets complete the keys your code reads. A key nothing gives
+                        is warned of where it's read, and a stopped EF Core query shows its SQL in the debugger.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="looks" class="looks">
+        <div class="wrap">
+            <p class="kicker">Make it yours</p>
+            <h2>Twelve looks, each dark and light</h2>
+            <p class="intro">Passenger's own in the app icon's blue, Harbour's teal on linen, and Sorbet, Nocturne, Saffron,
+                Bonbon, Ledger, Slate, Orbit, Nightjar, Moss and Phosphor, each checked for contrast and following your
+                system or your choice. Every file has an icon of its own, in each look's colours.</p>
+            <figure class="shot cycle">
+                <picture>
+                    <source media="(prefers-reduced-motion: reduce) and (prefers-color-scheme: light)" srcset="/images/themes-still-light.webp" width="1864" height="1060">
+                    <source media="(prefers-reduced-motion: reduce)" srcset="/images/themes-still-dark.webp" width="1864" height="1060">
+                    <source media="(prefers-color-scheme: light)" srcset="/images/themes-light.webp" width="1864" height="1060">
+                    <img src="/images/themes-dark.webp" width="1864" height="1060" loading="lazy" decoding="async"
+                         alt="Passenger's window changing look every two seconds through all twelve, each named in its title bar and Solution view: Passenger, Harbour, Sorbet, Nocturne, Saffron, Bonbon, Ledger, Slate, Orbit, Nightjar, Moss and Phosphor">
+                </picture>
+            </figure>
+        </div>
+    </section>
+
+    <section id="profiling">
+        <div class="wrap">
+            <p class="kicker">Profiler and debugger</p>
+            <h2>A free .NET profiler and debugger</h2>
+            <p class="intro">Both are written for Passenger, over the runtime's own EventPipe and ICorDebug, and both work
+                the same on your machine and inside a container.</p>
+
+            <div class="feature">
+                <div class="text">
+                    <h3>Where the time goes</h3>
+                    <p>Sampling over EventPipe, from a program's first instruction or attached to one already running: its
+                        call tree, hot spots, flame graph, allocations and garbage collections, narrowed to any stretch of the
+                        timeline.</p>
+                    <h3>What holds the memory</h3>
+                    <p>A memory snapshot counts the heap by type, with each object's retained size, and shows the shortest
+                        paths that keep it alive. Two snapshots compared say which objects are new, which died and which
+                        survived.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/profiler-light.webp" width="2400" height="1500">
+                        <img src="/images/profiler-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="Passenger's .NET performance profiler: a run's timeline above its call tree, the hot path opened">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="feature flip" id="debugging">
+                <div class="text">
+                    <h3>A debugger of its own</h3>
+                    <p>Breakpoints with conditions, hit counts and log messages, exception breakpoints, stepping through async
+                        code, Smart Step Into, the values methods returned, Run to Cursor and Set Next Statement, and the
+                        values each line used drawn after it. Several programs debug at once, a tab each, and the hover card
+                        opens an object into its members.</p>
+                    <p>A frame in a library without symbols shows its code, decompiled. Attach to a .NET program already
+                        running, in a container too, and on a Mac with nothing to set up.</p>
+                    <h3>Hot Reload</h3>
+                    <p>Edit the code while debugging and Hot Reload puts it in the program, paused or running. An edit it
+                        can't apply is listed with why, and by default the program restarts to take it.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/debugger-light.webp" width="2400" height="1500">
+                        <img src="/images/debugger-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="Stopped at a breakpoint in a C# method: the values after the lines, and the Debug window's frames and variables">
+                    </picture>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <section id="agents">
+        <div class="wrap">
+            <p class="kicker">Agents</p>
+            <h2>An IDE your coding agent can drive</h2>
+            <p class="intro">Passenger is an MCP server. Through it an agent works in the IDE, not only in your files: it asks
+                the language server instead of guessing from the text, and checks what it changed by building, testing and
+                running it. It works with Claude Code, Codex, OpenCode and any MCP agent.</p>
+
+            <div class="feature">
+                <div class="text">
+                    <h3>It tries the app it builds</h3>
+                    <p>When the program is an Avalonia app, or a WPF app on Windows, the agent sees it as a person testing it
+                        would: a picture of each window, the tree of its controls, and clicks, typing and keys sent to the
+                        window, which never takes your focus or moves your pointer.</p>
+                    <h3>It works as you do</h3>
+                    <p>It finds where things are declared and used, renames, fixes and formats as the IDE does, builds, runs
+                        and tests, debugs and profiles, starts a compose service or an Aspire resource, reads a web app's
+                        requests and their SQL, and runs the migrations. On your own window it asks you first.</p>
+                    <a class="more" href="/agents">Set up your agent</a>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/agent-light.webp" width="2400" height="1500">
+                        <img src="/images/agent-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="A coding agent in Passenger's terminal driving the Avalonia app it builds over MCP: it starts the app under the debugger, finds its Water button, clicks it and reads the plants' moisture back, while the Live Visual Tree shows the button it clicked">
+                    </picture>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <section id="xaml">
+        <div class="wrap" id="avalonia">
+            <p class="kicker">XAML</p>
+            <h2>XAML tooling for Avalonia and WPF</h2>
+            <p class="intro">Passenger is built with Avalonia, and it gives XAML the help C# gets, from the project's own
+                assemblies and the framework's own compiler and previewer, for Avalonia and WPF alike.</p>
+
+            <div class="feature">
+                <div class="text">
+                    <h3>XAML as you type</h3>
+                    <p>Completion of controls, properties, values, resources, selectors and binding paths, checked against
+                        <code>x:DataType</code> or WPF's design-time data context, the XAML compiler's errors on their lines,
+                        Go to Declaration into C#, and a missing property, command or converter made from where it is used.
+                        XAML Preview draws the file beside it as you type (WPF's on Windows).</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/xaml-light.webp" width="2400" height="1500">
+                        <img src="/images/xaml-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="An Avalonia .axaml file with XAML completion of a binding path, and XAML Preview drawing it beside the editor">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="feature flip">
+                <div class="text">
+                    <h3>The running app, from its XAML</h3>
+                    <p>Debug an Avalonia app, or a WPF app on Windows, and the Live Visual Tree shows its controls as they are,
+                        each property with where its value came from and each style with why it applies or not. In Avalonia
+                        the XAML shows each binding's value after its line, and a breakpoint goes on an element.</p>
+                    <p>A binding that fails is a console line linked to its XAML and a row in Problems with a fix, and can
+                        stop the debugger like an exception. The profiler charts an Avalonia app's frames.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/live-tree-light.webp" width="2400" height="1500">
+                        <img src="/images/live-tree-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="Debugging an Avalonia app: the Live Visual Tree with an element's details, and binding values after the XAML's lines">
+                    </picture>
+                </figure>
+            </div>
+        </div>
+    </section>
+
+    <section id="tour">
+        <div class="wrap">
+            <p class="kicker">The rest</p>
+            <h2>Everything else a full .NET IDE has</h2>
+            <p class="intro">Everything in Passenger is .NET, from the window to the debugger, over the libraries a C# IDE
+                needs: Roslyn, MSBuild, ICorDebug, EventPipe, VSTest and Microsoft.Testing.Platform.</p>
+
+            <div class="switch">
+                <p><strong>Coming from Visual Studio?</strong> Visual Studio's keys are the default, chords included.
+                    Coming from VS Code, choose its keymap in Settings.</p>
+                <p><strong>A full .NET IDE on the Mac.</strong> Visual Studio for Mac was retired in August 2024. Passenger
+                    runs natively on Apple Silicon, and its debugger attaches with nothing to set up.</p>
+            </div>
+
+            <div class="feature">
+                <div class="text">
+                    <h3>The editor and C#</h3>
+                    <p>A text control of its own over an immutable rope: multiple carets, folding, soft wrap, live, postfix
+                        and surround templates, inlay hints, and splits and tabs in windows of their own. A key costs what it
+                        changed, not the file's size.</p>
+                    <p>C# comes from Roslyn: diagnostics, completion, signature help, quick fixes and refactorings such as
+                        Change Signature, Extract Interface, Move and Safe Delete, Go to Declaration, Implementation and Base
+                        Symbols, Find Usages, hierarchies and decompiled library sources. Problems lists the whole solution's
+                        without a build, and Razor and Blazor files get C# and HTML help together.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/editor-light.webp" width="2400" height="1500">
+                        <img src="/images/editor-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="Passenger's C# editor: completion open after a dot, inlay hints, and the change bars of uncommitted lines">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="feature flip">
+                <div class="text">
+                    <h3>Git</h3>
+                    <p>The Commit window with its changes, the log with its branch graph and branches, side-by-side diffs with
+                        the changed words marked, blame, change bars in the gutter that roll a change back, the history of a
+                        file, a folder or a selection, stashes, push, pull and fetch, and conflicts resolved in a three-way
+                        merge.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/git-light.webp" width="2400" height="1500">
+                        <img src="/images/git-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="The Git window's log with its branch graph and a commit's details, beside the Commit window's changes">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="feature">
+                <div class="text">
+                    <h3>Find anything</h3>
+                    <p>Search Everywhere, Go to File, Go to Symbol and Find Action. Find and Replace in Files across the
+                        solution, a project, a folder or a scope, with a file mask and a preview. Find Usages in a window of its
+                        own, Recent Files and Recent Locations, bookmarks and File Structure.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/find-in-files-light.webp" width="2400" height="1500">
+                        <img src="/images/find-in-files-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="Find in Files across a .NET solution: every match with its file and line, the chosen one previewed below">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="feature flip">
+                <div class="text">
+                    <h3>Project files</h3>
+                    <p>In a <code>.csproj</code>, <code>.props</code> or <code>.targets</code>: completion of elements,
+                        properties, items and their values, and of package ids and versions from your feeds, the version going to
+                        <code>Directory.Packages.props</code> under central package management. A property's hover shows its
+                        evaluated value and where it was set.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/project-files-light.webp" width="2400" height="1500">
+                        <img src="/images/project-files-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="An MSBuild project file with code help: a property's evaluated value and where it is set">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="feature">
+                <div class="text">
+                    <h3>The web languages</h3>
+                    <p>JavaScript, TypeScript, HTML, CSS, SCSS, Less, JSON, Dockerfiles and YAML through their language
+                        servers: completion, checks, navigation and formatting, TypeScript on the project's own version and
+                        JSON against its schema. ESLint's problems show as you type with its fixes, and the project's own
+                        Prettier formats on Reformat Code and on save.</p>
+                </div>
+                <figure class="shot">
+                    <picture>
+                        <source media="(prefers-color-scheme: light)" srcset="/images/web-light.webp" width="2400" height="1500">
+                        <img src="/images/web-dark.webp" width="2400" height="1500" loading="lazy" decoding="async"
+                             alt="A TypeScript file with completion from its language server">
+                    </picture>
+                </figure>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>Build, run and publish</h3>
+                    <p>A Solution view as MSBuild evaluates it, builds with their errors in Problems, run configurations from
+                        your launch profiles, consoles whose stack frames link to their lines, and Publish with the SDK's own
+                        profiles.</p>
+                </div>
+                <div class="card">
+                    <h3>Unit tests</h3>
+                    <p>xUnit, NUnit, MSTest and TUnit, through VSTest or Microsoft.Testing.Platform: found from the code before
+                        any build, run marks in the gutter, results grouped and filtered, and any test debugged.</p>
+                </div>
+                <div class="card">
+                    <h3>NuGet</h3>
+                    <p>The feeds your <code>nuget.config</code> names, packages installed, updated and removed per project,
+                        central package management, and vulnerable versions marked with the lowest that fixes them.</p>
+                </div>
+                <div class="card">
+                    <h3>Terminal</h3>
+                    <p>A terminal emulator of its own with a shell per tab, where vim, less and htop run full-screen. A console
+                        program can run and be debugged in it.</p>
+                </div>
+                <div class="card">
+                    <h3>Local History</h3>
+                    <p>Every version of your files Passenger has seen, for five days of work, whatever Git knows: compared,
+                        labelled and put back.</p>
+                </div>
+                <div class="card">
+                    <h3>Tables, images and fonts</h3>
+                    <p>CSV, TSV and Excel workbooks open as tables Find searches; images and fonts open as previews.</p>
+                </div>
+                <div class="card">
+                    <h3>Windows and layout</h3>
+                    <p>Tool windows docked or floating, editor tabs split or in windows of their own, a window for each
+                        solution, and New Solution from any template <code>dotnet&nbsp;new</code> has.</p>
+                </div>
+                <div class="card">
+                    <h3>Updates</h3>
+                    <p>On Windows and macOS each new release downloads in the background and installs as Passenger closes,
+                        then shows what's new. On Linux, Passenger says when one is out.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="teams">
+        <div class="wrap">
+            <p class="kicker">For teams</p>
+            <h2>Ready for your company's code</h2>
+            <p class="intro">Passenger works with what your team already has in the repository, and asks nothing of your
+                company.</p>
+            <dl class="facts">
+                <div>
+                    <dt>Private feeds</dt>
+                    <dd>The feeds your <code>nuget.config</code> names, with their credentials or a credential provider such
+                        as Azure Artifacts', and package source mapping, as restore reads them.</dd>
+                </div>
+                <div>
+                    <dt>Vulnerable packages</dt>
+                    <dd>Versions with a known advisory marked from your feeds' audit data, with the lowest version that
+                        fixes them.</dd>
+                </div>
+                <div>
+                    <dt>Shared run configurations</dt>
+                    <dd>Run configurations come from the launch profiles, compose files and AppHosts in the repository, and
+                        Write to Launch Profile puts a change back there for everyone.</dd>
+                </div>
+                <div>
+                    <dt>Your <code>.editorconfig</code></dt>
+                    <dd>Indentation, line endings, charset and Reformat Code follow it, file by file, and the status bar
+                        says where a file's indent came from.</dd>
+                </div>
+                <div>
+                    <dt>Agents for the whole team</dt>
+                    <dd>A <code>.mcp.json</code> committed to the repository gives every Claude Code user there Passenger's
+                        tools.</dd>
+                </div>
+                <div>
+                    <dt>Nothing to sign up for</dt>
+                    <dd>No account, no licence server and no telemetry: nothing to approve but an MIT licence, and nothing
+                        sent about your code.</dd>
+                </div>
+            </dl>
+        </div>
+    </section>
+
+    <section id="faq">
+        <div class="wrap">
+            <h2>Questions</h2>
+            <div class="faq">
+                <details>
+                    <summary>Is it really free? What's the catch?</summary>
+                    <p>It is free and open source under the MIT licence, for work and personal projects alike, with no paid
+                        edition, no trial and no account. There is no catch to find in the code: it is all
+                        <a href="https://github.com/Zaneris/passenger">on GitHub</a>, and the notices list every package and
+                        asset it carries, each under an open-source licence.</p>
+                </details>
+                <details>
+                    <summary>Is it ready for daily work?</summary>
+                    <p>Passenger is young (0.2.0), and its own development runs through it every day: the coding agents
+                        that write much of it work through its MCP server. Its tests drive the whole IDE, a window with real
+                        keys and clicks, on macOS, Windows and Linux. Each release's notes say what it does and its known
+                        limits, so you can judge for your own projects.</p>
+                </details>
+                <details>
+                    <summary>Which systems and projects does it run on?</summary>
+                    <p>Windows (x64 and Arm64), macOS on Apple Silicon, and Linux (x64 and Arm64), with a .NET SDK 10 or later.
+                        It works with modern .NET (CoreCLR): console, ASP.NET Core, Blazor, Avalonia and WPF projects, and
+                        the services of a compose file or an Aspire AppHost. .NET Framework, Mono and Unity aren't
+                        Passenger's.</p>
+                </details>
+                <details>
+                    <summary>Does it need an account or send data?</summary>
+                    <p>No account, no sign-in and no telemetry. Passenger reaches the network only for what you use (your
+                        package feeds, a JSON file's schema, a Dockerfile's base image) and once a day to ask GitHub whether
+                        a newer release is out, sending nothing but its version, which Settings can turn off.</p>
+                </details>
+                <details>
+                    <summary>How are bugs reported and fixed?</summary>
+                    <p>In <a href="https://github.com/Zaneris/passenger/issues">GitHub's issues</a>: say what you did, what
+                        you expected and what happened, with the log (Help, Show Log). Fixes land on the branch of the release
+                        in progress and ship in its notes.</p>
+                </details>
+                <details>
+                    <summary>Can my coding agent use it?</summary>
+                    <p>Yes: Passenger is an MCP server for Claude Code, Codex, OpenCode and any agent that can add one.
+                        <a href="/agents">Set it up</a> in a minute.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section id="download">
+        <div class="wrap">
+            <h2>Download</h2>
+            <p class="status" id="release-status"></p>
+            <div class="downloads">
+                <div class="platform">
+                    <h3>macOS</h3>
+                    <ul>
+                        <li><a data-asset="Passenger-macos-arm64.dmg" href="https://github.com/Zaneris/passenger/releases/latest/download/Passenger-macos-arm64.dmg">Apple Silicon <span class="kind">.dmg</span></a></li>
+                    </ul>
+                    <p class="note">For Macs with Apple Silicon. Drag Passenger onto Applications. Each new release
+                        downloads in the background and installs as Passenger closes.</p>
+                </div>
+                <div class="platform">
+                    <h3>Windows</h3>
+                    <ul>
+                        <li><a data-asset="Passenger-windows-x64.exe" href="https://github.com/Zaneris/passenger/releases/latest/download/Passenger-windows-x64.exe">x64 <span class="kind">installer</span></a></li>
+                        <li><a data-asset="Passenger-windows-arm64.exe" href="https://github.com/Zaneris/passenger/releases/latest/download/Passenger-windows-arm64.exe">Arm64 <span class="kind">installer</span></a></li>
+                    </ul>
+                    <p class="note">Installs for you alone, with no administrator. Each new release downloads in the
+                        background and installs as Passenger closes.</p>
+                </div>
+                <div class="platform">
+                    <h3>Linux</h3>
+                    <ul>
+                        <li><a data-asset="Passenger-linux-x64.tar.gz" href="https://github.com/Zaneris/passenger/releases/latest/download/Passenger-linux-x64.tar.gz">x64 <span class="kind">.tar.gz</span></a></li>
+                        <li><a data-asset="Passenger-linux-arm64.tar.gz" href="https://github.com/Zaneris/passenger/releases/latest/download/Passenger-linux-arm64.tar.gz">Arm64 <span class="kind">.tar.gz</span></a></li>
+                    </ul>
+                    <p class="note">Unpack it and run its <code>install.sh</code>, for you alone or for everyone. Passenger
+                        says when a new release is out.</p>
+                    <a class="more" href="/linux">How to install on Linux</a>
+                </div>
+            </div>
+            <div class="needs">
+                <p>Passenger needs:</p>
+                <ul>
+                    <li><strong>A <a href="https://dotnet.microsoft.com/download">.NET SDK</a>, version 10 or later.</strong> It
+                        builds and runs your projects with it, and its language server, project host and debugger run on
+                        it.</li>
+                    <li><strong><a href="https://git-scm.com/downloads">Git</a></strong>, for version control.</li>
+                    <li><strong><a href="https://nodejs.org/">Node.js</a></strong>, for JavaScript, TypeScript, HTML, CSS,
+                        JSON, Dockerfiles and YAML: 22.22.2 or later for TypeScript. C# and XAML do without it.</li>
+                    <li><strong>A container engine running Linux containers</strong> (Docker Desktop, Colima, OrbStack,
+                        Rancher Desktop or Podman), only for compose files, Dockerfiles and an AppHost's containers.</li>
+                </ul>
+                <p>Every release, with its notes and its <code>SHA256SUMS</code>, is on
+                    <a href="https://github.com/Zaneris/passenger/releases">GitHub</a>.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="wrap">
+        <p>Passenger is free and open source under the MIT licence. It is not affiliated with JetBrains or Microsoft.</p>
+        <nav aria-label="More">
+            <a href="https://github.com/Zaneris/passenger">GitHub</a>
+            <a href="https://x.com/Zaneris">X (@Zaneris)</a>
+            <a href="/containers">Containers and Aspire</a>
+            <a href="/agents">Agents</a>
+            <a href="/linux">Linux</a>
+            <a href="https://github.com/Zaneris/passenger/blob/main/LICENSE">Licence</a>
+            <a href="https://github.com/Zaneris/passenger/blob/main/THIRD_PARTY_NOTICES.md">Third-party notices</a>
+        </nav>
+    </div>
+</footer>
+</body>
+</html>

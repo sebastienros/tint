@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 namespace Tint.Internal.Regex;
 
 // A reusable character buffer for building scope names and resolved patterns without intermediate strings. Not
@@ -15,6 +16,7 @@ internal sealed class CharBuffer
 
     public void Clear() => Length = 0;
 
+    [MethodImpl(Jit.FullOpts)]
     public void Append(char c)
     {
         if (Length == _chars.Length)
@@ -25,6 +27,7 @@ internal sealed class CharBuffer
         _chars[Length++] = c;
     }
 
+    [MethodImpl(Jit.FullOpts)]
     public void Append(ReadOnlySpan<char> value)
     {
         if (Length + value.Length > _chars.Length)
