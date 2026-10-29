@@ -54,6 +54,9 @@ jobs:
       run: dotnet build Tint.slnx --configuration Release --no-restore -p:VersionSuffix=preview.${{ github.run_number }} -p:ContinuousIntegrationBuild=True
     - name: Test
       run: dotnet test --solution Tint.slnx --configuration Release --no-build --minimum-expected-tests 1
+    - name: Test .NET Framework runtime
+      if: runner.os == 'Windows'
+      run: dotnet test --project test/Tint.Framework.Tests --configuration Release -p:VersionSuffix=preview.${{ github.run_number }} -p:ContinuousIntegrationBuild=True --minimum-expected-tests 1
     - name: Run the generator sample
       run: dotnet run --project test/Tint.Generator.Sample/Tint.Generator.Sample.csproj --configuration Release --no-build
     # Restore packed Tint.Grammars.Sources and Tint.Themes.Sources into artifacts/sources-feed/ and the sample restored

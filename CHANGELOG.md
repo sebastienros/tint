@@ -3,6 +3,25 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
+## 0.2.0 (2026-10-28)
+
+### Tint
+
+- .NET Framework hosts: the runtime also targets `netstandard2.0`, with runtime grammar loading and interpreted
+  tokenization (no runtime regex compilation, NativeAOT or trimming on that target). The prebuilt grammar and theme
+  bundles stay on modern .NET. Every assembly is strong-named with the repository's deliberately public development
+  key, `Tint.Development.snk`: it gives signed hosts an assembly identity to reference, not package authenticity.
+- `AttributedScopeStack.GrammarScopeName`: the root scope of the grammar whose rule introduced a scope, so an editor
+  can tell an embedded language's scopes from the host's. Scope stacks are equal only when each scope comes from the
+  same grammar.
+- `Tokenizer.LineEndScopes`: the scopes of the line's synthetic newline, which `TokenizeLine` and
+  `TokenizeLineEncoded` drop from their tokens.
+- GregsEx 0.5.4: patterns with subexpression calls compile on .NET Framework.
+
+### Tint.Grammars, Tint.Themes
+
+- Strong-named with the same development key; no content change.
+
 ## 0.1.2 (2026-10-26)
 
 ### Tint

@@ -4,12 +4,13 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-    <!-- 0.5.3 makes kernel planning (which binding a generated kernel repeats to check its fingerprint) as cheap as in
+    <!-- 0.5.4 fixes compiling TextMate patterns with subexpression calls on .NET Framework (the netstandard2.0 target);
+         0.5.3 makes kernel planning (which binding a generated kernel repeats to check its fingerprint) as cheap as in
          0.5.1 again; 0.5.2 added kernels for patterns with subexpression calls (the C# grammar's declarations) and the
          interpreter's branch skipping and possessive runs to every kernel; 0.5.1 shipped the compiled Oniguruma kernels,
          the KernelSource façade and OnigurumaCompileOptions.TextMate. Previews (0.1.0-preview.N) come from the Feedz
          feed in nuget.config. -->
-    <PackageVersion Include="GregsEx" Version="0.5.3" />
+    <PackageVersion Include="GregsEx" Version="0.5.4" />
     <PackageVersion Include="Meziantou.Polyfill" Version="1.0.166" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" />
@@ -18,6 +19,9 @@
     <!-- Tracks the public surface of the shipped packages in PublicAPI.*.txt (RS0016/RS0017). 4.x runs on any SDK 10 compiler. -->
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.13" />
+    <PackageVersion Include="System.Collections.Immutable" Version="10.0.10" />
+    <PackageVersion Include="System.Memory" Version="4.6.3" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.14" />
     <PackageVersion Include="TextMateSharp" Version="2.0.4" />
     <PackageVersion Include="TextMateSharp.Grammars" Version="2.0.4" />
     <PackageVersion Include="TextMateLib" Version="0.2.1" />

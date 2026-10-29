@@ -1,4 +1,6 @@
 #nullable enable
+Tint.AttributedScopeStack.GrammarScopeName.get -> string!
+Tint.Tokenizer.LineEndScopes.get -> Tint.AttributedScopeStack!
 override Tint.AttributedScopeStack.Equals(object? obj) -> bool
 override Tint.AttributedScopeStack.GetHashCode() -> int
 override Tint.AttributedScopeStack.ToString() -> string!

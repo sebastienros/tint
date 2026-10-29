@@ -278,7 +278,7 @@ internal sealed class CompiledGrammar
             }
 
             var selector = injectionGrammar.Source.Info.InjectionSelector ?? injectionGrammar.Grammar.InjectionSelector;
-            if (!string.IsNullOrEmpty(selector))
+            if (selector is not null && selector.Length > 0)
             {
                 CollectInjections(result, selector, injectionGrammar.Grammar.InjectionRule, injectionGrammar, injectionGrammar.Repository);
             }
@@ -345,7 +345,7 @@ internal sealed class CompiledGrammar
         Rule rule;
         if (desc.Match is { } match)
         {
-            rule = new MatchRule(id, desc.Name, match, CompileCaptures(desc.Captures, owner, repository));
+            rule = new MatchRule(id, desc.Name, match, CompileCaptures(desc.Captures, owner, repository)) { GrammarScopeName = owner.Grammar.ScopeName };
         }
         else if (desc.Begin is null)
         {
@@ -361,21 +361,21 @@ internal sealed class CompiledGrammar
             }
 
             var (ids, missing) = CompilePatterns(patterns, owner, repository);
-            rule = new IncludeOnlyRule(id, desc.Name, desc.ContentName, ids, missing);
+            rule = new IncludeOnlyRule(id, desc.Name, desc.ContentName, ids, missing) { GrammarScopeName = owner.Grammar.ScopeName };
         }
         else if (desc.While is { } whilePattern)
         {
             var beginCaptures = CompileCaptures(desc.BeginCaptures ?? desc.Captures, owner, repository);
             var whileCaptures = CompileCaptures(desc.WhileCaptures ?? desc.Captures, owner, repository);
             var (ids, missing) = CompilePatterns(desc.Patterns, owner, repository);
-            rule = new BeginWhileRule(id, desc.Name, desc.ContentName, desc.Begin, beginCaptures, whilePattern, whileCaptures, ids, missing);
+            rule = new BeginWhileRule(id, desc.Name, desc.ContentName, desc.Begin, beginCaptures, whilePattern, whileCaptures, ids, missing) { GrammarScopeName = owner.Grammar.ScopeName };
         }
         else
         {
             var beginCaptures = CompileCaptures(desc.BeginCaptures ?? desc.Captures, owner, repository);
             var endCaptures = CompileCaptures(desc.EndCaptures ?? desc.Captures, owner, repository);
             var (ids, missing) = CompilePatterns(desc.Patterns, owner, repository);
-            rule = new BeginEndRule(id, desc.Name, desc.ContentName, desc.Begin, beginCaptures, desc.End ?? RegexSource.Empty, endCaptures, desc.ApplyEndPatternLast, ids, missing);
+            rule = new BeginEndRule(id, desc.Name, desc.ContentName, desc.Begin, beginCaptures, desc.End ?? RegexSource.Empty, endCaptures, desc.ApplyEndPatternLast, ids, missing) { GrammarScopeName = owner.Grammar.ScopeName };
         }
 
         Rules.Set(id, rule);
@@ -405,7 +405,7 @@ internal sealed class CompiledGrammar
             }
 
             var id = Rules.Reserve();
-            var captureRule = new CaptureRule(id, capture.Name, capture.ContentName, retokenizeCapturedWithRuleId);
+            var captureRule = new CaptureRule(id, capture.Name, capture.ContentName, retokenizeCapturedWithRuleId) { GrammarScopeName = owner.Grammar.ScopeName };
             Rules.Set(id, captureRule);
             result[i] = captureRule;
         }

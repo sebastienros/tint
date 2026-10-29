@@ -31,6 +31,21 @@ internal static class ThemeSet
     }
 }
 
+#if NETSTANDARD2_0
+internal sealed class LineTokensBuffer
+{
+    private readonly LineTokens[] _items = new LineTokens[ThemeSet.MaxThemes];
+
+    public ref LineTokens this[int index] => ref _items[index];
+}
+
+internal sealed class StateBuffer
+{
+    private readonly StateStack[] _items = new StateStack[ThemeSet.MaxThemes];
+
+    public ref StateStack this[int index] => ref _items[index];
+}
+#else
 [InlineArray(ThemeSet.MaxThemes)]
 internal struct LineTokensBuffer
 {
@@ -42,3 +57,4 @@ internal struct StateBuffer
 {
     private StateStack _element;
 }
+#endif

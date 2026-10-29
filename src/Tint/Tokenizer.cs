@@ -35,6 +35,10 @@ public sealed class Tokenizer
     private bool _mergeEncoded;
     private int _lastTokenEndIndex;
 
+    // The scopes of the last token produced, merged encoded tokens included: the synthetic newline's scopes once the
+    // line is tokenized.
+    private AttributedScopeStack? _lastProducedScopes;
+
     // Captures of the matches being handled, as a stack: each search copies its captures above the ones still in use.
     private CaptureSpan[] _captures = new CaptureSpan[128];
     private int _captureTop;
@@ -49,6 +53,7 @@ public sealed class Tokenizer
         _grammar = grammar;
         _rules = grammar.Rules;
         _context = grammar.GetContext(theme);
+        LineEndScopes = _context.RootScopes;
         _injections = grammar.Injections;
         _scanners = new RuleScanner?[_rules.Count * 4];
         _whileScanners = new RuleScanner?[_rules.Count * 4];
@@ -77,6 +82,12 @@ public sealed class Tokenizer
 
     /// <summary>Whether the last line ran out of <see cref="TimeBudget"/>.</summary>
     public bool StoppedEarly { get; private set; }
+
+    /// <summary>
+    /// The scopes of the synthetic newline from the last <see cref="TokenizeLine"/> or
+    /// <see cref="TokenizeLineEncoded"/> call.
+    /// </summary>
+    public AttributedScopeStack LineEndScopes { get; private set; }
 
     /// <summary>The number of regex searches that ran out of work and counted as no match.</summary>
     public long LimitExceededCount
@@ -188,11 +199,13 @@ public sealed class Tokenizer
         _tokenCount = 0;
         _encodedTokenCount = 0;
         _lastTokenEndIndex = 0;
+        _lastProducedScopes = null;
         _captureTop = 0;
         _localTop = 0;
 
         var deadline = TimeBudget is { } budget ? Stopwatch.GetTimestamp() + (long)(budget.TotalSeconds * Stopwatch.Frequency) : 0;
         StoppedEarly = TokenizeString(lineText, lineLength, isFirstLine, 0, ref state, checkWhileConditions: true, deadline);
+        LineEndScopes = _lastProducedScopes ?? state.ContentNameScopes;
 
         if (encoded)
         {
@@ -299,7 +312,7 @@ public sealed class Tokenizer
                 Produce(stack.ContentNameScopes, capture0.Start);
 
                 var beforePush = stack;
-                var nameScopes = PushName(stack.ContentNameScopes, rule.Name, rule.NameIsCapturing, text, match.CaptureOffset, captureCount);
+                var nameScopes = PushName(stack.ContentNameScopes, rule.Name, rule.NameIsCapturing, text, match.CaptureOffset, captureCount, rule.GrammarScopeName);
 
                 // stack.push(...): the captures see the pushed state, which is only allocated when a capture is
                 // retokenized; a begin rule then gets its final state (content name, resolved end) in one node.
@@ -311,7 +324,7 @@ public sealed class Tokenizer
                     Produce(nameScopes, capture0.End);
                     anchorPosition = capture0.End;
 
-                    var contentNameScopes = PushName(nameScopes, beginEnd.ContentName, beginEnd.ContentNameIsCapturing, text, match.CaptureOffset, captureCount);
+                    var contentNameScopes = PushName(nameScopes, beginEnd.ContentName, beginEnd.ContentNameIsCapturing, text, match.CaptureOffset, captureCount, beginEnd.GrammarScopeName);
                     var endRule = beginEnd.EndHasBackReferences
                         ? ResolveBackReferences(match.RuleId, isWhile: false, beginEnd.End, text, match.CaptureOffset, captureCount)
                         : null;
@@ -331,7 +344,7 @@ public sealed class Tokenizer
                     Produce(nameScopes, capture0.End);
                     anchorPosition = capture0.End;
 
-                    var contentNameScopes = PushName(nameScopes, beginWhile.ContentName, beginWhile.ContentNameIsCapturing, text, match.CaptureOffset, captureCount);
+                    var contentNameScopes = PushName(nameScopes, beginWhile.ContentName, beginWhile.ContentNameIsCapturing, text, match.CaptureOffset, captureCount, beginWhile.GrammarScopeName);
                     var whileRule = beginWhile.WhileHasBackReferences
                         ? ResolveBackReferences(match.RuleId, isWhile: true, beginWhile.While, text, match.CaptureOffset, captureCount)
                         : null;
@@ -686,8 +699,8 @@ public sealed class Tokenizer
             {
                 // The capture requires additional matching: tokenize the line up to the capture's end (the prefix
                 // keeps look-behinds working) from the capture's start.
-                var nameScopes = PushName(stack.ContentNameScopes, captureRule.Name, captureRule.NameIsCapturing, text, captureOffset, captureCount);
-                var contentNameScopes = PushName(nameScopes, captureRule.ContentName, captureRule.ContentNameIsCapturing, text, captureOffset, captureCount);
+                var nameScopes = PushName(stack.ContentNameScopes, captureRule.Name, captureRule.NameIsCapturing, text, captureOffset, captureCount, captureRule.GrammarScopeName);
+                var contentNameScopes = PushName(nameScopes, captureRule.ContentName, captureRule.ContentNameIsCapturing, text, captureOffset, captureCount, captureRule.GrammarScopeName);
                 var stackClone = stack.Materialize().Push(captureRule.RetokenizeCapturedWithRuleId, capture.Start, -1, false, null, nameScopes, contentNameScopes);
                 TokenizeString(text, capture.End, isFirstLine && capture.Start == 0, capture.Start, ref stackClone, checkWhileConditions: false, deadline: 0);
                 continue;
@@ -696,7 +709,7 @@ public sealed class Tokenizer
             if (captureRule.Name is not null)
             {
                 var baseScopes = _localTop > localBase ? _localStack[_localTop - 1].Scopes : stack.ContentNameScopes;
-                var captureScopes = PushName(baseScopes, captureRule.Name, captureRule.NameIsCapturing, text, captureOffset, captureCount);
+                var captureScopes = PushName(baseScopes, captureRule.Name, captureRule.NameIsCapturing, text, captureOffset, captureCount, captureRule.GrammarScopeName);
                 if (_localTop == _localStack.Length)
                 {
                     Array.Resize(ref _localStack, _localStack.Length * 2);
@@ -713,7 +726,7 @@ public sealed class Tokenizer
         }
     }
 
-    private AttributedScopeStack PushName(AttributedScopeStack scopes, string? name, bool isCapturing, string text, int captureOffset, int captureCount)
+    private AttributedScopeStack PushName(AttributedScopeStack scopes, string? name, bool isCapturing, string text, int captureOffset, int captureCount, string grammarScopeName)
     {
         if (name is null)
         {
@@ -722,11 +735,11 @@ public sealed class Tokenizer
 
         if (!isCapturing)
         {
-            return scopes.PushAttributed(name);
+            return scopes.PushAttributed(name, grammarScopeName);
         }
 
         CaptureNames.Replace(name, text, _captures.AsSpan(captureOffset, captureCount), _buffer);
-        return scopes.PushAttributed(_buffer.AsSpan());
+        return scopes.PushAttributed(_buffer.AsSpan(), grammarScopeName);
     }
 
     private int CopyCaptures(ReadOnlySpan<RegexCapture> captures)
@@ -767,6 +780,7 @@ public sealed class Tokenizer
             return;
         }
 
+        _lastProducedScopes = scopes;
         if (_emitEncoded)
         {
             var metadata = GetEncodedMetadata(scopes);
@@ -837,7 +851,12 @@ public sealed class Tokenizer
     // utils.ts containsRTL: any character of Unicode bidirectional class R or AL.
     internal static bool ContainsRtl(ReadOnlySpan<char> text)
     {
+#if NETSTANDARD2_0
+        // The loop below skips the characters before U+05BE.
+        var index = 0;
+#else
         var index = text.IndexOfAnyInRange('־', '￿');
+#endif
         if (index < 0)
         {
             return false;

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Directory.Build.props sets TargetFramework for single-target projects; clear it so TargetFrameworks applies. -->
     <TargetFramework></TargetFramework>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0;net10.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <IsAotCompatible>true</IsAotCompatible>
     <IsTrimmable>true</IsTrimmable>
@@ -15,6 +15,16 @@
     <!-- Compares the package's assemblies across target frameworks; a baseline version is added after 0.1.0 ships. -->
     <EnablePackageValidation>true</EnablePackageValidation>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <IsAotCompatible>false</IsAotCompatible>
+    <IsTrimmable>false</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Meziantou.Polyfill" PrivateAssets="all" />
+    <PackageReference Include="System.Collections.Immutable" />
+    <PackageReference Include="System.Memory" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
   <ItemGroup>
     <!-- Every public change shows in PublicAPI.Unshipped.txt; release moves the entries to PublicAPI.Shipped.txt. -->
     <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" PrivateAssets="all" />
