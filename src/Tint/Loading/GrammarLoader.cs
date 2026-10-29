@@ -5,6 +5,12 @@ using Tint.Grammars;
 namespace Tint.Loading;
 
 /// <summary>Reads TextMate grammars from JSON (<c>.tmLanguage.json</c>) and plist (<c>.tmLanguage</c>) files.</summary>
+/// <remarks>
+/// JSON is read as standard JSON with comments and trailing commas allowed. JavaScript-style relaxations that some
+/// readers accept, such as Newtonsoft.Json's unquoted or single-quoted property names and content after the root
+/// value, are rejected with a <see cref="System.Text.Json.JsonException"/>; a host that validates grammars with such
+/// a reader can accept files that fail here.
+/// </remarks>
 public static partial class GrammarLoader
 {
     /// <summary>Loads a grammar file: JSON when the name ends with <c>.json</c>, plist otherwise, as vscode-textmate decides.</summary>

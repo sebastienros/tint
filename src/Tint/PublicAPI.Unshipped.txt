@@ -300,6 +300,7 @@ Tint.Rendering.HtmlStyleMode.InlineStyles = 0 -> Tint.Rendering.HtmlStyleMode
 Tint.StateStack
 Tint.StateStack.Depth.get -> int
 Tint.StateStack.Equals(Tint.StateStack? other) -> bool
+Tint.StateStack.Scopes.get -> Tint.AttributedScopeStack?
 Tint.Theme
 Tint.Theme.ColorMap.get -> Tint.Themes.ColorMap!
 Tint.Theme.Defaults.get -> Tint.Themes.StyleAttributes
