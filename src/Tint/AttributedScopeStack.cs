@@ -28,10 +28,11 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
     private uint _encodedMetadata;
     private volatile bool _hasEncodedMetadata;
 
-    private AttributedScopeStack(AttributedScopeStack? parent, string scopeName, uint tokenAttributes, ScopeContext context)
+    private AttributedScopeStack(AttributedScopeStack? parent, string scopeName, uint tokenAttributes, ScopeContext context, string? grammarScopeName = null)
     {
         Parent = parent;
         ScopeName = scopeName;
+        GrammarScopeName = grammarScopeName ?? context.Grammar.ScopeName;
         TokenAttributes = tokenAttributes;
         Depth = parent is null ? 1 : parent.Depth + 1;
         _context = context;
@@ -43,6 +44,9 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 
     /// <summary>The innermost scope name.</summary>
     public string ScopeName { get; }
+
+    /// <summary>The root scope of the grammar whose rule introduced this scope.</summary>
+    public string GrammarScopeName { get; }
 
     /// <summary>The token attributes, as <see cref="EncodedTokenAttributes"/> reads them.</summary>
     public uint TokenAttributes { get; }
@@ -96,7 +100,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
                 return false;
             }
 
-            if (a._hashCode != b._hashCode || a.ScopeName != b.ScopeName || a.TokenAttributes != b.TokenAttributes)
+            if (a._hashCode != b._hashCode || a.ScopeName != b.ScopeName || a.TokenAttributes != b.TokenAttributes || a.GrammarScopeName != b.GrammarScopeName)
             {
                 return false;
             }
@@ -115,7 +119,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
     }
 
     // pushAttributed: a space-separated scope path pushes each segment (empty segments included, as split(/ /g)).
-    internal AttributedScopeStack PushAttributed(string? scopePath)
+    internal AttributedScopeStack PushAttributed(string? scopePath, string? grammarScopeName = null)
     {
         if (scopePath is null)
         {
@@ -124,13 +128,13 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 
         if (scopePath.IndexOf(' ') < 0)
         {
-            return Push(scopePath);
+            return Push(scopePath, grammarScopeName ?? _context.Grammar.ScopeName);
         }
 
-        return PushAttributed(scopePath.AsSpan());
+        return PushAttributed(scopePath.AsSpan(), grammarScopeName);
     }
 
-    internal AttributedScopeStack PushAttributed(ReadOnlySpan<char> scopePath)
+    internal AttributedScopeStack PushAttributed(ReadOnlySpan<char> scopePath, string? grammarScopeName = null)
     {
         var result = this;
         while (true)
@@ -138,32 +142,32 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
             var space = scopePath.IndexOf(' ');
             if (space < 0)
             {
-                return result.Push(scopePath);
+                return result.Push(scopePath, grammarScopeName ?? _context.Grammar.ScopeName);
             }
 
-            result = result.Push(scopePath.Slice(0, space));
+            result = result.Push(scopePath.Slice(0, space), grammarScopeName ?? _context.Grammar.ScopeName);
             scopePath = scopePath.Slice(space + 1);
         }
     }
 
-    private AttributedScopeStack Push(string scopeName)
+    private AttributedScopeStack Push(string scopeName, string grammarScopeName)
     {
-        if (TryFindChild(scopeName, out var existing))
+        if (TryFindChild(scopeName, grammarScopeName, out var existing))
         {
             return existing;
         }
 
-        return AddChild(CreateChild(scopeName));
+        return AddChild(CreateChild(scopeName, grammarScopeName));
     }
 
-    private AttributedScopeStack Push(ReadOnlySpan<char> scopeName)
+    private AttributedScopeStack Push(ReadOnlySpan<char> scopeName, string grammarScopeName)
     {
         var small = _smallChildren;
         if (small is not null)
         {
             foreach (var item in small)
             {
-                if (scopeName.SequenceEqual(item.ScopeName))
+                if (scopeName.SequenceEqual(item.ScopeName) && item.GrammarScopeName == grammarScopeName)
                 {
                     return item;
                 }
@@ -172,31 +176,31 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 
         var map = _childMap;
 #if NET9_0_OR_GREATER
-        if (map is not null && map.GetAlternateLookup<ReadOnlySpan<char>>().TryGetValue(scopeName, out var found))
+        if (map is not null && map.GetAlternateLookup<ReadOnlySpan<char>>().TryGetValue(scopeName, out var found) && found.GrammarScopeName == grammarScopeName)
         {
             return found;
         }
 
-        return AddChild(CreateChild(scopeName.ToString()));
+        return AddChild(CreateChild(scopeName.ToString(), grammarScopeName));
 #else
         var name = scopeName.ToString();
-        if (map is not null && map.TryGetValue(name, out var found))
+        if (map is not null && map.TryGetValue(name, out var found) && found.GrammarScopeName == grammarScopeName)
         {
             return found;
         }
 
-        return AddChild(CreateChild(name));
+        return AddChild(CreateChild(name, grammarScopeName));
 #endif
     }
 
-    private bool TryFindChild(string scopeName, out AttributedScopeStack child)
+    private bool TryFindChild(string scopeName, string grammarScopeName, out AttributedScopeStack child)
     {
         var small = _smallChildren;
         if (small is not null)
         {
             foreach (var item in small)
             {
-                if (ReferenceEquals(item.ScopeName, scopeName) || item.ScopeName == scopeName)
+                if ((ReferenceEquals(item.ScopeName, scopeName) || item.ScopeName == scopeName) && item.GrammarScopeName == grammarScopeName)
                 {
                     child = item;
                     return true;
@@ -204,7 +208,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
             }
         }
 
-        if (_childMap is { } map && map.TryGetValue(scopeName, out child!))
+        if (_childMap is { } map && map.TryGetValue(scopeName, out child!) && child.GrammarScopeName == grammarScopeName)
         {
             return true;
         }
@@ -213,11 +217,11 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         return false;
     }
 
-    private AttributedScopeStack CreateChild(string scopeName)
+    private AttributedScopeStack CreateChild(string scopeName, string grammarScopeName)
     {
         var basic = _context.Grammar.Attributes.GetBasicScopeAttributes(scopeName);
         var style = _context.Theme.Match(scopeName, this);
-        return new AttributedScopeStack(this, scopeName, MergeAttributes(TokenAttributes, basic, style), _context);
+        return new AttributedScopeStack(this, scopeName, MergeAttributes(TokenAttributes, basic, style), _context, grammarScopeName);
     }
 
     // Publishes a new child without locks: the first few in a copy-on-write array, then in a concurrent dictionary,
@@ -233,7 +237,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
             {
                 foreach (var item in small)
                 {
-                    if (item.ScopeName == child.ScopeName)
+                    if (item.ScopeName == child.ScopeName && item.GrammarScopeName == child.GrammarScopeName)
                     {
                         return item;
                     }
@@ -265,7 +269,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 
         if (map.TryGetValue(child.ScopeName, out var existing))
         {
-            return existing;
+            return existing.GrammarScopeName == child.GrammarScopeName ? existing : child;
         }
 
         if (Interlocked.Increment(ref _childMapCount) > MaxCachedChildren - SmallChildren)
@@ -280,7 +284,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         }
 
         Interlocked.Decrement(ref _childMapCount);
-        return map.TryGetValue(child.ScopeName, out existing) ? existing : child;
+        return map.TryGetValue(child.ScopeName, out existing) && existing.GrammarScopeName == child.GrammarScopeName ? existing : child;
     }
 
     // The number of cached children, for tests.

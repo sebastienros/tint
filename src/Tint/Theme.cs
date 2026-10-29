@@ -182,7 +182,7 @@ public sealed class Theme
                 string[]? parentScopes = null;
                 if (segments.Length > 1)
                 {
-                    parentScopes = segments[..^1];
+                    parentScopes = segments.AsSpan(0, segments.Length - 1).ToArray();
                     Array.Reverse(parentScopes);
                 }
 

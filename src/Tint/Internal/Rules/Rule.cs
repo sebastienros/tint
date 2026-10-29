@@ -31,6 +31,8 @@ internal abstract class Rule
 
     public int Id { get; }
 
+    public string GrammarScopeName { get; set; } = string.Empty;
+
     public string? Name { get; }
 
     public bool NameIsCapturing { get; }

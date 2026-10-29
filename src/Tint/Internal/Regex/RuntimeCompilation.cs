@@ -16,9 +16,14 @@ internal static class RuntimeCompilation
     [FeatureSwitchDefinition(SwitchName)]
 #endif
     public static bool IsSupported
-        => RuntimeFeature.IsDynamicCodeSupported
+        =>
+#if NETSTANDARD2_0
+            false;
+#else
+            RuntimeFeature.IsDynamicCodeSupported
             && RuntimeFeature.IsDynamicCodeCompiled
             && (!AppContext.TryGetSwitch(SwitchName, out var enabled) || enabled);
+#endif
 
     [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Guarded by IsSupported, which requires RuntimeFeature.IsDynamicCodeSupported.")]
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Guarded by IsSupported, which the trimmer folds to false through GregsEx's feature switch.")]

@@ -17,6 +17,10 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
+    <!-- Non-secret development strong-name key; not a production identity or an authenticity guarantee. -->
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Tint.Development.snk</AssemblyOriginatorKeyFile>
+    <PublicKey>002400000480000094000000060200000024000052534131000400000100010041f00cd7fe08f78e215aa7c11d53ff8f3f2df2f49141ccd389c8cbe01fe581b6c366ce3c8aa02cdcae1c68d9b87af2c844d6e2123ba4aa22cb7e0504e281aab90ded01c212ceab5619b932fa15e81b6d2a72d486659043c6d721a57b64b08aec51e36b8e54b12a72e0d4d9e583423c1830d4a0a9234c9ccd8c5bc3c431a278ad</PublicKey>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 </Project>

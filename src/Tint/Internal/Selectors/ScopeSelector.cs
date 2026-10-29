@@ -48,7 +48,7 @@ internal static class ScopeSelector
 
     public static bool ScopesAreMatching(string? thisScopeName, string scopeName)
     {
-        if (string.IsNullOrEmpty(thisScopeName))
+        if (thisScopeName is null || thisScopeName.Length == 0)
         {
             return false;
         }
@@ -190,7 +190,7 @@ internal static class ScopeSelector
         // /[\w\.:]+/ anywhere in the token.
         private static bool IsIdentifier(string? token)
         {
-            if (string.IsNullOrEmpty(token))
+            if (token is null || token.Length == 0)
             {
                 return false;
             }

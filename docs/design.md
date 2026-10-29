@@ -23,7 +23,11 @@ with its phases lives in [plan.md](plan.md).
    bundled grammar with any bundled theme.
 
 Non-goals for 1.0: semantic highlighting, folding, indentation rules, language configuration
-(brackets, comments), `.NET Framework` support.
+(brackets, comments).
+
+The runtime also supports .NET Framework hosts through its .NET Standard 2.0 target.
+That target supports runtime grammar loading and interpreted tokenization, not runtime regex compilation or NativeAOT/trimming.
+The optional prebuilt grammar and theme bundles remain on modern .NET.
 
 ## 2. What exists today (summary of the research)
 
@@ -74,7 +78,7 @@ conditionals, absent operator, `\K`, loops over a nullable body; subexpression c
 
 | Package | Content |
 |---|---|
-| `Tint` | Runtime library and the source generator (`analyzers/dotnet/cs`, same convention as GregsEx). Depends on `GregsEx`. Targets `net8.0;net10.0`. |
+| `Tint` | Runtime library and the source generator (`analyzers/dotnet/cs`, same convention as GregsEx). Depends on `GregsEx`. Targets `netstandard2.0;net8.0;net10.0`. |
 | `Tint.Grammars` | Code-generated VS Code grammars, all 84 in one assembly with lazily parsed patterns (5.2 MB per target framework, 1.9 MB package, see section 8.4), `TintGrammars.All`/`Find`. Depends on `Tint` and `GregsEx`. |
 | `Tint.Themes` | Code-generated VS Code themes (19, 180 KB), `TintThemes.All`/`Find`. Depends on `Tint`. |
 

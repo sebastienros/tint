@@ -278,7 +278,7 @@ internal sealed class CompiledGrammar
             }
 
             var selector = injectionGrammar.Source.Info.InjectionSelector ?? injectionGrammar.Grammar.InjectionSelector;
-            if (!string.IsNullOrEmpty(selector))
+            if (selector is not null && selector.Length > 0)
             {
                 CollectInjections(result, selector, injectionGrammar.Grammar.InjectionRule, injectionGrammar, injectionGrammar.Repository);
             }
@@ -378,6 +378,7 @@ internal sealed class CompiledGrammar
             rule = new BeginEndRule(id, desc.Name, desc.ContentName, desc.Begin, beginCaptures, desc.End ?? RegexSource.Empty, endCaptures, desc.ApplyEndPatternLast, ids, missing);
         }
 
+        rule.GrammarScopeName = owner.Grammar.ScopeName;
         Rules.Set(id, rule);
         return id;
     }
@@ -406,6 +407,7 @@ internal sealed class CompiledGrammar
 
             var id = Rules.Reserve();
             var captureRule = new CaptureRule(id, capture.Name, capture.ContentName, retokenizeCapturedWithRuleId);
+            captureRule.GrammarScopeName = owner.Grammar.ScopeName;
             Rules.Set(id, captureRule);
             result[i] = captureRule;
         }

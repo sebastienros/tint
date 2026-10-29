@@ -120,7 +120,7 @@ internal static class PatternRewriter
     // RegExpSource._buildAnchorCache: a disallowed \A or \G becomes \ followed by U+FFFF.
     public static string ResolveAnchors(string text, bool allowA, bool allowG)
     {
-#if TINT_GENERATOR
+#if TINT_GENERATOR || NETSTANDARD2_0
         var chars = text.ToCharArray();
         for (var pos = 0; pos < chars.Length - 1; pos++)
         {

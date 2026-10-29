@@ -18,6 +18,9 @@
     <!-- Tracks the public surface of the shipped packages in PublicAPI.*.txt (RS0016/RS0017). 4.x runs on any SDK 10 compiler. -->
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="4.14.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.13" />
+    <PackageVersion Include="System.Collections.Immutable" Version="10.0.10" />
+    <PackageVersion Include="System.Memory" Version="4.6.3" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.14" />
     <PackageVersion Include="TextMateSharp" Version="2.0.4" />
     <PackageVersion Include="TextMateSharp.Grammars" Version="2.0.4" />
     <PackageVersion Include="TextMateLib" Version="0.2.1" />

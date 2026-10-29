@@ -33,7 +33,9 @@ namespace Tint.Rendering;
 /// </remarks>
 public sealed class HtmlRenderer
 {
+#if !NETSTANDARD2_0
     private static readonly SearchValues<char> s_escaped = SearchValues.Create("&<>");
+#endif
 
     private readonly ThemePalette[] _palettes;
     private readonly string[] _variablePrefixes;
@@ -173,7 +175,12 @@ public sealed class HtmlRenderer
 
     /// <summary>Renders code with one tokenizer, for a renderer with one theme.</summary>
     /// <inheritdoc cref="Render(ReadOnlySpan{char}, ReadOnlySpan{Tokenizer}, TextWriter)"/>
-    public string Render(ReadOnlySpan<char> code, Tokenizer tokenizer) => Render(code, new ReadOnlySpan<Tokenizer>(in tokenizer));
+    public string Render(ReadOnlySpan<char> code, Tokenizer tokenizer) => Render(code,
+#if NETSTANDARD2_0
+        new[] { tokenizer });
+#else
+        new ReadOnlySpan<Tokenizer>(in tokenizer));
+#endif
 
     /// <summary>
     /// The CSS rules for <see cref="HtmlStyleMode.CssClasses"/> mode: the <c>pre</c> colors and one rule per color of
@@ -471,7 +478,12 @@ public sealed class HtmlRenderer
     {
         while (true)
         {
-            var index = text.IndexOfAny(s_escaped);
+            var index = text.IndexOfAny(
+#if NETSTANDARD2_0
+                '&', '<', '>');
+#else
+                s_escaped);
+#endif
             if (index < 0)
             {
                 sink.Write(text);

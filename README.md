@@ -20,6 +20,13 @@ dotnet add package Tint.Grammars   # optional: the VS Code grammars, already gen
 dotnet add package Tint.Themes     # optional: the VS Code color themes, already generated
 ```
 
+The Tint runtime also targets .NET Standard 2.0 for .NET Framework hosts.
+This target supports runtime grammar loading and tokenization but disables runtime regex compilation and modern AOT/trimming annotations.
+The repository includes a deliberately non-secret development strong-name key, [Tint.Development.snk](Tint.Development.snk), so signed .NET Framework hosts can reference its assemblies.
+This key supplies development assembly identity, not production signing or package authenticity.
+Subexpression calls on .NET Framework require the pending GregsEx compilation fix; the dependency must be updated once that fix is published.
+The framework tests run separately on Windows; cross-platform solution tests remain on modern .NET.
+
 ## Quick start
 
 Import the grammars and themes you need. The source generator turns each file into a class at
