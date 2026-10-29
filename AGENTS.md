@@ -8,7 +8,8 @@
   code generation, no `dynamic`. BenchmarkDotNet `[MemoryDiagnoser]` is the allocation authority.
   Measure before and after any change to a hot path and put the numbers in the pull request.
 - Keep `IsAotCompatible` and `IsTrimmable` on every shipped assembly and the build warning-free
-  (`TreatWarningsAsErrors`). System.Text.Json goes through a source-generated context.
+  (`TreatWarningsAsErrors`). The one exception is the `netstandard2.0` target of `Tint` (for .NET
+  Framework hosts), which the AOT and trimming analyzers do not support; the modern targets keep both. System.Text.Json goes through a source-generated context.
 - GregsEx is the only regex engine. Patterns are Oniguruma syntax parsed by GregsEx; the only
   rewrites are the `\xHH` → `\x{HH}` pre-processing, the `\z` rewrite and the `\A`/`\G` anchor
   variants described in the design. Never forward matching to `System.Text.RegularExpressions`.

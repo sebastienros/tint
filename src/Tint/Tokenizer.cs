@@ -35,6 +35,10 @@ public sealed class Tokenizer
     private bool _mergeEncoded;
     private int _lastTokenEndIndex;
 
+    // The scopes of the last token produced, merged encoded tokens included: the synthetic newline's scopes once the
+    // line is tokenized.
+    private AttributedScopeStack? _lastProducedScopes;
+
     // Captures of the matches being handled, as a stack: each search copies its captures above the ones still in use.
     private CaptureSpan[] _captures = new CaptureSpan[128];
     private int _captureTop;
@@ -79,7 +83,10 @@ public sealed class Tokenizer
     /// <summary>Whether the last line ran out of <see cref="TimeBudget"/>.</summary>
     public bool StoppedEarly { get; private set; }
 
-    /// <summary>The scopes of the synthetic newline from the last <see cref="TokenizeLine"/> call.</summary>
+    /// <summary>
+    /// The scopes of the synthetic newline from the last <see cref="TokenizeLine"/> or
+    /// <see cref="TokenizeLineEncoded"/> call.
+    /// </summary>
     public AttributedScopeStack LineEndScopes { get; private set; }
 
     /// <summary>The number of regex searches that ran out of work and counted as no match.</summary>
@@ -192,11 +199,13 @@ public sealed class Tokenizer
         _tokenCount = 0;
         _encodedTokenCount = 0;
         _lastTokenEndIndex = 0;
+        _lastProducedScopes = null;
         _captureTop = 0;
         _localTop = 0;
 
         var deadline = TimeBudget is { } budget ? Stopwatch.GetTimestamp() + (long)(budget.TotalSeconds * Stopwatch.Frequency) : 0;
         StoppedEarly = TokenizeString(lineText, lineLength, isFirstLine, 0, ref state, checkWhileConditions: true, deadline);
+        LineEndScopes = _lastProducedScopes ?? state.ContentNameScopes;
 
         if (encoded)
         {
@@ -215,7 +224,6 @@ public sealed class Tokenizer
         }
         else
         {
-            LineEndScopes = _tokenCount > 0 ? _tokens[_tokenCount - 1].Scopes : state.ContentNameScopes;
             if (_tokenCount > 0 && _tokens[_tokenCount - 1].Start == lineLength - 1)
             {
                 _tokenCount--;
@@ -772,6 +780,7 @@ public sealed class Tokenizer
             return;
         }
 
+        _lastProducedScopes = scopes;
         if (_emitEncoded)
         {
             var metadata = GetEncodedMetadata(scopes);
@@ -843,11 +852,8 @@ public sealed class Tokenizer
     internal static bool ContainsRtl(ReadOnlySpan<char> text)
     {
 #if NETSTANDARD2_0
+        // The loop below skips the characters before U+05BE.
         var index = 0;
-        while (index < text.Length && text[index] < '־')
-        {
-            index++;
-        }
 #else
         var index = text.IndexOfAnyInRange('־', '￿');
 #endif

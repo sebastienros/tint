@@ -31,7 +31,8 @@ internal abstract class Rule
 
     public int Id { get; }
 
-    public string GrammarScopeName { get; set; } = string.Empty;
+    // The scope name of the grammar that declares the rule, for AttributedScopeStack.GrammarScopeName.
+    public required string GrammarScopeName { get; init; }
 
     public string? Name { get; }
 

@@ -186,5 +186,69 @@ public sealed class RuntimeTests
         return builder.ToString();
     }
 
+    [Fact]
+    public void ScopesRememberTheGrammarThatIntroducedThem()
+    {
+        var registry = new GrammarRegistry();
+        registry.Add(Load("""{ "scopeName": "source.host", "patterns": [{ "include": "source.first" }, { "include": "source.second" }] }"""));
+        registry.Add(Load("""{ "scopeName": "source.first", "patterns": [{ "match": "a", "name": "keyword.shared", "captures": { "0": { "name": "capture.shared" } } }] }"""));
+        registry.Add(Load("""{ "scopeName": "source.second", "patterns": [{ "match": "b", "name": "keyword.shared", "captures": { "0": { "name": "capture.shared" } } }] }"""));
+
+        var tokens = registry.CreateTokenizer("source.host").TokenizeLine("ab", StateStack.Initial, out _).ToArray();
+
+        Assert.Equal("source.first", tokens[0].Scopes.GrammarScopeName);
+        Assert.Equal("source.first", tokens[0].Scopes.Parent!.GrammarScopeName);
+        Assert.Equal("source.second", tokens[1].Scopes.GrammarScopeName);
+        Assert.Equal("source.second", tokens[1].Scopes.Parent!.GrammarScopeName);
+        Assert.Equal("source.host", tokens[1].Scopes.Parent!.Parent!.GrammarScopeName);
+        Assert.Equal(tokens[0].Scopes.GetScopeNames(), tokens[1].Scopes.GetScopeNames());
+        Assert.False(tokens[0].Scopes.Equals(tokens[1].Scopes));
+    }
+
+    [Fact]
+    public void ScopesOfTheSameNameFromTwoGrammarsStayCachedPastTheSmallChildren()
+    {
+        var registry = new GrammarRegistry();
+        var hostPatterns = string.Join(", ", Enumerable.Range(0, AttributedScopeStack.SmallChildren + 1).Select(i => $$"""{ "match": "{{(char)('a' + i)}}", "name": "keyword.k{{i}}" }"""));
+        registry.Add(Load($$"""{ "scopeName": "source.host", "patterns": [{{hostPatterns}}, { "include": "source.first" }, { "include": "source.second" }] }"""));
+        registry.Add(Load("""{ "scopeName": "source.first", "patterns": [{ "match": "x", "name": "keyword.shared" }] }"""));
+        registry.Add(Load("""{ "scopeName": "source.second", "patterns": [{ "match": "y", "name": "keyword.shared" }] }"""));
+        var tokenizer = registry.CreateTokenizer("source.host");
+        var line = new string(Enumerable.Range(0, AttributedScopeStack.SmallChildren + 1).Select(i => (char)('a' + i)).ToArray()) + "xy";
+
+        var first = tokenizer.TokenizeLine(line, StateStack.Initial, out _).ToArray();
+        var second = tokenizer.TokenizeLine(line, StateStack.Initial, out _).ToArray();
+
+        Assert.Equal("source.first", second[^2].Scopes.GrammarScopeName);
+        Assert.Equal("source.second", second[^1].Scopes.GrammarScopeName);
+        Assert.Same(first[^2].Scopes, second[^2].Scopes);
+        Assert.Same(first[^1].Scopes, second[^1].Scopes);
+        Assert.Equal(AttributedScopeStack.SmallChildren + 3, second[^1].Scopes.Parent!.CachedChildCount);
+    }
+
+    [Fact]
+    public void LineEndScopesFollowBothTokenizingPaths()
+    {
+        var registry = new GrammarRegistry();
+        registry.Add(Load("""
+            { "scopeName": "source.test", "patterns": [
+              { "begin": "^#", "end": "\\n", "name": "meta.line",
+                "endCaptures": { "0": { "name": "punctuation.linebreak" } } }
+            ] }
+            """));
+        var tokenizer = registry.CreateTokenizer("source.test");
+
+        var tokens = tokenizer.TokenizeLine("#x", StateStack.Initial, out _).ToArray();
+        Assert.DoesNotContain("punctuation.linebreak", tokens[^1].Scopes.GetScopeNames());
+        Assert.Equal("punctuation.linebreak", tokenizer.LineEndScopes.ScopeName);
+        Assert.Equal("source.test", tokenizer.LineEndScopes.GrammarScopeName);
+
+        tokenizer.TokenizeLineEncoded("plain", StateStack.Initial, out _);
+        Assert.Equal("source.test", tokenizer.LineEndScopes.ScopeName);
+
+        tokenizer.TokenizeLineEncoded("#y", StateStack.Initial, out _);
+        Assert.Equal("punctuation.linebreak", tokenizer.LineEndScopes.ScopeName);
+    }
+
     private static LoadedGrammar Load(string json, GrammarInfo? info = null) => GrammarLoader.Load(Encoding.UTF8.GetBytes(json), DocumentFormat.Json, info);
 }
