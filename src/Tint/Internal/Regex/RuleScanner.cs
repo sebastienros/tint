@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using GregsEx;
 
 namespace Tint.Internal.Regex;
@@ -78,6 +79,7 @@ internal sealed class RuleScanner
 
     // Searches text[..length] from start. The memory is backed by the line string so the scanner's result cache
     // recognizes it across the searches of one line.
+    [MethodImpl(Jit.FullOpts)]
     public bool FindNextMatch(string text, int length, int start, out int ruleId)
     {
         if (_searchesUntilCompile > 0 && --_searchesUntilCompile == 0)

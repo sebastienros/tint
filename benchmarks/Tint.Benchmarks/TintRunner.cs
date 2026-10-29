@@ -12,7 +12,8 @@ public sealed class TintRunner
 
     /// <summary>
     /// Creates the runner of a workload: a sample file name (<c>bigfile.cs</c>, <c>medium.cs</c>…) tokenized with C#,
-    /// a docs language (<c>docs:typescript</c>), or <c>docs</c> for every docs language.
+    /// a docs language (<c>docs:typescript</c>), <c>docs</c> for every docs language, or a Passenger fixture
+    /// (<c>passenger:xml.props</c>) repeated as Passenger's harness repeats it.
     /// </summary>
     public static TintRunner Create(string workload, Theme theme, TokenizerOptions options, TintGrammarSet grammars = TintGrammarSet.Loader)
     {
@@ -21,6 +22,13 @@ public sealed class TintRunner
             var registry = Workloads.AllGrammarsRegistry(options, grammars);
             var languages = workload == "docs" ? Workloads.DocsScopes.Keys.ToArray() : [workload[5..]];
             return new TintRunner([.. languages.Select(l => (registry.CreateTokenizer(Workloads.DocsScopes[l], theme), Workloads.DocsBlocks(l)))]);
+        }
+
+        if (workload.StartsWith("passenger:", StringComparison.Ordinal))
+        {
+            var registry = Workloads.AllGrammarsRegistry(options, grammars);
+            var file = workload[10..];
+            return new TintRunner([(registry.CreateTokenizer(Workloads.PassengerScope(file), theme), new[] { Workloads.PassengerLines(file) })]);
         }
 
         var csharp = Workloads.CSharpRegistry(grammars);
@@ -35,6 +43,11 @@ public sealed class TintRunner
         {
             var languages = workload == "docs" ? Workloads.DocsScopes.Keys.ToArray() : [workload[5..]];
             return languages.Sum(l => Workloads.DocsBlocks(l).Sum(Workloads.Utf8Bytes));
+        }
+
+        if (workload.StartsWith("passenger:", StringComparison.Ordinal))
+        {
+            return Workloads.Utf8Bytes(Workloads.PassengerLines(workload[10..]));
         }
 
         return Workloads.Utf8Bytes(Workloads.ReadLines(workload));

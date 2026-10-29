@@ -1,8 +1,14 @@
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Filters;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Toolchains;
+using BenchmarkDotNet.Toolchains.CsProj;
+using BenchmarkDotNet.Toolchains.DotNetCli;
 
 namespace Tint.Benchmarks;
 
@@ -29,6 +35,44 @@ public sealed class BenchmarkConfig : ManualConfig
         AddFilter(new SimpleFilter(benchmark =>
             !benchmark.Descriptor.Categories.Contains(CSharpOnly)
             || benchmark.Parameters.Items.All(p => p.Name != "Language" || Equals(p.Value, "csharp"))));
+    }
+}
+
+/// <summary>
+/// <see cref="BenchmarkConfig"/> with one job that runs every measurement in a fresh process
+/// (<see cref="RunStrategy.ColdStart"/>): the first passes of a file, which include the JIT of Tint and GregsEx. The
+/// process is built from this project by path, since BenchmarkDotNet's own lookup refuses a checkout holding copies of
+/// it (worktrees under <c>.claude/</c>).
+/// </summary>
+public sealed class ColdStartConfig : ManualConfig
+{
+    /// <summary>Creates the configuration.</summary>
+    public ColdStartConfig()
+    {
+        Add(new BenchmarkConfig());
+        AddJob(Job.Default
+            .WithToolchain(RepositoryToolchain.Instance)
+            .WithStrategy(RunStrategy.ColdStart)
+            .WithLaunchCount(3)
+            .WithWarmupCount(0)
+            .WithIterationCount(10)
+            .WithInvocationCount(1)
+            .WithUnrollFactor(1));
+    }
+}
+
+/// <summary>The .NET CLI toolchain building <c>benchmarks/Tint.Benchmarks/Tint.Benchmarks.csproj</c> by path.</summary>
+public static class RepositoryToolchain
+{
+    private const string Framework = "net10.0";
+
+    /// <summary>The toolchain.</summary>
+    public static IToolchain Instance { get; } = new Toolchain("Repository", new RepositoryProjectGenerator(), new DotNetCliBuilder(Framework), new DotNetCliExecutor(null!));
+
+    private sealed class RepositoryProjectGenerator() : CsProjGenerator(Framework, null!, null!, null!)
+    {
+        protected override FileInfo GetProjectFilePath(Type benchmarkTarget, ILogger logger)
+            => new(Path.Combine(Workloads.RepositoryRoot, "benchmarks", "Tint.Benchmarks", "Tint.Benchmarks.csproj"));
     }
 }
 

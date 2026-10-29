@@ -1,0 +1,16 @@
+// The theme's colours.
+@use "sass:math";
+$accent: #3b82f6 !default;
+
+/* A frame round a card. */
+@mixin framed($width) {
+    border: $width solid $accent;
+}
+
+.card > h2 {
+    padding: math.div(24px, 2);
+    &:hover { color: darken($accent, 10%); }
+    @include framed(1px);
+    #{$side}-margin: 0;
+}
+

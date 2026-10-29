@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using Tint.Internal.Rules;
+using Tint.Internal;
 
 namespace Tint;
 
@@ -126,6 +128,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
     }
 
     // pushAttributed: a space-separated scope path pushes each segment (empty segments included, as split(/ /g)).
+    [MethodImpl(Jit.FullOpts)]
     internal AttributedScopeStack PushAttributed(string? scopePath, string grammarScopeName)
     {
         if (scopePath is null)
@@ -141,6 +144,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         return PushAttributed(scopePath.AsSpan(), grammarScopeName);
     }
 
+    [MethodImpl(Jit.FullOpts)]
     internal AttributedScopeStack PushAttributed(ReadOnlySpan<char> scopePath, string grammarScopeName)
     {
         var result = this;
@@ -157,6 +161,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         }
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private AttributedScopeStack Push(string scopeName, string grammarScopeName)
     {
         if (TryFindChild(scopeName, grammarScopeName, out var existing))
@@ -167,6 +172,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         return AddChild(CreateChild(scopeName, grammarScopeName));
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private AttributedScopeStack Push(ReadOnlySpan<char> scopeName, string grammarScopeName)
     {
         var small = _smallChildren;
@@ -200,6 +206,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
 #endif
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private bool TryFindChild(string scopeName, string grammarScopeName, out AttributedScopeStack child)
     {
         var small = _smallChildren;
@@ -330,6 +337,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
     }
 
     // The cached sibling of a dictionary entry that the given grammar pushed, if any.
+    [MethodImpl(Jit.FullOpts)]
     private static AttributedScopeStack? FindGrammar(AttributedScopeStack? node, string grammarScopeName)
     {
         while (node is not null && node.GrammarScopeName != grammarScopeName)
@@ -358,6 +366,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         return EncodedTokenAttributes.Set(existing, basic.LanguageId, basic.TokenType, null, fontStyle, foreground, background);
     }
 
+    [MethodImpl(Jit.FullOpts)]
     internal bool TryGetInjectionMask(out ulong mask)
     {
         if (_hasInjectionMask)
@@ -376,6 +385,7 @@ public sealed class AttributedScopeStack : IEquatable<AttributedScopeStack>
         _hasInjectionMask = true;
     }
 
+    [MethodImpl(Jit.FullOpts)]
     internal bool TryGetEncodedMetadata(out uint metadata)
     {
         if (_hasEncodedMetadata)

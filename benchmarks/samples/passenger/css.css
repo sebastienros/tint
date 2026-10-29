@@ -1,0 +1,414 @@
+/* Passenger's own theme (src/Passenger.App/Theme/Tokens.axaml): the editor's ground as the page, a tool window's as a
+   card's, the icon's blue for actions, its amber where the page says "here". Light first, dark when the system asks. */
+:root {
+    --bg: #FFFFFF;
+    --surface: #F2F5FA;
+    --raised: #FFFFFF;
+    --text: #141B2B;
+    --muted: #556074;
+    --border: #D6DDE9;
+    --link: #1F55D6;
+    --accent: #2F6BF2;
+    --accent-hover: #2459D6;
+    --accent-text: #FFFFFF;
+    --code-bg: #F2F5FA;
+    --seat: #B86A00;
+    --lead-from: #2C62E6;
+    --lead-to: #0E7F86;
+    --shadow: 0 1px 2px rgb(11 30 74 / 0.06), 0 12px 40px rgb(11 30 74 / 0.12);
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0F131C;
+        --surface: #171C28;
+        --raised: #1D2434;
+        --text: #E4E9F2;
+        --muted: #9AA5BA;
+        --border: #2F384B;
+        --link: #80A8FF;
+        --accent: #2F6BF2;
+        --accent-hover: #2A5FD9;
+        --accent-text: #FFFFFF;
+        --code-bg: #171C28;
+        --seat: #FFB547;
+        --lead-from: #3D78F5;
+        --lead-to: #1FB5A5;
+        --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 48px rgb(0 0 0 / 0.5);
+        color-scheme: dark;
+    }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, pre { font-family: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.875em; }
+:not(pre) > code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.1em 0.35em; }
+
+pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    line-height: 1.55;
+    margin: 0 0 20px;
+}
+pre .comment { color: var(--muted); }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 720px) { .wrap { padding: 0 32px; } }
+
+/* The top bar. */
+.top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+.top .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 650; font-size: 18px; }
+.brand:hover { text-decoration: none; }
+.brand img { width: 28px; height: 28px; }
+.top nav { margin-left: auto; display: flex; gap: 20px; font-size: 15px; }
+.top nav a { color: var(--muted); }
+.top nav a:hover { color: var(--text); text-decoration: none; }
+/* Below this the sections' links would crowd the bar; Download and GitHub stay. */
+@media (max-width: 980px) { .top nav .wide { display: none; } }
+
+/* For a keyboard: the first Tab reaches past the bar to the page. */
+.skip { position: absolute; left: 12px; top: -48px; z-index: 20; padding: 8px 14px; border-radius: 8px; background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.skip:focus { top: 12px; text-decoration: none; }
+a:focus-visible, summary:focus-visible, .button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+/* The opening. */
+/* Top and bottom only: the sides are the wrap's gutter. */
+/* A glow of the icon's blue and teal behind the opening. */
+.hero {
+    padding: 64px 0 48px;
+    text-align: center;
+    background:
+        radial-gradient(900px 420px at 15% -10%, color-mix(in srgb, var(--lead-from) 22%, transparent), transparent 70%),
+        radial-gradient(800px 420px at 90% 0%, color-mix(in srgb, var(--lead-to) 18%, transparent), transparent 70%);
+}
+/* What the latest release brought, a link to its notes. */
+.news {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px 10px;
+    margin: 0 0 24px;
+    padding: 5px 14px 5px 5px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--raised);
+    color: var(--text);
+    font-size: 14px;
+    box-shadow: var(--shadow);
+}
+.news:hover { text-decoration: none; border-color: var(--accent); }
+.news .tag { padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-text); font-weight: 650; }
+.news .arrow { color: var(--link); }
+/* On a phone the pill says less rather than wrapping into a block. */
+.news .short { display: none; }
+@media (max-width: 600px) {
+    .news { flex-wrap: nowrap; }
+    .news .what { display: none; }
+    .news .short { display: inline; }
+}
+.hero .lede code { font-size: 0.85em; }
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 14px;
+}
+.eyebrow::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--seat); }
+/* On a phone the systems would wrap the pill onto two lines; the download says them. */
+@media (max-width: 480px) { .eyebrow .platforms { display: none; } }
+h1 {
+    margin: 0 auto 20px;
+    max-width: 14em;
+    font-size: clamp(38px, 7vw, 72px);
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    font-weight: 750;
+}
+h1 .lead {
+    display: block;
+    background: linear-gradient(100deg, var(--lead-from), var(--lead-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.lede { margin: 0 auto 32px; max-width: 40em; color: var(--muted); font-size: clamp(17px, 2.2vw, 20px); }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--raised);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 16px;
+}
+.button:hover { text-decoration: none; border-color: var(--muted); }
+.button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.button small { font-weight: 400; opacity: 0.85; }
+.under { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
+
+/* A picture of the window. Each is a block of its own: without one, what stood beside it takes the whole width. */
+.shot {
+    margin: 48px 0 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--surface);
+}
+.shot picture { display: block; }
+.shot img { width: 100%; aspect-ratio: 16 / 10; }
+figcaption { color: var(--muted); font-size: 14px; margin-top: 12px; text-align: center; }
+
+/* Sections. */
+section { padding: 72px 0; scroll-margin-top: 60px; }
+section + section { border-top: 1px solid var(--border); }
+h2 { margin: 0 0 12px; font-size: clamp(28px, 4vw, 38px); line-height: 1.15; letter-spacing: -0.02em; font-weight: 720; }
+h3 { margin: 0 0 8px; font-size: 19px; line-height: 1.3; font-weight: 650; }
+.intro { margin: 0 0 40px; max-width: 42em; color: var(--muted); font-size: 18px; }
+.kicker { margin: 0 0 8px; color: var(--muted); font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+@media (min-width: 720px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+.grid + .feature, .feature + .grid { margin-top: 64px; }
+.card { padding: 22px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.card p { margin: 0; color: var(--muted); }
+.card p + p { margin-top: 10px; }
+.card .more { display: inline-block; margin-top: 12px; font-weight: 600; }
+
+.feature { display: grid; gap: 28px; align-items: center; margin-top: 64px; scroll-margin-top: 84px; }
+.feature:first-child { margin-top: 0; }
+.feature p { margin: 0 0 12px; color: var(--muted); font-size: 17px; }
+.feature p:last-child { margin-bottom: 0; }
+.feature h3 + p { margin-top: 0; }
+.feature .text h3:not(:first-child) { margin-top: 24px; }
+.feature .shot { margin: 0; }
+.feature .more { display: inline-block; margin-top: 8px; font-weight: 600; }
+@media (min-width: 900px) {
+    .feature:has(> .shot) { grid-template-columns: 1fr 1.9fr; gap: 48px; }
+    .feature.flip:has(> .shot) { grid-template-columns: 1.9fr 1fr; }
+    .feature.flip .text { order: 2; }
+    .feature:not(:has(> .shot)) .text { max-width: 46em; }
+}
+
+/* Two columns of words side by side. */
+.pair { display: grid; gap: 32px; margin-top: 48px; }
+@media (min-width: 900px) { .pair { grid-template-columns: 1fr 1fr; gap: 48px; } }
+.pair p { margin: 0 0 16px; color: var(--muted); }
+
+.agents { display: grid; gap: 32px; margin-top: 64px; }
+/* A grid item grows to its widest line unless told otherwise, and a long command would widen the page. */
+.agents > *, .feature > *, .pair > * { min-width: 0; }
+@media (min-width: 900px) { .agents { grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: start; } }
+.agents p { color: var(--muted); margin: 0 0 16px; }
+/* Each agent's setup, one open at a time as the reader chooses. */
+.client { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); margin: 0 0 12px; }
+.client summary { cursor: pointer; padding: 10px 14px; font-weight: 600; color: var(--text); }
+.client[open] summary { border-bottom: 1px solid var(--border); }
+.client > p, .client > pre { margin: 12px 14px; }
+.client pre { font-size: 0.75em; }
+/* Where Passenger is on each system: a path to a line, scrolled sideways on a phone rather than broken. */
+.paths { margin: 0 0 16px; padding: 0; list-style: none; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); }
+.paths li { display: grid; gap: 2px; padding: 10px 14px; overflow-x: auto; }
+.paths li + li { border-top: 1px solid var(--border); }
+.paths span { color: var(--muted); font-size: 13px; }
+.paths code { font-size: 0.8em; white-space: nowrap; }
+
+/* Copy buttons on the agent section's commands and paths (site.js adds them). */
+.copyable { position: relative; margin: 0 0 20px; }
+.client > .copyable { margin: 12px 14px; }
+.copyable > pre { margin: 0; padding-right: 72px; }
+.paths li:has(.copy) { grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; overflow: visible; }
+.paths li:has(.copy) > code { grid-column: 1; white-space: normal; overflow-wrap: anywhere; }
+.paths li > .copy { position: static; grid-column: 2; grid-row: 1 / span 2; }
+.copy {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    padding: 5px 9px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--raised);
+    color: var(--muted);
+    cursor: pointer;
+}
+.copy:hover { color: var(--text); border-color: var(--accent); }
+.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.paths :not(pre) > code { background: none; border: 0; padding: 0; }
+/* A path in a sentence breaks where it must on a phone rather than widening the page. */
+.agents :not(pre) > code, .tools code { overflow-wrap: anywhere; }
+
+/* The agent's tools, by what they are for. */
+.tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px 24px; margin: 40px 0 0; }
+.tools div { padding: 14px 0 0; border-top: 1px solid var(--border); }
+.tools dt { font-weight: 650; margin: 0 0 4px; }
+.tools dd { margin: 0; color: var(--muted); font-size: 15px; }
+
+/* Downloads. */
+.downloads { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 28px; }
+.platform { padding: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.platform h3 { margin-bottom: 12px; }
+.platform ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.platform li > a, .platform li > span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--raised);
+    color: var(--text);
+}
+.platform li > a:hover { text-decoration: none; border-color: var(--accent); }
+.platform li .kind { color: var(--muted); font-size: 14px; }
+.platform li [aria-disabled="true"] { color: var(--muted); }
+.platform .note { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+.platform .more { display: inline-block; margin-top: 12px; font-size: 15px; }
+.status {
+    margin: 0 0 8px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--seat);
+    border-radius: 8px;
+    background: var(--surface);
+    max-width: 52em;
+}
+.status:empty { display: none; }
+.needs { margin-top: 28px; color: var(--muted); max-width: 52em; }
+.needs ul { margin: 8px 0 16px; padding-left: 1.3em; }
+.needs li { margin: 4px 0; }
+.needs strong { color: var(--text); }
+
+/* Included, free: what usually costs extra, each a link to where it is shown. */
+.included { background: var(--surface); }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.checks a {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    column-gap: 12px;
+    align-content: start;
+    height: 100%;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--raised);
+    color: var(--text);
+}
+.checks a:hover { text-decoration: none; border-color: var(--accent); }
+/* A tick drawn in CSS: a disc of the icon's blue and teal, and two borders of a box turned into the mark. */
+.checks a::before {
+    content: "";
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--lead-from), var(--lead-to));
+}
+.checks a::after {
+    content: "";
+    grid-column: 1;
+    grid-row: 1;
+    width: 6px;
+    height: 11px;
+    margin: 5px 0 0 9px;
+    border: solid var(--accent-text);
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+.checks strong { grid-column: 2; grid-row: 1; font-weight: 650; }
+.checks span { grid-column: 2; grid-row: 2; color: var(--muted); font-size: 15px; line-height: 1.5; margin-top: 2px; }
+
+/* The looks: one window changing look, at its own shape. */
+.shot.cycle img { aspect-ratio: 1864 / 1060; }
+
+/* Lines for people switching from another IDE. */
+.switch { display: grid; gap: 16px; margin: 0 0 56px; }
+@media (min-width: 900px) { .switch { grid-template-columns: 1fr 1fr; } }
+.switch p { margin: 0; padding: 18px 20px; border-left: 3px solid var(--seat); border-radius: 0 10px 10px 0; background: var(--surface); color: var(--muted); }
+.switch strong { color: var(--text); }
+
+/* Facts for a team, by what each answers. */
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px 28px; margin: 0; }
+.facts div { padding: 16px 0 0; border-top: 1px solid var(--border); }
+.facts dt { font-weight: 650; margin: 0 0 4px; }
+.facts dd { margin: 0; color: var(--muted); }
+
+/* Questions, each opened as the reader chooses. */
+.faq { max-width: 52em; border-top: 1px solid var(--border); }
+.faq details { border-bottom: 1px solid var(--border); }
+.faq summary { cursor: pointer; padding: 16px 0; font-weight: 650; font-size: 18px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; color: var(--muted); font-weight: 400; font-size: 22px; line-height: 1; }
+.faq details[open] summary::after { content: "\2212"; }
+.faq details p { margin: 0 0 18px; color: var(--muted); }
+
+/* A page of its own (agents, containers): the opening at the left, then its sections. */
+.page-hero { padding: 56px 0 16px; text-align: left; }
+.page-hero h1 { margin: 0 0 16px; text-align: left; max-width: 20em; font-size: clamp(32px, 5vw, 50px); }
+.page-hero .lede { margin: 0 0 24px; max-width: 42em; text-align: left; }
+.page-hero .actions { justify-content: flex-start; }
+.page-body { padding-bottom: 24px; }
+.page-body section.agents { margin-top: 0; }
+.page-body > .shot { margin-top: 16px; }
+.limits { margin: 0; padding-left: 1.2em; color: var(--muted); max-width: 52em; }
+.limits li { margin: 8px 0; }
+.limits strong { color: var(--text); }
+
+/* The Linux page. */
+.page { padding-top: 56px; padding-bottom: 72px; max-width: 760px; }
+.page h1 { margin: 0 0 16px; text-align: left; max-width: none; font-size: clamp(32px, 5vw, 44px); }
+.page h2 { font-size: 24px; margin-top: 44px; }
+.page p, .page li { color: var(--muted); }
+.page p strong, .page li strong { color: var(--text); }
+.page ol, .page ul { padding-left: 1.3em; }
+
+footer { border-top: 1px solid var(--border); padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+footer p { margin: 0; }
+footer nav { display: flex; flex-wrap: wrap; gap: 18px; }
+footer a { color: var(--muted); }

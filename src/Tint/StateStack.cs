@@ -1,3 +1,6 @@
+using System.Runtime.CompilerServices;
+using Tint.Internal;
+
 namespace Tint;
 
 /// <summary>
@@ -89,6 +92,7 @@ public sealed class StateStack : IEquatable<StateStack>
 
     // Clears the line positions before the state leaves the tokenizer. Nodes from earlier lines already hold -1 and
     // are left untouched, so a state that callers share is never written to.
+    [MethodImpl(Jit.FullOpts)]
     internal void ResetPositions()
     {
         for (var node = this; node is not null; node = node.Parent)
@@ -105,6 +109,7 @@ public sealed class StateStack : IEquatable<StateStack>
 
     internal StateStack SafePop() => Parent ?? this;
 
+    [MethodImpl(Jit.FullOpts)]
     internal StateStack Push(int ruleId, int enterPos, int anchorPos, bool beginRuleCapturedEol, string? endRule, AttributedScopeStack nameScopes, AttributedScopeStack contentNameScopes)
         => new(this, ruleId, enterPos, anchorPos, beginRuleCapturedEol, endRule, nameScopes, contentNameScopes);
 
@@ -129,6 +134,7 @@ public sealed class StateStack : IEquatable<StateStack>
     }
 
     // Loop guard: walks up while the enter position is the same, looking for the same rule.
+    [MethodImpl(Jit.FullOpts)]
     internal bool HasSameRuleAs(StateStack other)
     {
         for (var node = this; node is not null && node._enterPos == other._enterPos; node = node.Parent)
@@ -201,6 +207,7 @@ public sealed class StateStack : IEquatable<StateStack>
         return "[" + string.Join(",", parts) + "]";
     }
 
+    [MethodImpl(Jit.FullOpts)]
     private static bool StructuralEquals(StateStack? a, StateStack? b)
     {
         while (true)

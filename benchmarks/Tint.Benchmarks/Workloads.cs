@@ -2,6 +2,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using TextMateSharp.Grammars;
+using TextMateSharp.Internal.Grammars.Reader;
+using TextMateSharp.Internal.Types;
+using TextMateSharp.Registry;
+using TextMateSharp.Themes;
 using Tint.Grammars;
 using Tint.Loading;
 
@@ -38,6 +43,47 @@ public static class Workloads
         ["bash"] = "source.shell",
         ["markdown"] = "text.html.markdown",
     };
+
+    /// <summary>The Passenger fixtures (<c>benchmarks/samples/passenger</c>): how many times each file is repeated, as Passenger's harness does.</summary>
+    public static readonly IReadOnlyDictionary<string, int> PassengerRepeats = new Dictionary<string, int>
+    {
+        ["xml.props"] = 97,
+        ["json.json"] = 112,
+        ["yaml.yml"] = 32,
+        ["markdown.md"] = 23,
+        ["html.html"] = 14,
+        ["css.css"] = 24,
+        ["javascript.js"] = 58,
+        ["shell.sh"] = 26,
+        ["scss.scss"] = 588,
+        ["less.less"] = 588,
+    };
+
+    /// <summary>The grammar scope of a Passenger fixture, from its extension.</summary>
+    public static string PassengerScope(string file) => Path.GetExtension(file) switch
+    {
+        ".props" => "text.xml",
+        ".json" => "source.json",
+        ".yml" => "source.yaml",
+        ".md" => "text.html.markdown",
+        ".html" => "text.html.basic",
+        ".css" => "source.css",
+        ".js" => "source.js",
+        ".sh" => "source.shell",
+        ".scss" => "source.css.scss",
+        ".less" => "source.css.less",
+        _ => throw new ArgumentException($"No scope for '{file}'.", nameof(file)),
+    };
+
+    /// <summary>
+    /// The lines of a Passenger fixture repeated as Passenger's harness repeats it: line endings normalized to <c>\n</c>,
+    /// the file plus a newline repeated <see cref="PassengerRepeats"/> times, split on <c>\n</c>.
+    /// </summary>
+    public static string[] PassengerLines(string file)
+    {
+        var text = File.ReadAllText(Sample(Path.Combine("passenger", file))).Replace("\r\n", "\n", StringComparison.Ordinal);
+        return string.Concat(Enumerable.Repeat(text + "\n", PassengerRepeats[file])).Split('\n');
+    }
 
     /// <summary>The repository root.</summary>
     public static string RepositoryRoot { get; } = FindRoot();
@@ -212,6 +258,84 @@ public static class Workloads
 
         Load(ThemePath(file));
         return new JsonObject { ["name"] = name, ["type"] = type, ["colors"] = colors, ["tokenColors"] = tokenColors }.ToJsonString();
+    }
+
+    /// <summary>
+    /// A TextMateSharp registry reading the checkout's grammar files (<c>grammars/manifest.json</c>) with Dark+ from
+    /// TextMateSharp.Grammars, so a comparison with Tint's loader runs the same grammars.
+    /// </summary>
+    public static Registry TextMateSharpFileRegistry() => new(new FileRegistryOptions());
+
+    // TextMateSharp 2.0.4 reading the grammar files vscode-textmate reads: two shapes it rejects are fixed first, as
+    // tools/Tint.Differential does (strings among captures, which it casts to rules; a begin rule without end or
+    // while, which it passes to the regex engine as null).
+    private sealed class FileRegistryOptions : IRegistryOptions
+    {
+        private readonly RegistryOptions _bundled = new(ThemeName.DarkPlus);
+        private readonly Dictionary<string, string> _paths = new(StringComparer.Ordinal);
+
+        public FileRegistryOptions()
+        {
+            var grammars = Path.Combine(RepositoryRoot, "grammars");
+            using var manifest = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(grammars, "manifest.json")));
+            foreach (var entry in manifest.RootElement.GetProperty("grammars").EnumerateArray())
+            {
+                _paths.TryAdd(entry.GetProperty("scopeName").GetString()!, Path.Combine(grammars, entry.GetProperty("path").GetString()!));
+            }
+        }
+
+        public IRawGrammar? GetGrammar(string scopeName)
+        {
+            if (!_paths.TryGetValue(scopeName, out var path) || !path.EndsWith(".json", StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var root = JsonNode.Parse(File.ReadAllText(path), documentOptions: new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true })!;
+            Sanitize(root);
+            using var reader = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(root.ToJsonString())));
+            return GrammarReader.ReadGrammarSync(reader);
+        }
+
+        public ICollection<string> GetInjections(string scopeName) => null!;
+
+        public IRawTheme GetTheme(string scopeName) => _bundled.GetTheme(scopeName);
+
+        public IRawTheme GetDefaultTheme() => _bundled.GetDefaultTheme();
+
+        private static void Sanitize(JsonNode? node)
+        {
+            if (node is JsonObject rule)
+            {
+                if (rule.ContainsKey("begin") && !rule.ContainsKey("end") && !rule.ContainsKey("while"))
+                {
+                    rule["end"] = "";
+                }
+
+                foreach (var (key, value) in rule.ToList())
+                {
+                    if (key is "captures" or "beginCaptures" or "endCaptures" or "whileCaptures" && value is JsonObject captures)
+                    {
+                        foreach (var (capture, captureRule) in captures.ToList())
+                        {
+                            if (captureRule is not JsonObject)
+                            {
+                                captures.Remove(capture);
+                            }
+                        }
+                    }
+
+                    Sanitize(value);
+                }
+            }
+            else if (node is JsonArray array)
+            {
+                foreach (var item in array)
+                {
+                    Sanitize(item);
+                }
+            }
+        }
     }
 
     private static Dictionary<string, string> ReadMap(JsonElement entry, string property)

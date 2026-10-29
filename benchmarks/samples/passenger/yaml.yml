@@ -1,0 +1,308 @@
+# Run by hand only, as the owner decided to spend Actions' minutes (Actions > CI > Run workflow, or `gh workflow run CI
+# --ref main`; a pull request's branch the same way): the solution built (warnings are errors) and every test run on
+# macOS (arm64), Windows and Linux; the macOS disk image made and checked; the Windows installer and the Linux archive
+# built, installed, used and uninstalled; and on Linux, the solution restored from nothing and every package checked
+# against THIRD_PARTY_NOTICES.md. Every restore is locked to the packages.lock.json files. Actions are pinned to a
+# release's commit.
+name: CI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A run started again on the same commit replaces the one still going; each commit keeps its own.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # Avalonia's build task sends usage data from every build unless this is in the environment.
+  AVALONIA_TELEMETRY_OPTOUT: 1
+
+jobs:
+  # The solution built and every test run on macOS, Windows and Linux, each system's in shards that run at once, then a
+  # summary job per system named as the system.
+  test:
+    name: Test
+    uses: ./.github/workflows/test.yml
+
+  # The disk image, made with no Developer ID here (the app signed ad hoc, nothing notarized) and mounted read-only and
+  # checked before it is done.
+  package:
+    name: Disk image (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      # Apple Silicon only: no Intel Mac build ships.
+      matrix:
+        rid: [osx-arm64]
+    runs-on: macos-latest
+    timeout-minutes: 40
+    steps:
+      # The whole history, since the build number counts the commits.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The test shards' packages, when one has saved them; this job saves none of its own.
+      - name: Restore cached NuGet packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('global.json', '**/Directory.Packages.props', '**/Directory.Build.props', '**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Make and check the disk image
+        run: tools/package-mac.sh ${{ matrix.rid }}
+
+  # The Windows installer installed silently (per user, no administrator), an agent debugging a project through the
+  # Passenger it installed (so its Roslyn server and debugger run from the install), then uninstalled, with what each
+  # step must leave checked. Unsigned: a check need not spend signatures.
+  installer:
+    name: Windows installer (x64)
+    runs-on: windows-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The whole history: tools/package-win.sh names the version by the commit's tags.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # .NET 10 runs vpk and the test's project.
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          dotnet-version: 10.0.x
+
+      # The test shards' packages, when one has saved them; this job saves none of its own.
+      - name: Restore cached NuGet packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('global.json', '**/Directory.Packages.props', '**/Directory.Build.props', '**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Build the installer
+        run: tools/package-win.sh win-x64
+
+      # A person's state, which the uninstall must leave, is there before the install, as it is for one who reinstalls.
+      - name: Install
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $state = Join-Path $env:LOCALAPPDATA 'Passenger'
+          New-Item -ItemType Directory -Force -Path $state | Out-Null
+          Set-Content -Path (Join-Path $state 'kept-by-uninstall.txt') -Value 'a person''s state'
+          $setup = Start-Process -FilePath artifacts/package/Passenger-windows-x64.exe -ArgumentList '--silent' -Wait -PassThru
+          if ($setup.ExitCode -ne 0) { throw "Setup --silent exited $($setup.ExitCode)" }
+          $root = Join-Path $env:LOCALAPPDATA 'PassengerIDE'
+          $exe = Join-Path $root 'current\Passenger.exe'
+          $shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'Passenger.lnk'
+          foreach ($path in $exe, (Join-Path $root 'Update.exe'), (Join-Path $root 'current\roslyn'), (Join-Path $root 'current\roslyn-extension'), (Join-Path $root 'current\debugger'), $shortcut) {
+            if (-not (Test-Path $path)) { throw "The install has no $path" }
+          }
+          $entry = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\PassengerIDE'
+          if ($entry.DisplayName -ne 'Passenger') { throw "Settings > Apps lists the install as '$($entry.DisplayName)'" }
+          # The runner's Visual Studio keeps these types' default, so Passenger is among the programs that open them.
+          foreach ($extension in '.sln', '.slnx', '.csproj') {
+            $command = (Get-Item "HKCU:\Software\Classes\Passenger$extension\shell\open\command").GetValue('')
+            if ($command -ne "`"$exe`" `"%1`"") { throw "Passenger$extension opens with '$command', not Passenger.exe" }
+            if ((Get-Item "HKCU:\Software\Classes\$extension\OpenWithProgids").GetValueNames() -notcontains "Passenger$extension") {
+              throw "$extension does not list Passenger among the programs that open it"
+            }
+          }
+          "PASSENGER_EXECUTABLE=$exe" >> $env:GITHUB_ENV
+
+      - name: Build the tests
+        run: dotnet build tests/Passenger.Tests
+
+      - name: An agent debugs through the installed Passenger
+        run: dotnet test tests/Passenger.Tests --no-build --filter "FullyQualifiedName~McpTests.An_agent_with_a_windowless_Passenger_finds_code_reads_its_warnings_and_debugs_it" --blame-hang-timeout 10m --blame-hang-dump-type none
+
+      # Update.exe removes the folder a few seconds after it exits; the person's state and Velopack's own logs
+      # (%LocalAppData%\velopack) stay.
+      - name: Uninstall
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $env:LOCALAPPDATA 'PassengerIDE'
+          $key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\PassengerIDE'
+          $quiet = (Get-ItemProperty $key).QuietUninstallString
+          if ($quiet -ne "`"$root\Update.exe`" --uninstall --silent") { throw "Settings > Apps uninstalls it silently with '$quiet'" }
+          $uninstall = Start-Process -FilePath (Join-Path $root 'Update.exe') -ArgumentList '--uninstall', '--silent' -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Update.exe --uninstall --silent exited $($uninstall.ExitCode)" }
+          for ($i = 0; $i -lt 60 -and (Test-Path $root); $i++) { Start-Sleep -Seconds 1 }
+          $left = @()
+          if (Test-Path $root) { $left += "$root, with $(@(Get-ChildItem -Recurse -Force $root).Count) files" }
+          if (Test-Path $key) { $left += 'its entry in Settings > Apps' }
+          if (Test-Path (Join-Path ([Environment]::GetFolderPath('Programs')) 'Passenger.lnk')) { $left += 'its Start menu entry' }
+          foreach ($extension in '.sln', '.slnx', '.csproj') {
+            if (Test-Path "HKCU:\Software\Classes\Passenger$extension") { $left += "the Passenger$extension file type" }
+            $openWith = Get-Item "HKCU:\Software\Classes\$extension\OpenWithProgids" -ErrorAction SilentlyContinue
+            if ($openWith -and $openWith.GetValueNames() -contains "Passenger$extension") { $left += "Passenger among the programs that open $extension" }
+            $type = Get-Item "HKCU:\Software\Classes\$extension" -ErrorAction SilentlyContinue
+            if ($type -and $type.GetValue('') -eq "Passenger$extension") { $left += "Passenger as what opens $extension" }
+          }
+          if ($left) { throw "The uninstall left $($left -join '; ')" }
+          if (-not (Test-Path (Join-Path $env:LOCALAPPDATA 'Passenger\kept-by-uninstall.txt'))) { throw "The uninstall took the person's state" }
+
+      # For trying a pull request's installer by hand; not a release.
+      - name: Upload the installer
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Passenger-windows-x64
+          path: artifacts/package/Passenger-windows-x64.exe
+          retention-days: 7
+
+  # The Linux archive installed by its install.sh (for one person, then for everyone), an agent debugging a project
+  # through each install's Passenger (read-only to the person in /opt), then uninstalled, with what each step must leave
+  # checked: the desktop entry as desktops read it, and the file types it opens among them.
+  archive:
+    name: Linux archive (x64)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    steps:
+      # The whole history: tools/package-linux.sh names the version by the commit's tags.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # .NET 10 for the test's project.
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+          dotnet-version: 10.0.x
+
+      # The libraries a person installs (site/linux.html), and the desktop's own tools that read what install.sh adds.
+      - name: The libraries Passenger needs, and the desktop's tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends file git libx11-6 libice6 libsm6 libfontconfig1 \
+            desktop-file-utils shared-mime-info
+
+      # The test shards' packages, when one has saved them; this job saves none of its own.
+      - name: Restore cached NuGet packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('global.json', '**/Directory.Packages.props', '**/Directory.Build.props', '**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Make and check the archive
+        run: tools/package-linux.sh linux-x64
+
+      - name: Build the tests
+        run: dotnet build tests/Passenger.Tests
+
+      # A person's state, which the uninstall must leave, is there before the install, as it is for one who reinstalls.
+      - name: Install for one person
+        run: |
+          state=$HOME/.local/share/Passenger
+          mkdir -p "$state"
+          echo "a person's state" > "$state/kept-by-uninstall.txt"
+          mkdir -p "$RUNNER_TEMP/download"
+          tar -C "$RUNNER_TEMP/download" -xzf artifacts/package/Passenger-linux-x64.tar.gz
+          "$RUNNER_TEMP/download/passenger/install.sh"
+          opt=$HOME/.local/opt/passenger
+          for path in "$opt/passenger" "$opt/app/Passenger" "$opt/app/roslyn" "$opt/app/roslyn-extension" "$opt/app/debugger" \
+            "$HOME/.local/share/icons/hicolor/256x256/apps/io.github.zaneris.passenger.png" \
+            "$HOME/.local/share/icons/hicolor/scalable/apps/io.github.zaneris.passenger.svg"; do
+            [ -e "$path" ] || { echo "::error::The install has no $path"; exit 1; }
+          done
+          [ "$(readlink -f "$HOME/.local/bin/passenger")" = "$opt/passenger" ] || { echo "::error::~/.local/bin/passenger does not lead to the install"; exit 1; }
+          entry=$HOME/.local/share/applications/io.github.zaneris.passenger.desktop
+          desktop-file-validate "$entry"
+          grep -qx "Exec=\"$opt/passenger\" %f" "$entry" || { echo "::error::The menu entry does not start the install's launcher"; cat "$entry"; exit 1; }
+          for type in sln slnx csproj; do
+            grep -qx "[0-9]*:application/x-ms-$type:\*\.$type" "$HOME/.local/share/mime/globs2" \
+              || { echo "::error::The shared MIME database does not know a .$type file as application/x-ms-$type"; exit 1; }
+            grep -q "^application/x-ms-$type=.*io\.github\.zaneris\.passenger\.desktop" "$HOME/.local/share/applications/mimeinfo.cache" \
+              || { echo "::error::Passenger is not among the programs that open .$type"; exit 1; }
+          done
+
+      - name: An agent debugs through the Passenger installed for one person
+        run: |
+          export PASSENGER_EXECUTABLE=$HOME/.local/bin/passenger
+          dotnet test tests/Passenger.Tests --no-build --filter "FullyQualifiedName~McpTests.An_agent_with_a_windowless_Passenger_finds_code_reads_its_warnings_and_debugs_it" --blame-hang-timeout 10m --blame-hang-dump-type none
+
+      - name: Uninstall for one person
+        if: ${{ !cancelled() }}
+        run: |
+          "$HOME/.local/opt/passenger/install.sh" --uninstall
+          left=
+          for path in "$HOME/.local/opt/passenger" "$HOME/.local/bin/passenger" \
+            "$HOME/.local/share/applications/io.github.zaneris.passenger.desktop" \
+            "$HOME/.local/share/icons/hicolor/256x256/apps/io.github.zaneris.passenger.png" \
+            "$HOME/.local/share/icons/hicolor/scalable/apps/io.github.zaneris.passenger.svg" \
+            "$HOME/.local/share/mime/packages/io.github.zaneris.passenger.xml"; do
+            if [ -e "$path" ] || [ -L "$path" ]; then left="$left $path"; fi
+          done
+          [ -z "$left" ] || { echo "::error::The uninstall left$left"; exit 1; }
+          [ -f "$HOME/.local/share/Passenger/kept-by-uninstall.txt" ] || { echo "::error::The uninstall took the person's state"; exit 1; }
+
+      - name: Install for everyone
+        run: |
+          sudo "$RUNNER_TEMP/download/passenger/install.sh" --system
+          for path in /opt/passenger/app/Passenger /usr/local/bin/passenger /usr/share/applications/io.github.zaneris.passenger.desktop \
+            /usr/share/icons/hicolor/256x256/apps/io.github.zaneris.passenger.png /usr/share/mime/packages/io.github.zaneris.passenger.xml; do
+            [ -e "$path" ] || { echo "::error::The install for everyone has no $path"; exit 1; }
+          done
+          owned=$(find /opt/passenger ! -user root | head -n 3)
+          [ -z "$owned" ] || { echo "::error::The install for everyone has files not root's: $owned"; exit 1; }
+          desktop-file-validate /usr/share/applications/io.github.zaneris.passenger.desktop
+
+      - name: An agent debugs through the Passenger installed for everyone
+        run: |
+          export PASSENGER_EXECUTABLE=/usr/local/bin/passenger
+          dotnet test tests/Passenger.Tests --no-build --filter "FullyQualifiedName~McpTests.An_agent_with_a_windowless_Passenger_finds_code_reads_its_warnings_and_debugs_it" --blame-hang-timeout 10m --blame-hang-dump-type none
+
+      - name: Uninstall for everyone
+        if: ${{ !cancelled() }}
+        run: |
+          sudo /opt/passenger/install.sh --uninstall --system
+          left=
+          for path in /opt/passenger /usr/local/bin/passenger /usr/share/applications/io.github.zaneris.passenger.desktop \
+            /usr/share/icons/hicolor/256x256/apps/io.github.zaneris.passenger.png \
+            /usr/share/icons/hicolor/scalable/apps/io.github.zaneris.passenger.svg /usr/share/mime/packages/io.github.zaneris.passenger.xml; do
+            if [ -e "$path" ] || [ -L "$path" ]; then left="$left $path"; fi
+          done
+          [ -z "$left" ] || { echo "::error::The uninstall for everyone left$left"; exit 1; }
+
+      # For trying a pull request's archive by hand; not a release.
+      - name: Upload the archive
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Passenger-linux-x64
+          path: artifacts/package/Passenger-linux-x64.tar.gz
+          compression-level: 0
+          retention-days: 7
+
+  # The solution restored on Linux in locked mode with no package cache, so every package's signature is checked against
+  # nuget.config's trusted signers (NuGet checks none on macOS); then every package must be named in the notices.
+  packages:
+    name: Packages (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Passenger.slnx --locked-mode
+
+      - name: Every package in the notices
+        run: python3 -I tools/check-notices.py

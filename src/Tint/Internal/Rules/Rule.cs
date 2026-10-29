@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Tint.Grammars;
 using Tint.Internal.Regex;
 
@@ -78,6 +79,7 @@ internal abstract class RuleWithPatterns : Rule
 
     public bool HasMissingPatterns { get; }
 
+    [MethodImpl(Jit.FullOpts)]
     public RulePatterns GetScannerPatterns(RuleTable rules)
     {
         var patterns = Volatile.Read(ref _patterns);
@@ -126,6 +128,7 @@ internal sealed class MatchRule : Rule
     public override void CollectPatterns(RuleTable rules, List<PatternEntry> output) => output.Add(new PatternEntry(Match, Id));
 
     // Used when a match rule is itself an injection or a retokenized capture.
+    [MethodImpl(Jit.FullOpts)]
     public RulePatterns GetScannerPatterns()
     {
         var patterns = Volatile.Read(ref _patterns);
@@ -249,6 +252,7 @@ internal sealed class BeginWhileRule : RuleWithPatterns
 
     public override void CollectPatterns(RuleTable rules, List<PatternEntry> output) => output.Add(new PatternEntry(Begin, Id));
 
+    [MethodImpl(Jit.FullOpts)]
     public RulePatterns GetWhilePatterns()
     {
         var patterns = Volatile.Read(ref _whilePatterns);
@@ -294,6 +298,7 @@ internal sealed class RulePatterns
 
     public bool HasAnchorG { get; }
 
+    [MethodImpl(Jit.FullOpts)]
     public RegexAnchorVariant Variant(bool allowA, bool allowG)
         => (RegexAnchorVariant)((allowA && HasAnchorA ? 2 : 0) | (allowG && HasAnchorG ? 1 : 0));
 }
@@ -340,6 +345,7 @@ internal static class CaptureNames
     }
 
     // Writes the name with capture references replaced into the buffer.
+    [MethodImpl(Jit.FullOpts)]
     public static void Replace(string name, ReadOnlySpan<char> line, ReadOnlySpan<CaptureSpan> captures, CharBuffer buffer)
     {
         buffer.Clear();
@@ -388,6 +394,7 @@ internal static class CaptureNames
     }
 
     // At a '$': /\$(\d+)|\${(\d+):\/(downcase|upcase)}/. command: 0 none, 1 downcase, 2 upcase.
+    [MethodImpl(Jit.FullOpts)]
     private static bool TryParseReference(string name, int dollar, out int index, out int command, out int length)
     {
         index = 0;

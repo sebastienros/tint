@@ -1,0 +1,16 @@
+// The theme's colours.
+@accent: #3b82f6;
+@import (reference) "base.less";
+
+/* A frame round a card. */
+.framed(@width) {
+    border: @width solid @accent;
+}
+
+.card > h2 {
+    padding: 12px;
+    &:hover { color: darken(@accent, 10%); }
+    .framed(1px);
+    @{side}-margin: 0;
+}
+
