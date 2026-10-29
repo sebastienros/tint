@@ -7,7 +7,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <IsPackable>false</IsPackable>
-    <VersionPrefix>0.2.0</VersionPrefix>
+    <VersionPrefix>0.2.2</VersionPrefix>
     <Authors>Sébastien Ros</Authors>
     <Copyright>Copyright (c) 2026 Sébastien Ros</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
