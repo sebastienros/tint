@@ -72,11 +72,62 @@ public sealed class StateStackTests
     }
 
     [Fact]
+    public void ScopesAreTheOpenScopesTheNextLineInherits()
+    {
+        var tokenizer = CreateRegistry().CreateTokenizer("source.test");
+
+        Assert.Null(StateStack.Initial.Scopes);
+
+        tokenizer.TokenizeLine("( a", StateStack.Initial, out var open);
+        Assert.Equal("source.test meta.paren", open.Scopes!.ToString());
+        var continued = tokenizer.TokenizeLine("b", open, out _)[0].Scopes;
+        Assert.Equal(open.Scopes, continued.Parent);
+    }
+
+    [Fact]
+    public void ScopesTellAScopeOpenedAgainFromOneThatContinues()
+    {
+        var tokenizer = CreateRegistry().CreateTokenizer("source.test");
+        tokenizer.TokenizeLine("( a", StateStack.Initial, out var open);
+        tokenizer.TokenizeLine("( a )", StateStack.Initial, out var closed);
+
+        // The next line starts with an equal paren scope either way; only the state says whether it is the same one.
+        var reopened = tokenizer.TokenizeLine("( b", closed, out _)[0].Scopes;
+        Assert.Equal(open.Scopes, reopened);
+        Assert.Equal("source.test", closed.Scopes!.ToString());
+    }
+
+    [Fact]
+    public void ReturnedStatesHoldNoLinePositionsSoStartingALineDoesNotWriteThem()
+    {
+        var tokenizer = CreateRegistry().CreateTokenizer("source.test");
+        tokenizer.TokenizeLine("a ( <b> ( c", StateStack.Initial, out var state);
+        AssertNoLinePositions(state);
+
+        // Two lines tokenized from the same kept state see the same input and leave it as it was.
+        var first = tokenizer.TokenizeLine("d ) e", state, out var firstNext).ToArray();
+        var second = tokenizer.TokenizeLine("d ) e", state, out var secondNext).ToArray();
+        Assert.Equal(first, second);
+        Assert.Equal(firstNext, secondNext);
+        AssertNoLinePositions(state);
+        AssertNoLinePositions(firstNext);
+    }
+
+    [Fact]
     public void ClosedRulesReturnToTheRootState()
     {
         var registry = CreateRegistry();
 
         Assert.Equal(Run(registry, "a"), Run(registry, "( a )"));
+    }
+
+    private static void AssertNoLinePositions(StateStack state)
+    {
+        for (var node = state; node is not null; node = node.Parent)
+        {
+            Assert.Equal(-1, node.EnterPos);
+            Assert.Equal(-1, node.AnchorPos);
+        }
     }
 
     private static GrammarRegistry CreateRegistry()

@@ -3,6 +3,17 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
+## Unreleased
+
+### Tint
+
+- `StateStack.Scopes`: the scopes open at the end of a line, which the next line's tokens inherit. An editor can tell
+  a scope that continues across lines from an equal one opened again, such as two adjacent line comments.
+- `TokenizeLine` and `TokenizeLineEncoded` no longer write to the state they start from: line positions are cleared
+  before a state is returned, so kept states are never modified and can be shared across threads.
+- `GrammarLoader` documents its JSON dialect: comments and trailing commas are accepted; unquoted or single-quoted
+  property names and content after the root value are not.
+
 ## 0.2.0 (2026-10-28)
 
 ### Tint

@@ -185,8 +185,8 @@ public sealed class Tokenizer
                 throw new ArgumentException($"The state was produced by a tokenizer of '{state.ContentNameScopes.Context.Grammar.ScopeName}', not of this compiled '{_grammar.ScopeName}' grammar.", nameof(state));
             }
 
+            // The state's line positions were reset when it was returned (vscode-textmate resets them here).
             isFirstLine = false;
-            state.Reset();
         }
 
         // The one allocation per line: the scanner's result cache keys on the string behind the memory it searches
@@ -244,6 +244,7 @@ public sealed class Tokenizer
             }
         }
 
+        state.ResetPositions();
         next = state;
     }
 

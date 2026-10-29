@@ -3,16 +3,19 @@ namespace Tint;
 /// <summary>
 /// The tokenizer state at the end of a line: an immutable linked list of the rules that are open, as vscode-textmate's
 /// <c>StateStackImpl</c>. Editors keep one per line and stop re-tokenizing when a line ends in a state equal to the
-/// stored one. Equality is structural. Like vscode-textmate's <c>StateStack</c> interface, only the depth is public:
-/// the rules and scopes it holds are the tokenizer's business.
+/// stored one. Equality is structural. Beyond vscode-textmate's <c>StateStack</c> interface, which only exposes the
+/// depth, <see cref="Scopes"/> tells an editor which scopes continue onto the next line; the rules stay the
+/// tokenizer's business. A state is never modified once <see cref="Tokenizer.TokenizeLine"/> has returned it, so it
+/// can be kept and shared across threads.
 /// </summary>
 public sealed class StateStack : IEquatable<StateStack>
 {
     // Computed on first use: most states are pushed and popped within a line and never hashed.
     private int _hashCode;
 
-    // Where the state was pushed on the current line, and the anchor position then. Meaningless across lines; reset
-    // to -1 when a line starts from this state (vscode-textmate mutates them the same way).
+    // Where the state was pushed on the current line, and the anchor position then. Meaningless across lines:
+    // vscode-textmate resets them to -1 when a line starts from a state; Tint resets them before handing the state
+    // back, so every state a caller holds already has -1 and starting a line writes nothing.
     private int _enterPos;
     private int _anchorPos;
 
@@ -53,6 +56,19 @@ public sealed class StateStack : IEquatable<StateStack>
     /// <summary>The number of open rules, the root rule included; 0 for <see cref="Initial"/>.</summary>
     public int Depth { get; }
 
+    /// <summary>
+    /// The scopes open in this state: the innermost open rule's content scope, whose parents are the enclosing rules'
+    /// scopes up to the grammar's root scope. Null for <see cref="Initial"/>.
+    /// </summary>
+    /// <remarks>
+    /// Tokens of the next line inherit these scopes, unless a <c>while</c> condition closes its rule at the start of
+    /// that line. A scope that a line's first token shares with the previous line's end state therefore continues
+    /// from that line, while an equal scope that is missing here was closed and opened again: two adjacent line
+    /// comments, for instance, have equal scope stacks but are two scopes. Scope stacks share nodes, so compare them
+    /// with <see cref="AttributedScopeStack.Equals(AttributedScopeStack)"/>.
+    /// </remarks>
+    public AttributedScopeStack? Scopes => Depth == 0 ? null : ContentNameScopes;
+
     // Whether the begin match of this rule consumed the end of its line.
     internal bool BeginRuleCapturedEol { get; }
 
@@ -71,12 +87,17 @@ public sealed class StateStack : IEquatable<StateStack>
 
     internal int AnchorPos => _anchorPos;
 
-    internal void Reset()
+    // Clears the line positions before the state leaves the tokenizer. Nodes from earlier lines already hold -1 and
+    // are left untouched, so a state that callers share is never written to.
+    internal void ResetPositions()
     {
         for (var node = this; node is not null; node = node.Parent)
         {
-            node._enterPos = -1;
-            node._anchorPos = -1;
+            if (node._enterPos != -1 || node._anchorPos != -1)
+            {
+                node._enterPos = -1;
+                node._anchorPos = -1;
+            }
         }
     }
 
