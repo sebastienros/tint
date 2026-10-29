@@ -4,13 +4,14 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-    <!-- 0.5.4 fixes compiling TextMate patterns with subexpression calls on .NET Framework (the netstandard2.0 target);
+    <!-- 0.5.5 compiles the Oniguruma scanner search and the interpreter's search, attempt and helpers fully optimized
+         on first call (docs/design.md section 6.2); 0.5.4 fixes compiling TextMate patterns with subexpression calls on .NET Framework (the netstandard2.0 target);
          0.5.3 makes kernel planning (which binding a generated kernel repeats to check its fingerprint) as cheap as in
          0.5.1 again; 0.5.2 added kernels for patterns with subexpression calls (the C# grammar's declarations) and the
          interpreter's branch skipping and possessive runs to every kernel; 0.5.1 shipped the compiled Oniguruma kernels,
          the KernelSource façade and OnigurumaCompileOptions.TextMate. Previews (0.1.0-preview.N) come from the Feedz
          feed in nuget.config. -->
-    <PackageVersion Include="GregsEx" Version="0.5.4" />
+    <PackageVersion Include="GregsEx" Version="0.5.5" />
     <PackageVersion Include="Meziantou.Polyfill" Version="1.0.166" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" />
