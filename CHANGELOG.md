@@ -3,6 +3,14 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
+## Unreleased
+
+### Tint
+
+- GregsEx 0.5.6: once a pattern of a scanner has matched, the later patterns are searched only up to that match's
+  start, as Oniguruma's `ONIG_REGSET_REGEX_LEAD` does. Warm tokenization of `medium.cs` takes 46% less time, and CSS,
+  SCSS and JavaScript editor files 37–42% less; XML editor files are about 10% slower.
+
 ## 0.2.2 (2026-10-29)
 
 ### Tint
