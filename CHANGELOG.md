@@ -3,7 +3,7 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
-## Unreleased
+## 0.2.4 (2026-11-07)
 
 ### Tint
 
@@ -12,6 +12,11 @@ packages always ship together with the same version.
   alternations, so grammars that use them (SQL, CSS, PowerShell, ...) parse their patterns about twice as fast;
   tokenization itself is unchanged. In a fresh process, the first pass over Passenger's CSS and SCSS files (grammar
   loading included) takes 22% and 38% less time; the other eight editor files are unchanged.
+
+### Tint.Grammars, Tint.Themes
+
+- Synced with microsoft/vscode@d041bd1a (#27): the 2026 Dark, 2026 Light and Quiet Light themes gain or change
+  workbench colors (`colors`); no grammar and no token color changes.
 
 ## 0.2.3 (2026-11-02)
 
