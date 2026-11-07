@@ -4,7 +4,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-    <!-- 0.5.7 skips interpreter work its start units rule out and shares a scanner's required-text lookups;
+    <!-- 0.5.8 indexes the multi-code-point case folds that parsing ignore-case patterns looks up (TextMate keyword rules);
+         0.5.7 skips interpreter work its start units rule out and shares a scanner's required-text lookups;
          0.5.6 stops an Oniguruma scanner's later patterns at the best start found so far (ONIG_REGSET_REGEX_LEAD);
          0.5.5 compiles the Oniguruma scanner search and the interpreter's search, attempt and helpers fully optimized
          on first call (docs/design.md section 6.2); 0.5.4 fixes compiling TextMate patterns with subexpression calls on .NET Framework (the netstandard2.0 target);
