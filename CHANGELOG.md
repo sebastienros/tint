@@ -7,6 +7,16 @@ packages always ship together with the same version.
 
 ### Tint
 
+- GregsEx 0.5.8, which indexes Oniguruma's multi-code-point case folds by first code point instead of scanning the
+  whole table for every ignore-case character (sebastienros/gregsex#37). TextMate keyword rules are long ignore-case
+  alternations, so grammars that use them (SQL, CSS, PowerShell, ...) parse their patterns about twice as fast;
+  tokenization itself is unchanged. In a fresh process, the first pass over Passenger's CSS and SCSS files (grammar
+  loading included) takes 22% and 38% less time; the other eight editor files are unchanged.
+
+## 0.2.3 (2026-11-02)
+
+### Tint
+
 - GregsEx 0.5.7. 0.5.6 searches a scanner's later patterns only up to the start of the best match so far, as
   Oniguruma's `ONIG_REGSET_REGEX_LEAD` does; 0.5.7 skips interpreter work that a pattern's start units rule out and
   looks up text several patterns of a scanner require once. Against GregsEx 0.5.5, warm tokenization of `medium.cs`
