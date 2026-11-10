@@ -4,7 +4,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-    <!-- 0.6.0 walks an Oniguruma scanner's starts once for all its patterns (ONIG_REGSET_POSITION_LEAD), so a span
+    <!-- 0.7.0 attempts a scanner's compiled patterns (kernels, tier 2) inside that walk too, instead of searching
+         them whole, so every scanner searches the line buffer;
+         0.6.0 walks an Oniguruma scanner's starts once for all its patterns (ONIG_REGSET_POSITION_LEAD), so a span
          search costs what a cached string-backed one did and the tokenizer searches its reused line buffer; it also
          jumps to the first branch an alternation can start with and keeps the failure memo outside subexpression
          calls, look-arounds and atomic groups;
@@ -18,7 +20,7 @@
          interpreter's branch skipping and possessive runs to every kernel; 0.5.1 shipped the compiled Oniguruma kernels,
          the KernelSource façade and OnigurumaCompileOptions.TextMate. Previews (0.1.0-preview.N) come from the Feedz
          feed in nuget.config. -->
-    <PackageVersion Include="GregsEx" Version="0.6.0" />
+    <PackageVersion Include="GregsEx" Version="0.7.0" />
     <PackageVersion Include="Meziantou.Polyfill" Version="1.0.166" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.14" />

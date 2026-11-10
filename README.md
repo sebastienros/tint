@@ -65,9 +65,9 @@ A `Highlighter` owns its tokenizers, so it is not thread-safe: keep one per thre
 
 Patterns are parsed on first use. Ahead-of-time regex kernels are an opt-in with `Kernels = true`
 on the attribute, `Kernels="true"` on the item, or `<TintKernels>true</TintKernels>` for the
-project, but with GregsEx 0.6.0 they tokenize slower than the interpreted patterns (see
-[Performance](#performance)), so leave them off for now. Items, metadata, diagnostics and kernels
-are described in [docs/generator.md](docs/generator.md).
+project; with GregsEx 0.7.0 they tokenize as fast as the interpreted patterns, not faster (see
+[Performance](#performance)), so they are not worth their size for now. Items, metadata,
+diagnostics and kernels are described in [docs/generator.md](docs/generator.md).
 
 Grammar files come from any TextMate source: the
 [VS Code extensions](https://github.com/microsoft/vscode/tree/main/extensions) or shiki's
@@ -220,15 +220,15 @@ Dark+, once warm, through each library's encoded-token path:
 
 | Library | Time | MB/s | Allocated |
 |---|---:|---:|---:|
-| Tint (bundled grammar) | 0.53 s | 10.88 | 18.3 MB |
-| TextMateLib 0.2.1 (native Oniguruma) | 5.03 s | 1.15 | 31.0 MB |
-| TextMateSharp 2.0.4 | 14.47 s | 0.40 | 507.3 MB |
+| Tint (bundled grammar) | 0.28 s | 20.68 | 18.3 MB |
+| TextMateLib 0.2.1 (native Oniguruma) | 2.67 s | 2.17 | 31.0 MB |
+| TextMateSharp 2.0.4 | 7.31 s | 0.79 | 507.3 MB |
 
-Measured on an Intel Xeon 2.1 GHz cloud VM (4 cores) with .NET 10.0.14, GregsEx 0.6.0 and BenchmarkDotNet
-(5 warmups, 15 iterations). The bundles run interpreted, which is also the fastest tier with GregsEx 0.6.0: the
-opt-in ahead-of-time kernels (`Kernels="true"`) and runtime-compiled hot patterns take about 2.8× the interpreted
-time on this file (1.48 s and 1.46 s), because GregsEx searches compiled patterns whole rather than inside its
-single walk over the line. The full set, with methodology, is in [benchmarks/README.md](benchmarks/README.md).
+Measured on an Apple M4 Pro with .NET 10.0.11, GregsEx 0.7.0 and BenchmarkDotNet in-process (2 warmups, 5
+iterations). The bundles run interpreted. The opt-in ahead-of-time kernels (`Kernels="true"`) and runtime-compiled
+hot patterns tokenize this file in the same time (0.28 s): GregsEx attempts every pattern inside one walk over the
+line and runs compiled code only where it searches a pattern whole. The full set, with methodology, is in
+[benchmarks/README.md](benchmarks/README.md).
 
 ## Build
 

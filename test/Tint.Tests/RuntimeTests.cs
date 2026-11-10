@@ -34,14 +34,16 @@ public sealed class RuntimeTests
         Assert.InRange(theme.CachedMatchCount, 1, Theme.MatchCacheCapacity);
     }
 
-    [Fact]
-    public void AWarmLineWithoutBeginRulesAllocatesNothing()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void AWarmLineWithoutBeginRulesAllocatesNothing(bool compiled)
     {
-        // The line text goes through the tokenizer's reused buffer, searched as a span (docs/design.md section 5.6);
-        // only begin rules (their StateStack nodes) allocate on a warm line.
+        // The line text goes through the tokenizer's reused buffer, searched as a span (docs/design.md section 5.6),
+        // by scanners of compiled patterns too; only begin rules (their StateStack nodes) allocate on a warm line.
         var registry = new GrammarRegistry();
         registry.Add(Load("""{ "scopeName": "source.words", "patterns": [{ "match": "\\w+", "name": "variable.other" }, { "match": "[=+*;]", "name": "keyword.operator" }] }"""));
-        var tokenizer = registry.CreateTokenizer("source.words");
+        var tokenizer = registry.CreateTokenizer("source.words", null, new TokenizerOptions { CompileHotPatterns = compiled, HotPatternThreshold = 0 });
         var line = new string('x', 300) + " total = count * 2 + offset;";
         tokenizer.TokenizeLine(line, StateStack.Initial, out var state);
         for (var i = 0; i < 3; i++)

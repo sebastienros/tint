@@ -18,9 +18,9 @@ public sealed class TokenizerOptions
     /// apps and with GregsEx's <c>GregsEx.RuntimeCompilation.Auto</c> switch off, patterns stay interpreted.
     /// </summary>
     /// <remarks>
-    /// Off by default, and not recommended with GregsEx 0.6.0: its scanner attempts interpreted patterns inside one
-    /// walk over the line but searches a compiled pattern whole, so tokenizing a large C# file once warm takes about
-    /// 2.6 times as long as with interpreted patterns, and compiling costs hundreds of milliseconds per grammar
+    /// Off by default: since GregsEx 0.7.0 a scanner attempts a compiled pattern inside its walk over the line as it
+    /// does an interpreted one, and runs the compiled code only where it searches a pattern whole, so tokenizing once
+    /// warm takes the same time either way while compiling costs hundreds of milliseconds per grammar
     /// (docs/design.md section 5.5).
     /// </remarks>
     public bool CompileHotPatterns { get; init; }
