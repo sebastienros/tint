@@ -13,6 +13,7 @@ internal sealed class RuleScanner
     private readonly int _invalidIndex = -1;
     private readonly string? _invalidError;
     private OnigurumaScanner _scanner;
+    private bool _hasCompiledPatterns;
 
     // Searches left before the patterns are runtime-compiled; 0 when they never are or already were.
     private int _searchesUntilCompile;
@@ -52,6 +53,7 @@ internal sealed class RuleScanner
         }
 
         _scanner = new OnigurumaScanner(compiled);
+        _hasCompiledPatterns = CompiledPatternCount > 0;
         _searchesUntilCompile = hotThreshold > 0 && !allHot ? hotThreshold : 0;
     }
 
@@ -77,16 +79,30 @@ internal sealed class RuleScanner
         }
     }
 
-    // Searches text[..length] from start.
+    // Searches line[..length] from start. Interpreted patterns search the span. GregsEx searches a compiled pattern
+    // (an ahead-of-time kernel or a tier-2 pattern) to the end of the line on every call and keeps that result only
+    // for string-backed input, so a scanner holding one searches the line as a string, materialized in lineString
+    // once per line for every scanner that needs it (docs/design.md section 5.6).
     [MethodImpl(Jit.FullOpts)]
-    public bool FindNextMatch(ReadOnlySpan<char> text, int length, int start, out int ruleId)
+    public bool FindNextMatch(ReadOnlySpan<char> line, ref string? lineString, int length, int start, out int ruleId)
     {
         if (_searchesUntilCompile > 0 && --_searchesUntilCompile == 0)
         {
             SwapToCompiled();
         }
 
-        var found = _scanner.FindNextMatch(text.Slice(0, length), start, out var index);
+        bool found;
+        int index;
+        if (_hasCompiledPatterns)
+        {
+            lineString ??= line.ToString();
+            found = _scanner.FindNextMatch(lineString.AsMemory(0, length), start, out index);
+        }
+        else
+        {
+            found = _scanner.FindNextMatch(line.Slice(0, length), start, out index);
+        }
+
         if (_invalidIndex >= 0 && (!found || index > _invalidIndex || _scanner.Captures[0].Index > start))
         {
             // The patterns are searched in order up to a match at the start, as Onigwrap does: this search reached
@@ -109,5 +125,6 @@ internal sealed class RuleScanner
 
         _retiredLimitExceededCount += _scanner.LimitExceededCount;
         _scanner = new OnigurumaScanner(compiled);
+        _hasCompiledPatterns = CompiledPatternCount > 0;
     }
 }

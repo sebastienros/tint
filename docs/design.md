@@ -180,15 +180,18 @@ the lowest index (which is how `applyEndPatternLast` works: the `end` pattern is
 and last with the flag). Tint uses GregsEx `OnigurumaScanner` for this, per (rule, anchor variant):
 
 - one matcher and one capture buffer shared by all patterns, allocation-free once warm;
-- one walk over the starts for all the patterns (GregsEx 0.5.9, `onig_regset_search` under
+- one walk over the starts for all the patterns (GregsEx 0.6.0, `onig_regset_search` under
   `ONIG_REGSET_POSITION_LEAD`, vscode-oniguruma's choice for lines under 1,000 units): at each start
   from the search position the patterns whose first units admit the unit there are attempted, in
   pattern order, each with its own prefilters, work budget and failure memo; the first match ends
   the search, so no pattern is attempted past the winning start, and a match at the search position
   ends it at once;
-- Tint searches a span over its reusable line buffer (section 5.6), which the scanner searches
-  afresh each call; its per-string result cache, which bypasses patterns containing `\G` (Onigwrap
-  gets this wrong, vscode-oniguruma gets it right), only applies to string-backed input;
+- the scanner keeps what its searches learned of each pattern for string-backed input only (a
+  per-string result cache that bypasses patterns containing `\G`; Onigwrap gets this wrong,
+  vscode-oniguruma gets it right); a compiled pattern (kernel or tier 2) is searched to the end of
+  the line rather than inside the walk, so only that cache keeps it from doing so on every call.
+  Interpreted scanners search a span over Tint's reusable line buffer, scanners holding a compiled
+  pattern the line as a string (section 5.6);
 - work-limit exhaustion counts as "no match" and is reported on the tokenizer as a flag, the way
   vscode handles Oniguruma's retry limit.
 
@@ -198,7 +201,7 @@ GregsEx 0.5.8 the scanner was pattern-major instead: each pattern searched in tu
 prefilter (`SearchValues`, literal and first-set filters), later patterns stopped at the best start
 so far, and the per-string result cache made later searches of the same line cheap, but a pattern
 before the winner still searched past the winning start, to its own match or the end of the line.
-GregsEx 0.5.9 keeps the per-pattern prefilters and first-unit sets and walks the starts once, so it
+GregsEx 0.6.0 keeps the per-pattern prefilters and first-unit sets and walks the starts once, so it
 gets the position-major order of a RegSet without the alternation, and a search no longer needs
 what earlier searches of the line learned to be cheap.
 
@@ -243,6 +246,15 @@ treats pattern execution as three tiers:
    while a fresh process pays about 150 ms more JIT for its first line; that is not a gain worth
    kernel packages, so the bundles stay interpreted.
 
+**Measured again with GregsEx 0.6.0** (Intel Xeon cloud VM, x64,
+[benchmarks/README.md](../benchmarks/README.md#gregsex-060-and-the-line-buffer)): tiers 2 and 3 are
+now slower than the interpreter, about 2.6× on `bigfile.cs` (1.44–1.47 s against 0.55 s). GregsEx
+0.6.0 attempts interpreted patterns inside its walk over the starts, so none runs past the winning
+start, while a compiled pattern is still searched whole, to its own match or the end of the line
+(on that machine kernels were already slower with GregsEx 0.5.8: 2.20 s against 1.57 s). Both stay
+opt-in and off by default; they are not worth enabling until GregsEx attempts compiled patterns
+inside the walk too (section 15, item 4).
+
 ### 5.6 The line buffer
 
 `OnigurumaScanner` keeps what its searches learned of each pattern per string, keyed on the
@@ -252,17 +264,24 @@ pattern before the winner past the winning start, so the tokenizer (like TextMat
 allocated `line + "\n"` as a string per line, its one per-line allocation, and the design asked
 GregsEx for a scanner overload with caller-supplied text identity (section 15, item 3).
 
-GregsEx 0.5.9 ([gregsex#42](https://github.com/sebastienros/gregsex/pull/42)) walks a scanner's
-starts once for all its patterns (section 5.4), which makes a fresh search cost about what a cached
-one does. The tokenizer therefore copies the line and its appended `"\n"` into a `char[]` it owns
-and reuses across lines (grown when a line is longer, never shrunk) and every scanner searches a
-`ReadOnlySpan<char>` over it: no text identity is needed and a warm line allocates nothing for its
-text. Hosts keep passing `ReadOnlySpan<char>` lines sliced from whatever holds their text (a
-document string, a pooled buffer, an editor's piece table); the renderers slice them from the whole
-input. Measured in [benchmarks/README.md](../benchmarks/README.md#gregsex-059-and-the-line-buffer):
-the same speed as string lines on 0.5.9, 28–57% fewer bytes allocated per editor file. Keeping the scanner's
-per-string state for the buffer, with a caller-supplied line version, was prototyped against 0.5.9
-and measured no gain, so item 3 of section 15 is closed without that overload.
+GregsEx 0.6.0 ([gregsex#42](https://github.com/sebastienros/gregsex/pull/42)) walks a scanner's
+starts once for all its patterns (section 5.4), which makes a fresh search of interpreted patterns
+cost about what a cached one does. The tokenizer therefore copies the line and its appended `"\n"`
+into a `char[]` it owns and reuses across lines (grown when a line is longer, never shrunk), and an
+interpreted scanner searches a `ReadOnlySpan<char>` over it: no text identity is needed and a warm
+line allocates nothing for its text. A compiled pattern is still searched whole, so a scanner
+holding one (kernels, tier 2) would search it to the end of the line from every offset without the
+cache: on `bigfile.cs` that cost the kernel-compiled grammar and tier 2 about 40%. Such a scanner
+searches the line as a string instead, created once per line by the first scanner that needs it,
+which gives those tiers the per-line allocation and the speed they had with string lines.
+
+Hosts keep passing `ReadOnlySpan<char>` lines sliced from whatever holds their text (a document
+string, a pooled buffer, an editor's piece table); the renderers slice them from the whole input.
+Measured in [benchmarks/README.md](../benchmarks/README.md#gregsex-060-and-the-line-buffer):
+interpreted grammars as fast as with string lines on 0.6.0, and 28–57% fewer bytes allocated per
+editor file. Keeping the scanner's per-string state for the buffer, with a caller-supplied line
+version, was prototyped against gregsex#42 and measured no gain for interpreted patterns, so item 3
+of section 15 is closed without that overload.
 
 ## 6. Tokenizer
 
@@ -706,10 +725,10 @@ and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type na
 2. Done in GregsEx 0.5.1: `OnigurumaCompileOptions.TextMate`, the compile limits TextMate grammars
    need. Tint uses it for every runtime `Parse` and passes it to `KernelSource.TryEmit`, so the
    fingerprint of an emitted kernel always matches the pattern the runtime parses.
-3. Done differently in GregsEx 0.5.9 ([gregsex#42](https://github.com/sebastienros/gregsex/pull/42)):
+3. Done differently in GregsEx 0.6.0 ([gregsex#42](https://github.com/sebastienros/gregsex/pull/42)):
    instead of caller-supplied text identity for the result cache, the scanner walks the starts once
-   for all its patterns, so uncached span searches are as fast and the tokenizer searches a reused
-   line buffer (section 5.6).
+   for all its patterns, so uncached span searches of interpreted patterns are as fast and the
+   tokenizer searches a reused line buffer (section 5.6).
 4. From the kernel spike, for kernels to become worth their size: share `SearchValues`/bitmap
    tables between a pattern's plain and capture kernels and across an assembly; remove the per-call
    fixed cost (whole-input surrogate scan, guard setup) that makes trivial patterns slower than the
@@ -717,7 +736,9 @@ and 1 of the 19 themes, checked in CI by reading the trimmed assemblies' type na
    kernel); generated code the ILLink analyzer can skip; lowering of nullable-body loops and
    subexpression calls (the main decline reasons in C# and C++). P5 confirmed it at the tokenizer
    level for runtime-compiled patterns too: 5% faster on C# once warm, slower on short documentation
-   blocks.
+   blocks. Since GregsEx 0.6.0, first of all: attempt compiled patterns inside the scanner's walk
+   over the starts, as interpreted ones are (gregsex#42 searches them whole, which makes tiers 2 and
+   3 about 2.6× slower than the interpreter on `bigfile.cs`, section 5.5).
 5. Done: GregsEx 0.5.0 on nuget.org includes the compiled Oniguruma kernels; Tint pins it.
 6. From the P7 fuzz campaign ([research/fuzz-2026-10-25.md](research/fuzz-2026-10-25.md#engine-findings-for-gregsex),
    inputs in [research/fuzz-2026-10-25-inputs.json](research/fuzz-2026-10-25-inputs.json)): the

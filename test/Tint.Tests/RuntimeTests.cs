@@ -35,6 +35,29 @@ public sealed class RuntimeTests
     }
 
     [Fact]
+    public void AWarmLineWithoutBeginRulesAllocatesNothing()
+    {
+        // The line text goes through the tokenizer's reused buffer, searched as a span (docs/design.md section 5.6);
+        // only begin rules (their StateStack nodes) allocate on a warm line.
+        var registry = new GrammarRegistry();
+        registry.Add(Load("""{ "scopeName": "source.words", "patterns": [{ "match": "\\w+", "name": "variable.other" }, { "match": "[=+*;]", "name": "keyword.operator" }] }"""));
+        var tokenizer = registry.CreateTokenizer("source.words");
+        var line = new string('x', 300) + " total = count * 2 + offset;";
+        tokenizer.TokenizeLine(line, StateStack.Initial, out var state);
+        for (var i = 0; i < 3; i++)
+        {
+            tokenizer.TokenizeLine(line, state, out state);
+        }
+
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var tokens = tokenizer.TokenizeLine(line, state, out _).Length;
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+        Assert.True(tokens > 1);
+        Assert.Equal(0, allocated);
+    }
+
+    [Fact]
     public void AStateFromAnotherGrammarIsRejected()
     {
         var registry = new GrammarRegistry();

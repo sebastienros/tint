@@ -187,6 +187,13 @@ generated source grows from 0.45 MB to 5.8 MB, the assembly from 135 KB to 954 K
 compile of the generated code from 0.65 s to 2.8 s. GregsEx 0.5.2 adds the subexpression-call
 patterns: 327 of 338.
 
+With GregsEx 0.6.0, kernels make tokenization slower, not faster: its scanner attempts interpreted
+patterns inside one walk over the line and stops at the winning start, while a kernel is searched
+whole, to its own match or the end of the line. The kernel-compiled C# grammar tokenizes
+`bigfile.cs` in about 2.6 times the interpreted time on an x64 cloud VM (1.44 s against 0.55 s,
+[benchmarks/README.md](../benchmarks/README.md#gregsex-060-and-the-line-buffer)). Keep them off
+until GregsEx attempts kernels inside the walk too (design 5.5).
+
 ## How the generator reaches GregsEx
 
 Kernels must come from the GregsEx version the consumer runs (the fingerprint binds a kernel to the

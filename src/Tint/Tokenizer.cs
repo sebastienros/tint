@@ -29,8 +29,10 @@ public sealed class Tokenizer
     private readonly CharBuffer _buffer = new();
     private readonly List<StateStack> _whileNodes = [];
 
-    // The line being tokenized and its appended "\n".
+    // The line being tokenized and its appended "\n", and the same text as a string once a scanner of compiled
+    // patterns needed it on this line (RuleScanner.FindNextMatch).
     private char[] _line = new char[256];
+    private string? _lineString;
 
     private Token[] _tokens = new Token[64];
     private int _tokenCount;
@@ -195,7 +197,7 @@ public sealed class Tokenizer
             isFirstLine = false;
         }
 
-        // The line plus the appended "\n", in a buffer reused across lines: the scanners search it as a span
+        // The line plus the appended "\n", in a buffer reused across lines: interpreted scanners search it as a span
         // (docs/design.md section 5.6).
         var lineLength = line.Length + 1;
         if (_line.Length < lineLength)
@@ -205,6 +207,7 @@ public sealed class Tokenizer
 
         line.CopyTo(_line);
         _line[line.Length] = '\n';
+        _lineString = null;
         var lineText = new ReadOnlySpan<char>(_line, 0, lineLength);
 
         _emitEncoded = encoded;
@@ -584,7 +587,7 @@ public sealed class Tokenizer
         if (patterns.DynamicSource is { } dynamicSource)
         {
             dynamic = GetDynamicScanner(ruleId, isWhile, dynamicSource, patterns.DynamicRuleId, endRule ?? string.Empty, allowA, allowG);
-            if (patterns.DynamicIndex == 0 && dynamic.FindNextMatch(text, lineLength, start, out winnerRuleId))
+            if (patterns.DynamicIndex == 0 && dynamic.FindNextMatch(text, ref _lineString, lineLength, start, out winnerRuleId))
             {
                 winner = dynamic;
                 bestStart = dynamic.Captures[0].Index;
@@ -594,7 +597,7 @@ public sealed class Tokenizer
         if (patterns.Entries.Length > 0 && bestStart != start)
         {
             var scanner = GetScanner(ruleId, isWhile, patterns, patterns.Variant(allowA, allowG));
-            if (scanner.FindNextMatch(text, lineLength, start, out var staticRuleId) && scanner.Captures[0].Index < bestStart)
+            if (scanner.FindNextMatch(text, ref _lineString, lineLength, start, out var staticRuleId) && scanner.Captures[0].Index < bestStart)
             {
                 winner = scanner;
                 winnerRuleId = staticRuleId;
@@ -603,7 +606,7 @@ public sealed class Tokenizer
         }
 
         if (dynamic is not null && patterns.DynamicIndex != 0 && bestStart != start
-            && dynamic.FindNextMatch(text, lineLength, start, out var dynamicRuleId) && dynamic.Captures[0].Index < bestStart)
+            && dynamic.FindNextMatch(text, ref _lineString, lineLength, start, out var dynamicRuleId) && dynamic.Captures[0].Index < bestStart)
         {
             winner = dynamic;
             winnerRuleId = dynamicRuleId;

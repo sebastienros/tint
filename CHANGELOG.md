@@ -7,14 +7,21 @@ packages always ship together with the same version.
 
 ### Tint
 
-- GregsEx 0.5.9, whose Oniguruma scanner walks the starts from the search position once for all of a rule's patterns,
+- GregsEx 0.6.0. Its Oniguruma scanner walks the starts from the search position once for all of a rule's patterns,
   as Oniguruma's `ONIG_REGSET_POSITION_LEAD` does, instead of searching each pattern in turn, so no pattern runs past
-  the winning start (sebastienros/gregsex#42). Warm tokenization of `bigfile.cs` takes 1.56 s → 0.53 s, `medium.cs`
-  and the C# documentation fences about 3× less time, the CSS editor file 3.7× less, JavaScript, shell and Markdown
-  2.3–2.8× less, and XML, YAML, HTML and JSON 1.2–1.8× less (benchmarks/README.md).
-- A warm line no longer allocates a string for its text: the tokenizer copies the line into a buffer it reuses and the
-  scanners search a span over it, which the new scanner makes as fast as the string-backed lines its per-string cache
-  needed (docs/design.md section 5.6). `bigfile.cs` allocates 18.3 MB instead of 32.6 MB, the editor files 28–57% less.
+  the winning start (sebastienros/gregsex#42); alternations jump to the first branch that can start at a position
+  (sebastienros/gregsex#38) and the failure memo covers more patterns (sebastienros/gregsex#39). Warm tokenization
+  with interpreted patterns (the default): `bigfile.cs` takes 1.57 s → 0.55 s, `medium.cs` and the C# documentation
+  fences about 3× less time, the CSS editor file 4.6× less, JavaScript, shell, SCSS, Less and Markdown 2.1–2.8× less,
+  and XML, YAML, HTML and JSON 1.2–1.4× less (benchmarks/README.md).
+- A warm line no longer allocates a string for its text when its patterns are interpreted: the tokenizer copies the
+  line into a buffer it reuses and the scanners search a span over it, which the new scanner makes as fast as the
+  string-backed lines its per-string cache needed (docs/design.md section 5.6). `bigfile.cs` allocates 18.3 MB
+  instead of 32.6 MB, the editor files 28–57% less.
+- Ahead-of-time kernels (`Kernels="true"`) and tier 2 (`TokenizerOptions.CompileHotPatterns`) are now slower than the
+  interpreter, about 2.6× on `bigfile.cs`: GregsEx 0.6.0 searches a compiled pattern whole instead of inside its walk.
+  Both were already opt-in; leave them off. Scanners holding compiled patterns keep searching a string of the line,
+  which keeps them at their string-line speed (1.44–1.47 s instead of 2.0 s with spans).
 
 ## 0.2.4 (2026-11-07)
 
