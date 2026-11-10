@@ -63,10 +63,11 @@ highlighter.ToHtml(code.AsSpan(), textWriter); // or stream to a TextWriter / IB
 
 A `Highlighter` owns its tokenizers, so it is not thread-safe: keep one per thread and reuse it.
 
-Patterns are parsed on first use. For NativeAOT or WebAssembly apps with a few hot grammars, opt
-into ahead-of-time regex kernels with `Kernels = true` on the attribute, `Kernels="true"` on the
-item, or `<TintKernels>true</TintKernels>` for the project. Items, metadata, diagnostics and
-kernels are described in [docs/generator.md](docs/generator.md).
+Patterns are parsed on first use. Ahead-of-time regex kernels are an opt-in with `Kernels = true`
+on the attribute, `Kernels="true"` on the item, or `<TintKernels>true</TintKernels>` for the
+project; with GregsEx 0.7.0 they tokenize as fast as the interpreted patterns, not faster (see
+[Performance](#performance)), so they are not worth their size for now. Items, metadata,
+diagnostics and kernels are described in [docs/generator.md](docs/generator.md).
 
 Grammar files come from any TextMate source: the
 [VS Code extensions](https://github.com/microsoft/vscode/tree/main/extensions) or shiki's
@@ -219,17 +220,15 @@ Dark+, once warm, through each library's encoded-token path:
 
 | Library | Time | MB/s | Allocated |
 |---|---:|---:|---:|
-| Tint (bundled grammar) | 1.79 s | 3.24 | 32.6 MB |
-| Tint (kernel-compiled grammar) | 1.34 s | 4.34 | 32.6 MB |
-| TextMateLib 0.2.1 | 2.92 s | 1.99 | 31.0 MB |
-| TextMateSharp 2.0.4 | 7.99 s | 0.73 | 507.3 MB |
+| Tint (bundled grammar) | 0.28 s | 20.68 | 18.3 MB |
+| TextMateLib 0.2.1 (native Oniguruma) | 2.67 s | 2.17 | 31.0 MB |
+| TextMateSharp 2.0.4 | 7.31 s | 0.79 | 507.3 MB |
 
-Measured on an Apple M4 Pro with .NET 10.0.11, GregsEx 0.5.2 and BenchmarkDotNet in-process (2
-warmups, 3 iterations). The bundles run interpreted; ahead-of-time kernels are an opt-in for
-grammars you import (`Kernels="true"`): with GregsEx 0.5.2 they cover 327 of the C# grammar's 338
-patterns (the subexpression-call declarations included) and tokenize this file in 0.75 of the
-interpreted time, while costing about 150 ms of JIT on first use in a fresh process. The full set,
-with methodology, is in [benchmarks/README.md](benchmarks/README.md).
+Measured on an Apple M4 Pro with .NET 10.0.11, GregsEx 0.7.0 and BenchmarkDotNet in-process (2 warmups, 5
+iterations). The bundles run interpreted. The opt-in ahead-of-time kernels (`Kernels="true"`) and runtime-compiled
+hot patterns tokenize this file in the same time (0.28 s): GregsEx attempts every pattern inside one walk over the
+line and runs compiled code only where it searches a pattern whole. The full set, with methodology, is in
+[benchmarks/README.md](benchmarks/README.md).
 
 ## Build
 

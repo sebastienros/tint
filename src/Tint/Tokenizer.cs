@@ -29,6 +29,9 @@ public sealed class Tokenizer
     private readonly CharBuffer _buffer = new();
     private readonly List<StateStack> _whileNodes = [];
 
+    // The line being tokenized and its appended "\n", reused across lines.
+    private char[] _line = new char[256];
+
     private Token[] _tokens = new Token[64];
     private int _tokenCount;
     private EncodedToken[] _encodedTokens = new EncodedToken[64];
@@ -192,10 +195,17 @@ public sealed class Tokenizer
             isFirstLine = false;
         }
 
-        // The one allocation per line: the scanner's result cache keys on the string behind the memory it searches
-        // (docs/design.md section 5.5), so the line plus the appended "\n" is materialized as a string.
-        var lineText = string.Concat(line, "\n");
-        var lineLength = lineText.Length;
+        // The line plus the appended "\n", in a buffer reused across lines: the scanners search it as a span
+        // (docs/design.md section 5.6).
+        var lineLength = line.Length + 1;
+        if (_line.Length < lineLength)
+        {
+            _line = new char[Math.Max(lineLength, _line.Length * 2)];
+        }
+
+        line.CopyTo(_line);
+        _line[line.Length] = '\n';
+        var lineText = new ReadOnlySpan<char>(_line, 0, lineLength);
 
         _emitEncoded = encoded;
         _mergeEncoded = encoded && !ContainsRtl(line);
@@ -253,7 +263,7 @@ public sealed class Tokenizer
 
     // _tokenizeString. Returns true when the time budget ran out.
     [MethodImpl(Jit.FullOpts)]
-    private bool TokenizeString(string text, int lineLength, bool isFirstLine, int linePos, ref StateStack stack, bool checkWhileConditions, long deadline)
+    private bool TokenizeString(ReadOnlySpan<char> text, int lineLength, bool isFirstLine, int linePos, ref StateStack stack, bool checkWhileConditions, long deadline)
     {
         var anchorPosition = -1;
         var frameBase = _captureTop;
@@ -396,7 +406,7 @@ public sealed class Tokenizer
     // _checkWhileConditions: from the outermost begin/while rule inward, each while pattern must match at the line
     // start; the first that fails cuts the stack above it.
     [MethodImpl(Jit.FullOpts)]
-    private void CheckWhileConditions(string text, int lineLength, ref bool isFirstLine, ref int linePos, ref StateStack stack, ref int anchorPosition)
+    private void CheckWhileConditions(ReadOnlySpan<char> text, int lineLength, ref bool isFirstLine, ref int linePos, ref StateStack stack, ref int anchorPosition)
     {
         anchorPosition = stack.BeginRuleCapturedEol ? 0 : -1;
 
@@ -448,7 +458,7 @@ public sealed class Tokenizer
     }
 
     [MethodImpl(Jit.FullOpts)]
-    private bool MatchRuleOrInjections(string text, int lineLength, bool isFirstLine, int linePos, StateStack stack, int anchorPosition, out MatchResult result)
+    private bool MatchRuleOrInjections(ReadOnlySpan<char> text, int lineLength, bool isFirstLine, int linePos, StateStack stack, int anchorPosition, out MatchResult result)
     {
         // Look for a normal grammar rule.
         var rule = _rules[stack.RuleId];
@@ -483,7 +493,7 @@ public sealed class Tokenizer
     }
 
     [MethodImpl(Jit.FullOpts)]
-    private bool MatchInjections(string text, int lineLength, bool isFirstLine, int linePos, StateStack stack, int anchorPosition, out MatchResult result, out bool priorityMatch)
+    private bool MatchInjections(ReadOnlySpan<char> text, int lineLength, bool isFirstLine, int linePos, StateStack stack, int anchorPosition, out MatchResult result, out bool priorityMatch)
     {
         // The lower the better.
         var bestMatchRating = int.MaxValue;
@@ -564,7 +574,7 @@ public sealed class Tokenizer
     // CompiledRule.findNextMatchSync over the rule's patterns: the static ones in one scanner, a back-referencing
     // end or while pattern in its own, merged by earliest start with the dynamic one first or last in priority.
     [MethodImpl(Jit.FullOpts)]
-    private bool Search(int ruleId, RulePatterns patterns, string? endRule, bool isWhile, string text, int lineLength, int start, bool allowA, bool allowG, out MatchResult result)
+    private bool Search(int ruleId, RulePatterns patterns, string? endRule, bool isWhile, ReadOnlySpan<char> text, int lineLength, int start, bool allowA, bool allowG, out MatchResult result)
     {
         RuleScanner? winner = null;
         var winnerRuleId = 0;
@@ -660,7 +670,7 @@ public sealed class Tokenizer
     // getEndWithResolvedBackReferences / getWhileWithResolvedBackReferences. Resolved texts the rule saw recently are
     // reused, so a repeated heredoc delimiter or fence allocates nothing.
     [MethodImpl(Jit.FullOpts)]
-    private string ResolveBackReferences(int ruleId, bool isWhile, RegexSource source, string text, int captureOffset, int captureCount)
+    private string ResolveBackReferences(int ruleId, bool isWhile, RegexSource source, ReadOnlySpan<char> text, int captureOffset, int captureCount)
     {
         PatternRewriter.ResolveBackReferences(source.Text, text, _captures.AsSpan(captureOffset, captureCount), _buffer);
         return GetDynamicCache(ruleId, isWhile).FindText(_buffer.AsSpan()) ?? _buffer.ToString();
@@ -668,7 +678,7 @@ public sealed class Tokenizer
 
     // handleCaptures.
     [MethodImpl(Jit.FullOpts)]
-    private void HandleCaptures(string text, bool isFirstLine, ref PendingState stack, CaptureRule?[] captures, int captureOffset, int captureCount)
+    private void HandleCaptures(ReadOnlySpan<char> text, bool isFirstLine, ref PendingState stack, CaptureRule?[] captures, int captureOffset, int captureCount)
     {
         if (captures.Length == 0)
         {
@@ -742,7 +752,7 @@ public sealed class Tokenizer
     }
 
     [MethodImpl(Jit.FullOpts)]
-    private AttributedScopeStack PushName(AttributedScopeStack scopes, string? name, bool isCapturing, string text, int captureOffset, int captureCount, string grammarScopeName)
+    private AttributedScopeStack PushName(AttributedScopeStack scopes, string? name, bool isCapturing, ReadOnlySpan<char> text, int captureOffset, int captureCount, string grammarScopeName)
     {
         if (name is null)
         {

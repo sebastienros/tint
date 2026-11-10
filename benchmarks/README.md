@@ -1,8 +1,9 @@
 # Tint benchmarks
 
 BenchmarkDotNet harness. `[MemoryDiagnoser]` is the allocation authority: the per-line tokenizer
-path must report zero allocated bytes once warm (beyond the per-line string the scanner cache needs,
-design section 5.6, and the `StateStack` nodes of `begin` rules).
+path must report zero allocated bytes once warm (beyond the `StateStack` nodes of `begin` rules;
+the line text goes through a reused buffer since GregsEx 0.6.0, for compiled patterns too since
+GregsEx 0.7.0, design section 5.6).
 
 ```bash
 dotnet run -c Release --project benchmarks/Tint.Benchmarks                      # pick from a list
@@ -49,6 +50,153 @@ resolve includes) and its encoded binary-token path, `tokenizeLine2` or the equi
 Kernels cost build time: with `Kernels="true"` the benchmark project's `Csc` step takes 3.8 s instead
 of 0.9 s (warm compiler server, M4 Pro), and the generated C# grammar grows from 0.45 MB to 5.8 MB of
 source (docs/generator.md).
+
+## GregsEx 0.6.0 and the line buffer
+
+GregsEx 0.6.0 walks a scanner's starts once for all its patterns instead of searching each pattern in turn, so no
+interpreted pattern runs past the winning start ([gregsex#42](https://github.com/sebastienros/gregsex/pull/42), design
+section 5.4); alternations also jump to the first branch that can start at a position
+([gregsex#38](https://github.com/sebastienros/gregsex/pull/38)) and the failure memo covers more patterns
+([gregsex#39](https://github.com/sebastienros/gregsex/pull/39)). Searching a span then costs what searching a
+string-backed line with the scanner's per-string cache does, so the tokenizer copies each line into a reused `char[]`
+instead of allocating `line + "\n"` (design section 5.6). GregsEx 0.6.0 searched compiled patterns whole, so the
+fourth build below kept a string of the line for scanners holding one; GregsEx 0.7.0 made that unnecessary
+([next section](#gregsex-070-compiled-patterns-in-the-walk)) and Tint no longer does it. Four builds, once warm:
+
+- **0.5.8 (`main`)**: before the change.
+- **0.6.0, string lines**: `main` with GregsEx 0.6.0 and nothing else: the GregsEx change alone.
+- **0.6.0, span lines only**: every scanner searching a span over the line buffer.
+- **0.6.0, string for compiled**: interpreted scanners search the span, scanners holding a compiled pattern a string
+  of the line (not what ships: see the next section).
+
+Intel Xeon 2.1 GHz cloud VM (4 cores), Ubuntu 24.04.5, .NET 10.0.14 (SDK 10.0.403), X64 RyuJIT x86-64-v4,
+BenchmarkDotNet 0.15.8, 1 launch, 5 warmups, 15 iterations, 2026-11-10, one build at a time with nothing else
+running, in the order string, span, `main`, span, string, this PR, this PR; the 0.6.0 columns are the mean of their
+two runs, which differ by up to 10% (the VM's run-to-run noise). `bigfile.cs` and `TokenizeLineBenchmarks` use the C#
+grammar (bundled, loader, kernel-compiled, tier 2 with N = 256), the editor files the loader
+(`EditorFilesBenchmarks.Tint`), the docs mix the bundled grammars (`DocsHeavyBenchmarks.Tint`). Allocations are exact.
+
+| Workload | 0.5.8 (`main`) | 0.6.0, string lines | 0.6.0, span lines only | **0.6.0, string for compiled** | Speedup | Allocated, `main` | Allocated, 0.6.0 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `bigfile.cs`, bundled | 1.57 s | 560.8 ms | 561.8 ms | **546.7 ms** | 2.87× | 32.6 MB | 18.3 MB (-44%) |
+| `bigfile.cs`, loader | 1.55 s | 539.6 ms | 551.8 ms | **550.4 ms** | 2.82× | 32.6 MB | 18.3 MB (-44%) |
+| `bigfile.cs`, kernel-compiled | 2.20 s | 1.44 s | 2.02 s | **1.44 s** | 1.52× | 32.6 MB | 32.6 MB (+0%) |
+| `bigfile.cs`, tier 2 | 2.17 s | 1.45 s | 2.07 s | **1.47 s** | 1.48× | 32.6 MB | 32.6 MB (+0%) |
+| `medium.cs`, `Token` | 14.8 ms | 4.69 ms | 4.84 ms | **4.78 ms** | 3.09× | 280.2 KB | 186.7 KB (-33%) |
+| `medium.cs`, encoded | 14.1 ms | 4.66 ms | 4.81 ms | **4.63 ms** | 3.04× | 280.2 KB | 186.7 KB (-33%) |
+| `sample.cs`, `Token` | 84 µs | 32 µs | 31 µs | **31 µs** | 2.69× | 2.4 KB | 1.3 KB (-45%) |
+| `sample.cs`, encoded | 85 µs | 32 µs | 30 µs | **31 µs** | 2.73× | 2.4 KB | 1.3 KB (-45%) |
+| Editor `xml.props` | 19.6 ms | 15.6 ms | 14.1 ms | **14.8 ms** | 1.33× | 2.9 MB | 1.3 MB (-57%) |
+| Editor `json.json` | 14.1 ms | 10.2 ms | 9.21 ms | **9.92 ms** | 1.42× | 2.4 MB | 1.3 MB (-45%) |
+| Editor `yaml.yml` | 50.5 ms | 38.9 ms | 37.5 ms | **37.3 ms** | 1.35× | 2.8 MB | 1.5 MB (-47%) |
+| Editor `markdown.md` | 82.0 ms | 32.1 ms | 36.1 ms | **32.9 ms** | 2.49× | 2.7 MB | 1.3 MB (-54%) |
+| Editor `html.html` | 74.6 ms | 64.3 ms | 61.3 ms | **63.5 ms** | 1.18× | 3.4 MB | 2.0 MB (-42%) |
+| Editor `css.css` | 226.2 ms | 49.3 ms | 48.5 ms | **48.9 ms** | 4.62× | 3.6 MB | 2.5 MB (-29%) |
+| Editor `javascript.js` | 273.8 ms | 101.2 ms | 97.5 ms | **100.9 ms** | 2.71× | 3.3 MB | 2.3 MB (-31%) |
+| Editor `shell.sh` | 111.8 ms | 44.3 ms | 43.6 ms | **39.4 ms** | 2.84× | 4.2 MB | 3.0 MB (-28%) |
+| Editor `scss.scss` | 58.3 ms | 23.5 ms | 24.7 ms | **25.1 ms** | 2.33× | 1.5 MB | 992.3 KB (-37%) |
+| Editor `less.less` | 46.5 ms | 21.1 ms | 20.7 ms | **22.0 ms** | 2.12× | 1.9 MB | 1.3 MB (-29%) |
+| Docs, bash | 1.47 ms | 582 µs | 590 µs | **592 µs** | 2.49× | 73.7 KB | 63.6 KB (-14%) |
+| Docs, csharp | 4.44 ms | 1.22 ms | 1.25 ms | **1.19 ms** | 3.72× | 89.5 KB | 68.6 KB (-23%) |
+| Docs, html | 1.76 ms | 1.04 ms | 1.07 ms | **1.10 ms** | 1.60× | 78.4 KB | 61.6 KB (-21%) |
+| Docs, javascript | 5.10 ms | 1.81 ms | 1.88 ms | **1.84 ms** | 2.77× | 84.8 KB | 67.2 KB (-21%) |
+| Docs, json | 423 µs | 275 µs | 269 µs | **286 µs** | 1.48× | 63.3 KB | 48.7 KB (-23%) |
+| Docs, markdown | 1.24 ms | 516 µs | 539 µs | **567 µs** | 2.19× | 45.2 KB | 32.3 KB (-28%) |
+| Docs, typescript | 6.44 ms | 2.27 ms | 2.17 ms | **2.25 ms** | 2.86× | 95.5 KB | 75.7 KB (-21%) |
+| Docs, yaml | 1.37 ms | 961 µs | 943 µs | **970 µs** | 1.41× | 105.3 KB | 88.9 KB (-16%) |
+
+- **GregsEx 0.6.0 is the speedup**: with interpreted patterns, C# 2.7× to 3.7× faster (`bigfile.cs` 1.57 s → 0.55 s,
+  3.7 → 10.6–10.9 MB/s), the other editor files and fences 1.2× (HTML) to 4.6× (CSS).
+- **The line buffer is the allocation drop** and costs no measurable time: `bigfile.cs` allocates 18.3 MB instead of
+  32.6 MB (the 14.3 MB were the line strings), the editor files 28% to 57% less. What is left is `StateStack` nodes
+  and the first growth of the tokenizer's buffers.
+- **Compiled patterns lose to the interpreter.** GregsEx 0.6.0 searches a kernel or a tier-2 pattern whole, to its
+  own match or the end of the line, so the kernel-compiled grammar and tier 2 take 2.6× the interpreted time on
+  `bigfile.cs`. With span lines they also lose the per-string cache that spares them most of those searches (2.0 s
+  instead of 1.45 s), which is why their scanners keep a string of the line. On this machine kernels were already
+  slower than the interpreter with GregsEx 0.5.8 (2.20 s against 1.57 s; the M4 Pro rows below say otherwise).
+- With GregsEx 0.5.8 the span path was 1.2× to 1.5× slower than the string one (a `ShortRun` pass): the per-string
+  cache was what made later searches of a line cheap, which is why the string was there.
+- Keeping the per-string cache for spans does not pay either: a prototype GregsEx overload taking a caller-supplied
+  line version (owner and counter, so the scanner keeps what it learned of a line across the searches of that line
+  over the reused buffer) measured within 10% of the plain span path in both directions over two runs on the
+  gregsex#42 head. Tint does not ask for it.
+
+### `bigfile.cs` against the other libraries (GregsEx 0.6.0)
+
+The whole `BigFileBenchmarks` class on the fourth build, same machine and job, right after the runs above:
+
+| Library | Time | MB/s | Allocated |
+|---|---:|---:|---:|
+| **Tint, bundled grammar** (interpreted) | **533.9 ms** ± 53.2 | 10.88 | 18.3 MB |
+| Tint, loader | 570.4 ms ± 40.4 | 10.18 | 18.3 MB |
+| Tint, tier 2 (N = 256) | 1,462.9 ms ± 99.0 | 3.97 | 32.6 MB |
+| Tint, kernel-compiled grammar | 1,484.4 ms ± 84.8 | 3.91 | 32.6 MB |
+| TextMateLib 0.2.1 (native Oniguruma) | 5,033.0 ms ± 93.2 | 1.15 | 31.0 MB |
+| TextMateSharp 2.0.4 | 14,469.8 ms ± 463.0 | 0.40 | 507.3 MB |
+
+The interpreted bundle is 9.4× faster than TextMateLib and 27× faster than TextMateSharp on this machine.
+
+## GregsEx 0.7.0: compiled patterns in the walk
+
+GregsEx 0.6.0 attempted interpreted patterns inside its walk but searched a pattern that has compiled code (an
+ahead-of-time kernel or a tier-2 pattern) whole, when the walk first reached one of its starts: to the pattern's own
+match or the end of the line, on every call that kept no results. GregsEx 0.7.0
+([gregsex#43](https://github.com/sebastienros/gregsex/pull/43)) attempts such a pattern in the walk with the
+interpreter and runs its compiled code only where the scanner searches a pattern whole (a one-pattern scanner, a
+pattern whose failed attempts on a line passed 65,536 work). Tint then needs no string of the line for compiled
+scanners, so every scanner searches the line buffer.
+
+Apple M4 Pro (14 cores), macOS 15 (Darwin 24.6.0), .NET 10.0.11 (SDK 10.0.400), Arm64 RyuJIT, BenchmarkDotNet 0.15.8
+in-process (`--inProcess --warmupCount 2 --iterationCount 5`), 2026-11-10, one build at a time while other work ran
+on the machine (1-minute load average 3 to 9). 0.5.8 is `main` before this change; the 0.6.0 columns are this
+change's Tint with GregsEx 0.6.0, string lines for compiled scanners; 0.7.0 is what ships.
+
+| Workload | 0.5.8 (`main`) | 0.6.0 | **0.7.0** | Allocated, 0.6.0 | Allocated, 0.7.0 |
+|---|---:|---:|---:|---:|---:|
+| `bigfile.cs`, bundled | 858.1 ms | 292.4 ms | **280.8 ms** | 18.3 MB | 18.3 MB |
+| `bigfile.cs`, loader | 944.9 ms | 308.2 ms | **278.8 ms** | 18.3 MB | 18.3 MB |
+| `bigfile.cs`, kernel-compiled | 1,341.7 ms | 1,013.4 ms | **278.8 ms** | 32.6 MB | 18.3 MB |
+| `bigfile.cs`, tier 2 (N = 256) | 1,297.7 ms | 980.4 ms | **277.9 ms** | 32.6 MB | 18.3 MB |
+| Docs, csharp, bundled | | 630.5 µs | **619.1 µs** | 68.6 KB | 68.6 KB |
+| Docs, csharp, kernel-compiled | | 1,767.8 µs | **608.4 µs** | 89.5 KB | 68.6 KB |
+| Docs, csharp, tier 2 | | 1,746.7 µs | **630.5 µs** | 89.5 KB | 68.6 KB |
+| Docs, typescript, tier 2 | | 1,621.9 µs | **1,104.3 µs** | 95.5 KB | 75.7 KB |
+| Docs, javascript, tier 2 | | 1,318.3 µs | **905.7 µs** | 84.8 KB | 67.2 KB |
+| Docs, bash, tier 2 | | 420.2 µs | **304.8 µs** | 73.7 KB | 63.6 KB |
+| Docs, html, tier 2 | | 611.2 µs | **579.1 µs** | 78.4 KB | 61.6 KB |
+| Docs, json, tier 2 | | 162.4 µs | **154.4 µs** | 63.3 KB | 48.7 KB |
+| Docs, yaml, tier 2 | | 505.8 µs | **475.0 µs** | 105.3 KB | 88.9 KB |
+| Docs, markdown, tier 2 | | 242.6 µs | 284.2 µs | 45.2 KB | 32.4 KB |
+| `medium.cs`, encoded | | 2,386.7 µs | 2,385.9 µs | 186.7 KB | 186.7 KB |
+| `sample.cs`, encoded | | 18.46 µs | 18.33 µs | 1.3 KB | 1.3 KB |
+
+- **Compiled patterns cost what interpreted ones do**: the kernel-compiled grammar and tier 2 go from 3.5× the
+  interpreted time on `bigfile.cs` to the same time, and from 2.8× to the same on the C# fences. Their scanners no
+  longer allocate the line string.
+- **Interpreted patterns are unchanged**: the bundled, loader, editor-file and `TokenizeLineBenchmarks` rows are
+  within 2% of 0.6.0 either way (the ten editor files: 0.98× to 1.02×).
+- **One row loses**: the Markdown fences with tier 2 were 17% faster than interpreted on 0.6.0 (the whole searches
+  suited its patterns) and now take the interpreted time (284 µs against 287 µs).
+- Bisecting 0.6.0 on the same workloads: gregsex#38 and gregsex#39 are neutral or faster on every row (`css.css`
+  36.8 ms → 26.5 ms, `scss.scss` 17.1 ms → 14.2 ms, `less.less` 14.5 ms → 12.8 ms against the gregsex#42 head).
+- Compiled code is not faster than the interpreter in a scanner yet: that needs a kernel entry that attempts one
+  start (design section 15, item 4).
+
+### `bigfile.cs` against the other libraries (GregsEx 0.7.0)
+
+The whole `BigFileBenchmarks` class, same machine and job:
+
+| Library | Time | MB/s | Allocated |
+|---|---:|---:|---:|
+| **Tint, bundled grammar** (interpreted) | **280.8 ms** ± 2.0 | 20.68 | 18.3 MB |
+| Tint, loader | 278.8 ms ± 3.8 | 20.84 | 18.3 MB |
+| Tint, kernel-compiled grammar | 278.8 ms ± 3.3 | 20.84 | 18.3 MB |
+| Tint, tier 2 (N = 256) | 277.9 ms ± 4.3 | 20.90 | 18.3 MB |
+| TextMateLib 0.2.1 (native Oniguruma) | 2,672.4 ms ± 67.3 | 2.17 | 31.0 MB |
+| TextMateSharp 2.0.4 | 7,310.9 ms ± 56.2 | 0.79 | 507.3 MB |
+
+The interpreted bundle is 9.5× faster than TextMateLib and 26× faster than TextMateSharp on this machine.
 
 ## Results
 

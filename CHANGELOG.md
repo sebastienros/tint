@@ -3,6 +3,29 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
+## 0.3.0 (2026-11-10)
+
+### Tint
+
+- GregsEx 0.7.0 (from 0.5.8). Since 0.6.0 its Oniguruma scanner walks the starts from the search position once for
+  all of a rule's patterns, as Oniguruma's `ONIG_REGSET_POSITION_LEAD` does, instead of searching each pattern in
+  turn, so no pattern runs past the winning start (sebastienros/gregsex#42); alternations jump to the first branch
+  that can start at a position (sebastienros/gregsex#38) and the failure memo covers more patterns
+  (sebastienros/gregsex#39). Warm tokenization with interpreted patterns (the default), on an Apple M4 Pro:
+  `bigfile.cs` takes 858 ms → 281 ms; on an x64 cloud VM 1.57 s → 0.55 s, `medium.cs` and the C# documentation
+  fences about 3× less time, the CSS editor file 4.6× less, JavaScript, shell, SCSS, Less and Markdown 2.1–2.8× less,
+  and XML, YAML, HTML and JSON 1.2–1.4× less (benchmarks/README.md).
+- A warm line no longer allocates a string for its text: the tokenizer copies the line into a buffer it reuses and
+  the scanners search a span over it, which the new scanner makes as fast as the string-backed lines its per-string
+  cache needed (docs/design.md section 5.6). `bigfile.cs` allocates 18.3 MB instead of 32.6 MB, the editor files
+  28–57% less.
+- Ahead-of-time kernels (`Kernels="true"`) and tier 2 (`TokenizerOptions.CompileHotPatterns`) now tokenize in the
+  interpreted time, with the same allocations. GregsEx 0.6.0 searched a compiled pattern whole instead of inside its
+  walk, which made both about 3.5× slower than the interpreter on `bigfile.cs` (1,013 ms and 980 ms against 292 ms);
+  GregsEx 0.7.0 attempts compiled patterns in the walk with the interpreter and runs compiled code only where it
+  searches a pattern whole (sebastienros/gregsex#43): 279 ms and 278 ms against 281 ms. Both stay opt-in: they cost
+  IL or compile time and no longer buy tokenization speed.
+
 ## 0.2.4 (2026-11-07)
 
 ### Tint
