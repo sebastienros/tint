@@ -1,8 +1,8 @@
 # Tint benchmarks
 
 BenchmarkDotNet harness. `[MemoryDiagnoser]` is the allocation authority: the per-line tokenizer
-path must report zero allocated bytes once warm (beyond the per-line string the scanner cache needs,
-design section 5.6, and the `StateStack` nodes of `begin` rules).
+path must report zero allocated bytes once warm (beyond the `StateStack` nodes of `begin` rules;
+the line text goes through a reused buffer since GregsEx 0.5.9, design section 5.6).
 
 ```bash
 dotnet run -c Release --project benchmarks/Tint.Benchmarks                      # pick from a list
@@ -49,6 +49,64 @@ resolve includes) and its encoded binary-token path, `tokenizeLine2` or the equi
 Kernels cost build time: with `Kernels="true"` the benchmark project's `Csc` step takes 3.8 s instead
 of 0.9 s (warm compiler server, M4 Pro), and the generated C# grammar grows from 0.45 MB to 5.8 MB of
 source (docs/generator.md).
+
+## GregsEx 0.5.9 and the line buffer
+
+GregsEx 0.5.9 ([gregsex#42](https://github.com/sebastienros/gregsex/pull/42)) walks a scanner's starts once for all
+its patterns instead of searching each pattern in turn, so no pattern runs past the winning start (design section
+5.4). Searching a span then costs what searching a string-backed line with the scanner's per-string cache does, so the
+tokenizer copies each line into a reused `char[]` instead of allocating `line + "\n"` (design section 5.6). Three
+builds, once warm:
+
+- **0.5.8, string**: `main` before the change.
+- **PR 42, string**: GregsEx built from the pull request's head (3136004), Tint unchanged: the scanner change alone.
+- **PR 42, span**: the same GregsEx and the tokenizer searching spans over its line buffer.
+
+Intel Xeon 2.1 GHz cloud VM (4 cores), Ubuntu 24.04.5, .NET 10.0.14 (SDK 10.0.403), X64 RyuJIT x86-64-v4,
+BenchmarkDotNet 0.15.8, 1 launch, 5 warmups, 15 iterations, 2026-11-09/10, one build at a time with nothing else
+running, in the order string, span, 0.5.8, span, string. `bigfile.cs` and `TokenizeLineBenchmarks` use the C#
+grammar, the editor files the loader (`EditorFilesBenchmarks.Tint`), the docs mix the bundled grammars
+(`DocsHeavyBenchmarks.Tint`). The PR 42 columns are the mean of their two runs. The two string runs differ by up to
+20% (`medium.cs` 4.17 ms and 4.99 ms) because the VM slowed over the hour; span and string, which bracket each other
+in time, differ by less than that. Allocations are exact.
+
+| Workload | 0.5.8, string | PR 42, string | PR 42, span | 0.5.8 → span | Allocated, string | Allocated, span |
+|---|---:|---:|---:|---:|---:|---:|
+| `bigfile.cs` | 1.562 s | 515.0 ms | 533.8 ms | 2.93× | 32.60 MB | 18.30 MB (-44%) |
+| `medium.cs`, `Token` | 13.5 ms | 4.58 ms | 4.69 ms | 2.89× | 280.17 KB | 186.68 KB (-33%) |
+| `medium.cs`, encoded | 14.9 ms | 4.69 ms | 4.76 ms | 3.13× | 280.17 KB | 186.68 KB (-33%) |
+| `sample.cs`, `Token` | 83 µs | 32 µs | 31 µs | 2.67× | 2.42 KB | 1.34 KB (-45%) |
+| `sample.cs`, encoded | 82 µs | 31 µs | 30 µs | 2.69× | 2.42 KB | 1.34 KB (-45%) |
+| editor `xml.props` | 20.3 ms | 14.5 ms | 14.5 ms | 1.40× | 2.94 MB | 1.26 MB (-57%) |
+| editor `json.json` | 16.0 ms | 10.1 ms | 8.83 ms | 1.82× | 2.39 MB | 1.32 MB (-45%) |
+| editor `yaml.yml` | 47.9 ms | 38.2 ms | 37.0 ms | 1.29× | 2.77 MB | 1.48 MB (-47%) |
+| editor `markdown.md` | 77.5 ms | 31.8 ms | 33.2 ms | 2.33× | 2.74 MB | 1.25 MB (-54%) |
+| editor `html.html` | 75.1 ms | 62.4 ms | 62.3 ms | 1.21× | 3.38 MB | 1.97 MB (-42%) |
+| editor `css.css` | 228.8 ms | 67.6 ms | 62.2 ms | 3.68× | 3.56 MB | 2.51 MB (-29%) |
+| editor `javascript.js` | 250.1 ms | 95.0 ms | 97.1 ms | 2.58× | 3.34 MB | 2.31 MB (-31%) |
+| editor `shell.sh` | 111.8 ms | 44.0 ms | 43.2 ms | 2.59× | 4.21 MB | 3.04 MB (-28%) |
+| editor `scss.scss` | 55.9 ms | 26.4 ms | 28.0 ms | 2.00× | 1.54 MB | 992.32 KB (-37%) |
+| editor `less.less` | 46.9 ms | 22.2 ms | 24.3 ms | 1.93× | 1.88 MB | 1.33 MB (-29%) |
+| docs bash | 1.38 ms | 593 µs | 577 µs | 2.40× | 73.72 KB | 63.56 KB (-14%) |
+| docs csharp | 4.49 ms | 1.17 ms | 1.22 ms | 3.67× | 89.50 KB | 68.63 KB (-23%) |
+| docs html | 1.84 ms | 1.12 ms | 1.14 ms | 1.62× | 78.44 KB | 61.59 KB (-21%) |
+| docs javascript | 5.20 ms | 1.89 ms | 1.88 ms | 2.77× | 84.75 KB | 67.22 KB (-21%) |
+| docs json | 391 µs | 279 µs | 291 µs | 1.34× | 63.31 KB | 48.66 KB (-23%) |
+| docs markdown | 1.25 ms | 532 µs | 575 µs | 2.18× | 45.22 KB | 32.34 KB (-28%) |
+| docs typescript | 6.96 ms | 2.29 ms | 2.34 ms | 2.97× | 95.47 KB | 75.66 KB (-21%) |
+| docs yaml | 1.36 ms | 974 µs | 920 µs | 1.48× | 105.31 KB | 88.88 KB (-16%) |
+
+- **The scanner change is the speedup**: C# 2.7× to 3.7× faster (`bigfile.cs` 1.56 s → 0.53 s, 3.7 → 10.9 MB/s), the
+  other editor files and fences 1.2× (HTML) to 3.7× (CSS).
+- **The line buffer is the allocation drop** and costs no measurable time: `bigfile.cs` allocates 18.3 MB instead of
+  32.6 MB (the 14.3 MB were the line strings), the editor files 28% to 57% less. What is left is `StateStack` nodes
+  and the first growth of the tokenizer's buffers.
+- With GregsEx 0.5.8 the span path was 1.2× to 1.5× slower than the string one (a `ShortRun` pass): the per-string
+  cache was what made later searches of a line cheap, which is why the string was there.
+- Keeping the per-string cache for spans does not pay either: a prototype GregsEx overload taking a caller-supplied
+  line version (owner and counter, so the scanner keeps what it learned of a line across the searches of that line
+  over the reused buffer) measured within 10% of the plain span path in both directions over two runs. Tint does not
+  ask for it.
 
 ## Results
 

@@ -3,6 +3,19 @@
 All notable changes to the Tint packages. Versions follow [Semantic Versioning](https://semver.org); the
 packages always ship together with the same version.
 
+## Unreleased
+
+### Tint
+
+- GregsEx 0.5.9, whose Oniguruma scanner walks the starts from the search position once for all of a rule's patterns,
+  as Oniguruma's `ONIG_REGSET_POSITION_LEAD` does, instead of searching each pattern in turn, so no pattern runs past
+  the winning start (sebastienros/gregsex#42). Warm tokenization of `bigfile.cs` takes 1.56 s → 0.53 s, `medium.cs`
+  and the C# documentation fences about 3× less time, the CSS editor file 3.7× less, JavaScript, shell and Markdown
+  2.3–2.8× less, and XML, YAML, HTML and JSON 1.2–1.8× less (benchmarks/README.md).
+- A warm line no longer allocates a string for its text: the tokenizer copies the line into a buffer it reuses and the
+  scanners search a span over it, which the new scanner makes as fast as the string-backed lines its per-string cache
+  needed (docs/design.md section 5.6). `bigfile.cs` allocates 18.3 MB instead of 32.6 MB, the editor files 28–57% less.
+
 ## 0.2.4 (2026-11-07)
 
 ### Tint

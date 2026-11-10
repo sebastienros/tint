@@ -5,7 +5,7 @@ namespace Tint.Internal.Regex;
 
 // The compiled patterns of one rule and anchor variant over a GregsEx OnigurumaScanner (vscode-textmate's
 // CompiledRule): the earliest match wins, the first pattern on a tie, a search that runs out of work counts as no
-// match. Owned by one tokenizer: OnigurumaScanner keeps per-pattern result caches and is not thread-safe.
+// match. Owned by one tokenizer: OnigurumaScanner keeps its matcher and capture buffers and is not thread-safe.
 internal sealed class RuleScanner
 {
     private readonly CompiledRegex[] _patterns;
@@ -77,17 +77,16 @@ internal sealed class RuleScanner
         }
     }
 
-    // Searches text[..length] from start. The memory is backed by the line string so the scanner's result cache
-    // recognizes it across the searches of one line.
+    // Searches text[..length] from start.
     [MethodImpl(Jit.FullOpts)]
-    public bool FindNextMatch(string text, int length, int start, out int ruleId)
+    public bool FindNextMatch(ReadOnlySpan<char> text, int length, int start, out int ruleId)
     {
         if (_searchesUntilCompile > 0 && --_searchesUntilCompile == 0)
         {
             SwapToCompiled();
         }
 
-        var found = _scanner.FindNextMatch(text.AsMemory(0, length), start, out var index);
+        var found = _scanner.FindNextMatch(text.Slice(0, length), start, out var index);
         if (_invalidIndex >= 0 && (!found || index > _invalidIndex || _scanner.Captures[0].Index > start))
         {
             // The patterns are searched in order up to a match at the start, as Onigwrap does: this search reached
@@ -99,8 +98,7 @@ internal sealed class RuleScanner
         return found;
     }
 
-    // A new scanner over the compiled patterns (a pattern that does not compile stays interpreted). It starts with an
-    // empty result cache, which only costs the next search of the current line its cached results.
+    // A new scanner over the compiled patterns (a pattern that does not compile stays interpreted).
     private void SwapToCompiled()
     {
         var compiled = new OnigurumaPattern[_patterns.Length];
