@@ -34,5 +34,6 @@
   hand-edit them); `grammars/manifest.json` and `themes/manifest.json` describe each file and its
   upstream, and `THIRD-PARTY-NOTICES.txt` lists the licenses. The scheduled
   `.github/workflows/sync-vscode.yml` workflow re-runs the sync weekly and opens a pull request
-  from the `sync/vscode` branch when VS Code moved.
+  from the `sync/vscode` branch when VS Code moved. Its repository-scoped GitHub App
+  [setup](release.md#scheduled-vs-code-sync) enables automatic PR checks.
 - `test/Tint.Tests/Fixtures/vscode-textmate/` holds the vscode-textmate test suites.

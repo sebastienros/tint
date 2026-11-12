@@ -111,6 +111,34 @@ Every push to `main` (and manual runs of `build.yml`) packs the five packages as
 
 and reference a preview version (`dotnet add package Tint --prerelease`).
 
+## Scheduled VS Code sync
+
+The weekly `sync-vscode.yml` workflow uses a GitHub App installation token to push the
+long-lived `sync/vscode` branch and create or update its pull request. Unlike `GITHUB_TOKEN`,
+App-authenticated pushes and pull requests trigger the normal Build and AOT checks.
+
+Before enabling the updated workflow, the repository owner must:
+
+1. Create a GitHub App with repository **Contents: read and write**, **Pull requests: read and
+   write**, and **Issues: read and write** (for the `vscode-sync` label). No Actions,
+   administration, workflows, or bypass permission is needed.
+2. Install the App on **only `sebastienros/tint`**.
+3. Set the repository Actions variable `SYNC_APP_ID` to the App ID and the repository Actions
+   secret `SYNC_APP_PRIVATE_KEY` to its generated private key. Never commit or paste the key
+   into an issue or pull request.
+
+The workflow explicitly restricts each token to the current repository and those three
+permissions and mints it after generation to preserve its one-hour lifetime; the token action
+revokes it when the job finishes. Missing configuration fails before generation or branch
+mutation, with no fallback to `GITHUB_TOKEN`. The default workflow token remains read-only,
+used for checkout and the upstream sync's API reads, and is not persisted in git configuration.
+
+After provisioning and merging the workflow change, use `workflow_dispatch` to verify the
+handoff when upstream changes exist, then observe the normal Monday 06:00 UTC schedule.
+Verify that the single sync PR is created or updated and that Build and AOT checks run on its
+latest head. A no-change run does not prove PR creation; it retains the existing stale-PR
+cleanup behavior. Owners still review and merge; the workflow never approves or merges PRs.
+
 ## Branch ruleset
 
 The repository is public and `main` has a ruleset: deletion and force pushes (non-fast-forward) are blocked, and
