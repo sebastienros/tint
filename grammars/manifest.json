@@ -1,6 +1,6 @@
 {
-  "source": "https://github.com/microsoft/vscode/tree/d041bd1a3183ba62a0fafb880d2bce0ec3aa3b99/extensions",
-  "commit": "d041bd1a3183ba62a0fafb880d2bce0ec3aa3b99",
+  "source": "https://github.com/microsoft/vscode/tree/742a9ae378720f2526ed7128fbc47ec2a285f1b1/extensions",
+  "commit": "742a9ae378720f2526ed7128fbc47ec2a285f1b1",
   "grammars": [
     {
       "scopeName": "documentation.injection.js.jsx",
@@ -312,7 +312,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/jeff-hykin/better-cpp-syntax",
-        "commitHash": "071dd6ecc9eda347bd84c8aa0e0b557396cb6a40",
+        "commitHash": "2fe8b635aa580a5fed0b3c4457da0d65a764168f",
         "license": "MIT",
         "version": "1.27.1"
       }
@@ -331,9 +331,9 @@
       "extensions": [],
       "upstream": {
         "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
-        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "commitHash": "0837e7aab6b7d59b719e4136f97ad4c6fe34ef41",
         "license": "MIT",
-        "version": "1.16.0"
+        "version": "1.18.0"
       }
     },
     {
@@ -379,7 +379,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/jeff-hykin/better-cpp-syntax",
-        "commitHash": "071dd6ecc9eda347bd84c8aa0e0b557396cb6a40",
+        "commitHash": "2fe8b635aa580a5fed0b3c4457da0d65a764168f",
         "license": "MIT",
         "version": "1.27.1"
       }
@@ -413,7 +413,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/dotnet/csharp-tmLanguage",
-        "commitHash": "c2719309e91d2e26be21fce0ecaaca86c7b48ce4",
+        "commitHash": "61acf50cb1c7fcac8097249983dddfba56023608",
         "license": "MIT",
         "version": "0.1.0"
       }
@@ -487,9 +487,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/atom/language-sass",
-        "commitHash": "303bbf0c250fe380b9e57375598cfd916110758b",
+        "commitHash": "f52ab12f7f9346cc2568129d8c4419bd3d506b47",
         "license": "MIT",
-        "version": "0.61.4"
+        "version": "0.62.1"
       }
     },
     {
@@ -534,7 +534,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/dart-lang/dart-syntax-highlight",
-        "commitHash": "b308b4b3502c8639149e63d74844da51031b5f47",
+        "commitHash": "122ddbf14fa40d617a8d547140bf8f3114212273",
         "license": "BSD",
         "version": "0.0.0"
       }
@@ -609,9 +609,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/dotenv-org/dotenv-vscode",
-        "commitHash": "e7e41baa5b23e01c1ff0567a4e596c24860e7def",
+        "commitHash": "3b4caf3398b3958b5fef8ef723c332eb1f30dfbb",
         "license": "MIT License",
-        "version": "0.26.0"
+        "version": "1.0.0"
       }
     },
     {
@@ -660,9 +660,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/worlpaker/go-syntax",
-        "commitHash": "c74e22eb9ef32958e3edd130ea750ce78d8b8241",
+        "commitHash": "4a9b120a52c30e209133ab69e868e13c980be40e",
         "license": "MIT",
-        "version": "0.8.6"
+        "version": "0.8.7"
       }
     },
     {
@@ -823,9 +823,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/redhat-developer/vscode-java",
-        "commitHash": "f09b712f5d6d6339e765f58c8dfab3f78a378183",
+        "commitHash": "28e59628a8ea73b35cf96ad018d929f8a10eabe4",
         "license": "MIT",
-        "version": "1.26.0"
+        "version": "1.56.0"
       }
     },
     {
@@ -1253,7 +1253,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/KapitanOczywisty/language-php",
-        "commitHash": "d94fd6b7dff1613d34bc0d36328f9982e65bd545",
+        "commitHash": "14d55df14b9123d2f361bd010aa72b746e8cf843",
         "license": "MIT",
         "version": "0.49.0"
       }
@@ -1441,7 +1441,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/dustypomerleau/rust-syntax",
-        "commitHash": "ca34cf382a7b250144f2ccb99ff9af96912c79f2",
+        "commitHash": "24e041c9b0bd625bb5704550f09fc9c1c5830efa",
         "license": "MIT",
         "version": "0.6.1"
       }
@@ -1460,9 +1460,9 @@
       "extensions": null,
       "upstream": {
         "repositoryUrl": "https://github.com/atom/language-sass",
-        "commitHash": "303bbf0c250fe380b9e57375598cfd916110758b",
+        "commitHash": "f52ab12f7f9346cc2568129d8c4419bd3d506b47",
         "license": "MIT",
-        "version": "0.61.4"
+        "version": "0.62.1"
       }
     },
     {
@@ -1854,9 +1854,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
-        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "commitHash": "0837e7aab6b7d59b719e4136f97ad4c6fe34ef41",
         "license": "MIT",
-        "version": "1.16.0"
+        "version": "1.18.0"
       }
     },
     {
@@ -1954,7 +1954,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/dotnet/roslyn",
-        "commitHash": "79e211a2e4287f9f7508089b81311b2c7fdc169f",
+        "commitHash": "7a33db14140ee4100f0c9c2c13bb2ff493750155",
         "license": "MIT",
         "version": "1.0.0"
       }
@@ -2271,7 +2271,7 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/KapitanOczywisty/language-php",
-        "commitHash": "d94fd6b7dff1613d34bc0d36328f9982e65bd545",
+        "commitHash": "14d55df14b9123d2f361bd010aa72b746e8cf843",
         "license": "MIT",
         "version": "0.49.0"
       }
@@ -2295,9 +2295,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/emilast/vscode-logfile-highlighter",
-        "commitHash": "396c8552ff99d0e07142fdd940d75dae212dd28c",
+        "commitHash": "d3de1dfef09b6a071d82a8c36c9fc24f9b08a5e0",
         "license": "MIT",
-        "version": "3.4.0"
+        "version": "3.7.0"
       }
     },
     {
@@ -2369,9 +2369,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
-        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "commitHash": "0837e7aab6b7d59b719e4136f97ad4c6fe34ef41",
         "license": "MIT",
-        "version": "1.16.0"
+        "version": "1.18.0"
       }
     },
     {
@@ -2412,9 +2412,9 @@
       ],
       "upstream": {
         "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
-        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "commitHash": "0837e7aab6b7d59b719e4136f97ad4c6fe34ef41",
         "license": "MIT",
-        "version": "1.16.0"
+        "version": "1.18.0"
       }
     },
     {
@@ -2431,9 +2431,9 @@
       "extensions": [],
       "upstream": {
         "repositoryUrl": "https://github.com/jlelong/vscode-latex-basics",
-        "commitHash": "76dc409348227db00f6779772f7763dc90cdf22e",
+        "commitHash": "0837e7aab6b7d59b719e4136f97ad4c6fe34ef41",
         "license": "MIT",
-        "version": "1.16.0"
+        "version": "1.18.0"
       }
     },
     {
